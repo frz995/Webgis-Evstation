@@ -1741,11 +1741,13 @@
         }
         
         function updateMarkerStatus(station) {
-            allMarkersArray.forEach(marker => {
-                const content = marker.getPopup()?.getContent();
-                if (content && content.includes(station.properties?.name)) {
-                    marker.setPopupContent(createPopupContent(station));
-                }
+            [allMarkersArray, clusterMarkersArray].forEach(array => {
+                array.forEach(marker => {
+                    // Compare by unique station ID, not name
+                    if (marker.stationId === station.id) {
+                        marker.setPopupContent(createPopupContent(station));
+                    }
+                });
             });
         }
 
@@ -1765,19 +1767,8 @@
                 });
             }, 5000);
         }
-        
-        function updateMarkerStatus(station) {
-            [allMarkersArray, clusterMarkersArray].forEach(array => {
-                array.forEach(marker => {
-                    // Compare by unique station ID, not name
-                    if (marker.stationId === station.id) {
-                        marker.setPopupContent(createPopupContent(station));
-                    }
-                });
-            });
-        }
 
-        
+   
         function getStatusColor(available, charging, offline, total) {
             const availPercent = (available / total) * 100;
             if (availPercent > 50) return '#10b981'; // Green
