@@ -2157,7 +2157,7 @@
         // Load EV Stations from GeoServer
         async function loadEVStations() {
             try {
-                const geoserverUrl = 'http://localhost:8080/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=public:ev_station&outputFormat=application/json';
+                const geoserverUrl = 'data/ev_station.geojson';
                 
                 const response = await fetch(geoserverUrl);
                 if (!response.ok) {
