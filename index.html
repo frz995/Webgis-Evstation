@@ -1628,75 +1628,118 @@
 
         // Load EV Stations from GeoServer
         let allStations = [];
-
-      async function loadEVStations() {
-          try {
-              const geoserverUrl = 'data/ev_station.geojson';
-              
-              const response = await fetch(geoserverUrl);
-              if (!response.ok) throw new Error(`GeoServer error: ${response.status}`);
-              
-              const data = await response.json();
-              if (!data.features || data.features.length === 0) {
-                  showErrorToast('No EV stations found in GeoServer');
-                  document.getElementById('loadingOverlay').classList.add('hidden');
-                  return;
-              }
-      
-              allStations = data.features.map((feature, idx) => {
-                  const props = feature.properties || {};
-                  const coords = feature.geometry?.coordinates || [101.9758, 4.2105];
-                  return {
-                      properties: {
-                          name: props.name || props.station_name || `Station ${idx+1}`,
-                          operator: props.operator || props.provider || 'N/A',
-                          state: props.state || props.district || 'Unknown',
-                          chargers: props.chargers || props.charger_count || 1,
-                          ...props
-                      },
-                      geometry: { coordinates: coords },
-                      id: idx
-                  };
-              });
-      
-              // optional: processStations(); // hanya jika ada function
-              renderStations(); 
-              updateStats();
-              populateStateList();
-              updateNearestStations();
-      
-              document.getElementById('loadingOverlay').classList.add('hidden');
-              showToast(`✅ Loaded ${allStations.length} EV charging stations!`);
-          } catch (error) {
-              console.error('Error loading EV stations:', error);
-              document.getElementById('loadingOverlay').classList.add('hidden');
-              showErrorToast(`Unable to load from GeoServer: ${error.message}`);
-          }
-      }
-
+        let allMarkersArray = [];
+        
+        async function loadEVStations() {
+            try {
+                const geojsonUrl = 'data/ev_station.geojson';
+                const response = await fetch(geojsonUrl);
+                if (!response.ok) throw new Error(`GeoJSON error: ${response.status}`);
+                const data = await response.json();
+        
+                if (!data.features || data.features.length === 0) {
+                    showErrorToast('No EV stations found');
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    return;
+                }
+        
+                allStations = data.features.map((feature, idx) => {
+                    const props = feature.properties || {};
+                    const coords = feature.geometry?.coordinates || [101.9758, 4.2105];
+                    return {
+                        properties: {
+                            name: props.name || props.station_name || `Station ${idx+1}`,
+                            operator: props.operator || props.provider || 'N/A',
+                            state: props.state || props.district || 'Unknown',
+                            chargers: props.chargers || props.charger_count || 1,
+                            ...props
+                        },
+                        geometry: { coordinates: coords },
+                        id: idx
+                    };
+                });
+        
+                processStations(); // must call!
+                renderStations();
+                updateStats();
+                populateStateList();
+                updateNearestStations();
+        
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                showToast(`✅ Loaded ${allStations.length} EV stations!`);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                showErrorToast(`Unable to load EV stations: ${err.message}`);
+            }
+        }
+        
         function processStations() {
             stateData = {};
             allStations.forEach(station => {
                 const state = station.properties?.state || 'Unknown';
-                if (!stateData[state]) {
-                    stateData[state] = [];
-                }
-                
-                // Add simulated live status data
-                const totalChargers = station.properties?.chargers || 1;
+                if (!stateData[state]) stateData[state] = [];
+        
+                const total = station.properties.chargers || 1;
                 station.liveStatus = {
-                    available: Math.floor(Math.random() * (totalChargers + 1)),
-                    charging: Math.floor(Math.random() * (totalChargers + 1)),
-                    offline: Math.max(0, totalChargers - Math.floor(Math.random() * totalChargers))
+                    available: Math.floor(Math.random() * (total + 1)),
+                    charging: Math.floor(Math.random() * (total + 1)),
+                    offline: Math.max(0, total - Math.floor(Math.random() * total))
                 };
-                station.liveStatus.available = Math.max(0, totalChargers - station.liveStatus.charging - station.liveStatus.offline);
-                
+                station.liveStatus.available = Math.max(0, total - station.liveStatus.charging - station.liveStatus.offline);
+        
                 stateData[state].push(station);
             });
-            
-            // Simulate status updates every 5 seconds
             startStatusSimulation();
         }
+        
+        function startStatusSimulation() {
+            setInterval(() => {
+                allStations.forEach(station => {
+                    const total = station.properties?.chargers || 1;
+                    const change = Math.random() > 0.7 ? Math.floor(Math.random() * 2) - 1 : 0;
+                    station.liveStatus.available = Math.max(0, Math.min(total, station.liveStatus.available + change));
+                    station.liveStatus.charging = Math.floor(Math.random() * (total - station.liveStatus.available + 1));
+                    station.liveStatus.offline = Math.max(0, total - station.liveStatus.available - station.liveStatus.charging);
+                    updateMarkerStatus(station);
+                });
+            }, 5000);
+        }
+        
+        function renderStations() {
+            allMarkersArray = [];
+            allStations.forEach(station => {
+                const coords = station.geometry.coordinates;
+                const latlng = [coords[1], coords[0]]; // Leaflet: [lat,lng]
+                const marker = L.marker(latlng)
+                    .bindPopup(createPopupContent(station))
+                    .addTo(map);
+                allMarkersArray.push(marker);
+            });
+        }
+        
+        function createPopupContent(station) {
+            const { name, operator, chargers } = station.properties;
+            const { available, charging, offline } = station.liveStatus || { available: 0, charging: 0, offline: 0 };
+            return `
+                <b>${name}</b><br>
+                Operator: ${operator}<br>
+                Chargers: ${chargers}<br>
+                ⚡ Available: ${available}<br>
+                🔌 Charging: ${charging}<br>
+                ❌ Offline: ${offline}
+            `;
+        }
+        
+        function updateMarkerStatus(station) {
+            allMarkersArray.forEach(marker => {
+                const content = marker.getPopup()?.getContent();
+                if (content && content.includes(station.properties?.name)) {
+                    marker.setPopupContent(createPopupContent(station));
+                }
+            });
+        }
+
         
         function startStatusSimulation() {
             setInterval(() => {
