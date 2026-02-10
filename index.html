@@ -1767,11 +1767,13 @@
         }
         
         function updateMarkerStatus(station) {
-            allMarkersArray.forEach(marker => {
-                const content = marker.getPopup()?.getContent();
-                if (content && content.includes(station.properties?.name)) {
-                    marker.setPopupContent(createPopupContent(station));
-                }
+            [allMarkersArray, clusterMarkersArray].forEach(array => {
+                array.forEach(marker => {
+                    const content = marker.getPopup()?.getContent();
+                    if (content && content.includes(station.properties?.name)) {
+                        marker.setPopupContent(createPopupContent(station));
+                    }
+                });
             });
         }
         
