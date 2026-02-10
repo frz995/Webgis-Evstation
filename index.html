@@ -1209,13 +1209,50 @@
         .leaflet-control-layers-toggle {
             width: 36px;
             height: 36px;
-            border-radius: 12px;
-            background: var(--white);
-            box-shadow: var(--shadow-lg);
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(173, 181, 189, 0.25);
+            background-image: url('https://cdn-icons-png.flaticon.com/512/1673/1673797.png');
+            background-size: 18px 18px;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .leaflet-control-layers-toggle::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
+            pointer-events: none;
+            border-radius: 10px;
+        }
+
+        .leaflet-control-layers-toggle:hover {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f3f5 100%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border-color: rgba(173, 181, 189, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .leaflet-control-layers-toggle:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         body.dark-mode .leaflet-control-layers-toggle {
-            background: var(--gray-700);
+            background: linear-gradient(135deg, #374151 0%, #2d3748 100%);
+            border-color: rgba(107, 114, 128, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .leaflet-control-layers-toggle:hover {
+            background: linear-gradient(135deg, #4b5563 0%, #3a4252 100%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            border-color: rgba(107, 114, 128, 0.5);
         }
 
         .leaflet-control-layers-expanded {
@@ -1231,9 +1268,16 @@
         }
 
         @media (max-width: 768px) {
+            .leaflet-control-zoom {
+                position: absolute !important;
+                top: 80px !important;
+                right: 12px !important;
+                left: auto !important;
+            }
+
             .leaflet-control-layers {
                 position: absolute !important;
-                top: 100px !important;
+                top: 130px !important;
                 left: auto !important;
                 right: 12px !important;
             }
@@ -1551,12 +1595,12 @@
                 position: fixed;
                 bottom: 20px;
                 right: 12px;
-                left: 12px;
+                left: auto;
                 padding: 12px 14px;
                 font-size: 0.75rem;
-                z-index: 490;
-                max-width: none;
-                width: calc(100% - 24px);
+                z-index: 400;
+                max-width: 160px;
+                width: auto;
             }
 
             .legend-title {
@@ -2068,6 +2112,12 @@
   <script src="https://unpkg.com/heatmap.js@2.0.5/heatmap.js"></script>
   <script src="https://unpkg.com/leaflet-heatmap@1.0.0/leaflet-heatmap.js"></script>
   <script src="https://unpkg.com/leaflet-control-geocoder@1.13.0/Control.Geocoder.js"></script>
+  <style>
+        /* Fix Leaflet default icons */
+        .leaflet-default-icon-path {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 41"><path fill="%233B82F6" d="M12.5 0C6.1 0 1 5.1 1 11.5c0 6.4 11.5 29 11.5 29s11.5-22.6 11.5-29C24 5.1 18.9 0 12.5 0z"/></svg>');
+        }
+    </style>
   <script>
         // Configuration
         const defaultConfig = {
@@ -3017,5 +3067,5 @@
 
         initSDK();
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb93b9930f726f2',t:'MTc3MDcwMTYxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb94c54a0151685',t:'MTc3MDcwMjMwMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
