@@ -1705,7 +1705,7 @@
             startStatusSimulation();
         }
         
-       function startStatusSimulation() {
+        function startStatusSimulation() {
             setInterval(() => {
                 allStations.forEach(station => {
                     const totalChargers = station.properties?.chargers || 1;
@@ -1803,7 +1803,7 @@
                 </div>
             `;
         }
-
+   
         function renderStations(filterState = null) {
             // Remove all layers first
             markerClusterGroup.clearLayers();
