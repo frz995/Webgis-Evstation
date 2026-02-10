@@ -669,7 +669,8 @@
         .legend {
             position: fixed;
             bottom: 20px;
-            left: 20px;
+            right: 20px;
+            left: auto;
             background: linear-gradient(180deg, rgba(250, 250, 248, 0.98) 0%, rgba(245, 243, 240, 0.96) 100%);
             padding: 14px 16px;
             border-radius: 14px;
@@ -1267,84 +1268,6 @@
             border-color: rgba(100, 100, 100, 0.3);
         }
 
-        @media (max-width: 768px) {
-            .leaflet-control-zoom {
-                position: absolute !important;
-                top: 80px !important;
-                right: 12px !important;
-                left: auto !important;
-            }
-
-            .leaflet-control-layers {
-                position: absolute !important;
-                top: 130px !important;
-                left: auto !important;
-                right: 12px !important;
-            }
-        }
-
-        .leaflet-marker-cluster {
-            background: linear-gradient(135deg, #00D9FF 0%, #7C3AED 100%) !important;
-            border: 2px solid rgba(255, 255, 255, 0.8) !important;
-            box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3) !important;
-        }
-
-        .leaflet-marker-cluster-small { background: linear-gradient(135deg, #4DE9FF 0%, #A78BFA 100%) !important; }
-        .leaflet-marker-cluster-medium { background: linear-gradient(135deg, #00D9FF 0%, #7C3AED 100%) !important; }
-        .leaflet-marker-cluster-large { background: linear-gradient(135deg, #00A8CC 0%, #6D28D9 100%) !important; }
-
-        .leaflet-marker-cluster-small div { background: linear-gradient(135deg, #4DE9FF 0%, #A78BFA 100%) !important; }
-        .leaflet-marker-cluster-medium div { background: linear-gradient(135deg, #00D9FF 0%, #7C3AED 100%) !important; }
-        .leaflet-marker-cluster-large div { background: linear-gradient(135deg, #00A8CC 0%, #6D28D9 100%) !important; }
-
-        @keyframes pulse {
-            0%, 100% {
-                box-shadow: 0 0 0 0 currentColor;
-            }
-            50% {
-                box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
-            }
-        }
-
-        @keyframes locationPulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-                transform: scale(1);
-            }
-            50% {
-                box-shadow: 0 0 0 12px rgba(16, 185, 129, 0);
-                transform: scale(1.05);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-                transform: scale(1);
-            }
-        }
-
-        .user-location-animated {
-            animation: locationPulse 2s infinite;
-        }
-
-        .traffic-status-banner {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-weight: 600;
-            z-index: 999;
-            font-size: 0.9rem;
-            display: none;
-            animation: slideDown 0.3s ease;
-        }
-
-        .traffic-status-banner.active {
-            display: block;
-        }
-
         @media (max-width: 1024px) {
             .side-panel {
                 width: 340px;
@@ -1593,8 +1516,9 @@
 
             .legend {
                 position: fixed;
-                bottom: 20px;
-                right: 12px;
+                top: 70px;
+                right: 8px;
+                bottom: auto;
                 left: auto;
                 padding: 12px 14px;
                 font-size: 0.75rem;
@@ -1818,7 +1742,7 @@
             }
 
             .legend {
-                bottom: 62vh;
+                top: 60px;
                 right: 8px;
                 padding: 10px 12px;
                 font-size: 0.7rem;
@@ -1926,7 +1850,7 @@
             }
 
             .legend {
-                bottom: 61vh;
+                top: 55px;
                 right: 6px;
                 padding: 8px 10px;
                 max-width: 120px;
@@ -2113,13 +2037,11 @@
   <script src="https://unpkg.com/leaflet-heatmap@1.0.0/leaflet-heatmap.js"></script>
   <script src="https://unpkg.com/leaflet-control-geocoder@1.13.0/Control.Geocoder.js"></script>
   <style>
-        /* Fix Leaflet default icons */
         .leaflet-default-icon-path {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 41"><path fill="%233B82F6" d="M12.5 0C6.1 0 1 5.1 1 11.5c0 6.4 11.5 29 11.5 29s11.5-22.6 11.5-29C24 5.1 18.9 0 12.5 0z"/></svg>');
         }
     </style>
   <script>
-        // Configuration
         const defaultConfig = {
             map_title: 'Malaysia EV Charging Stations',
             search_placeholder: 'Search EV stations...'
@@ -2138,7 +2060,6 @@
         let trafficFlowSegments = [];
         const TOMTOM_API_KEY = '2TfIeGSReRGNw2hLCgY5cOIp9zj3DYtK';
 
-        // Initialize Element SDK
         async function initSDK() {
             if (window.elementSdk) {
                 await window.elementSdk.init({
@@ -2169,7 +2090,6 @@
             document.getElementById('searchInput').placeholder = config.search_placeholder || defaultConfig.search_placeholder;
         }
 
-        // Initialize Map
         function initMap() {
             const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors',
@@ -2209,13 +2129,11 @@
 
             L.control.layers(baseLayers, null, { position: 'topright', collapsed: true }).addTo(map);
 
-            // Initialize marker cluster group
             markerClusterGroup = L.markerClusterGroup({
                 maxClusterRadius: 60,
                 iconCreateFunction: createClusterIcon
             });
 
-            // Load EV stations
             loadEVStations();
             setupEventListeners();
         }
@@ -2243,7 +2161,6 @@
             });
         }
 
-        // Load EV Stations from GeoServer
         async function loadEVStations() {
             try {
                 const geoserverUrl = 'data/ev_station.geojson';
@@ -2261,7 +2178,6 @@
                     return;
                 }
                 
-                // Map GeoServer features to station format
                 allStations = data.features.map((feature, idx) => {
                     const props = feature.properties || {};
                     const coords = feature.geometry?.coordinates || [101.9758, 4.2105];
@@ -2303,7 +2219,6 @@
                     stateData[state] = [];
                 }
                 
-                // Add simulated live status data
                 const totalChargers = station.properties?.chargers || 1;
                 station.liveStatus = {
                     available: Math.floor(Math.random() * (totalChargers + 1)),
@@ -2315,7 +2230,6 @@
                 stateData[state].push(station);
             });
             
-            // Simulate status updates every 5 seconds
             startStatusSimulation();
         }
         
@@ -2329,16 +2243,14 @@
                     station.liveStatus.charging = Math.floor(Math.random() * (totalChargers - station.liveStatus.available + 1));
                     station.liveStatus.offline = Math.max(0, totalChargers - station.liveStatus.available - station.liveStatus.charging);
                     
-                    // Update marker popup if it exists
                     updateMarkerStatus(station);
                 });
             }, 5000);
         }
         
         function updateMarkerStatus(station) {
-            [allMarkersArray, clusterMarkersArray].forEach(array => {
+            [allMarkersArray].forEach(array => {
                 array.forEach(marker => {
-                    // Compare by unique station ID, not name
                     if (marker.stationId === station.id) {
                         marker.setPopupContent(createPopupContent(station));
                     }
@@ -2348,9 +2260,9 @@
         
         function getStatusColor(available, charging, offline, total) {
             const availPercent = (available / total) * 100;
-            if (availPercent > 50) return '#10b981'; // Green
-            if (availPercent > 25) return '#f59e0b'; // Orange
-            return '#ef4444'; // Red
+            if (availPercent > 50) return '#10b981';
+            if (availPercent > 25) return '#f59e0b';
+            return '#ef4444';
         }
         
         function createPopupContent(station) {
@@ -2421,7 +2333,6 @@
         }
 
         function renderStations(filterState = null) {
-            // Remove all layers first
             markerClusterGroup.clearLayers();
             allMarkersArray.forEach(marker => {
                 if (map.hasLayer(marker)) {
@@ -2447,7 +2358,6 @@
                 const lng = coords[0];
                 const name = props.name || 'Unknown Station';
 
-                // Create marker with green color when state is filtered
                 const markerColor = filterState ? '#10b981' : '#3559E8';
                 const markerGradient = filterState 
                     ? 'linear-gradient(135deg, #10b981 0%, #34d399 100%)'
@@ -2465,6 +2375,7 @@
                 });
 
                 const marker = L.marker([lat, lng], { icon });
+                marker.stationId = station.id;
                 
                 const popupContent = createPopupContent(station);
 
@@ -2476,7 +2387,6 @@
             if (currentView === 'clustered') {
                 map.addLayer(markerClusterGroup);
             } else if (currentView === 'individual') {
-                // Add all markers individually without clustering
                 allMarkersArray.forEach(marker => {
                     map.addLayer(marker);
                 });
@@ -2637,14 +2547,12 @@
                 document.getElementById('sidePanel').classList.toggle('open');
             });
             
-            // Close panel when clicking on map
             map.on('click', () => {
                 document.getElementById('sidePanel').classList.remove('open');
             });
             document.getElementById('routingClose').addEventListener('click', closeRouting);
             document.getElementById('startNavBtn').addEventListener('click', openGoogleMaps);
 
-            // View toggle
             document.getElementById('viewClustered').addEventListener('click', () => {
                 currentView = 'clustered';
                 document.querySelectorAll('[id^="view"]').forEach(btn => btn.classList.remove('active'));
@@ -2659,7 +2567,6 @@
                 renderStations();
             });
 
-            // Dark mode
             document.getElementById('darkModeToggle').addEventListener('click', () => {
                 const isDarkMode = !document.body.classList.contains('dark-mode');
                 document.body.classList.toggle('dark-mode');
@@ -2834,172 +2741,6 @@
             window.open(url, '_blank', 'noopener,noreferrer');
         }
 
-        function toggleTraffic() {
-            const trafficBtn = document.getElementById('trafficBtn');
-            
-            if (trafficVisible) {
-                clearTrafficLayer();
-                trafficVisible = false;
-                trafficBtn.classList.remove('active');
-                showToast('🔍 Traffic layer hidden');
-            } else {
-                trafficVisible = true;
-                trafficBtn.classList.add('active');
-                loadTomTomTraffic();
-            }
-        }
-        
-        async function loadTomTomTraffic() {
-            try {
-                showToast('🔄 Loading real-time traffic from TomTom...');
-                clearTrafficLayer();
-                
-                // Get current map bounds for TomTom API
-                const bounds = map.getBounds();
-                const sw = bounds.getSouthWest();
-                const ne = bounds.getNorthEast();
-                
-                // TomTom Traffic Flow API with proper bbox format: minLon,minLat,maxLon,maxLat
-                const bbox = `${sw.lng},${sw.lat},${ne.lng},${ne.lat}`;
-                const trafficUrl = `https://api.tomtom.com/traffic/services/4/flowSegmentData/json?bbox=${bbox}&key=${TOMTOM_API_KEY}`;
-                
-                const response = await fetch(trafficUrl);
-                if (!response.ok) {
-                    throw new Error(`TomTom API error: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                if (!data.flowSegmentData || data.flowSegmentData.length === 0) {
-                    showToast('ℹ️ No traffic data available for this area');
-                    return;
-                }
-                
-                let segmentsLoaded = 0;
-                
-                data.flowSegmentData.forEach(segment => {
-                    try {
-                        const points = segment.geometry?.coordinates || [];
-                        if (points.length < 2) return;
-                        
-                        // Convert GeoJSON coordinates to Leaflet format [lat, lng]
-                        const coords = points.map(point => [point[1], point[0]]);
-                        
-                        // Determine color and style based on traffic flow
-                        const speedRatio = segment.currentSpeed / segment.freeFlowSpeed;
-                        let color, width, pattern;
-                        
-                        if (speedRatio > 0.8) {
-                            color = '#10b981';
-                            width = 3;
-                            pattern = 'Free Flow';
-                        } else if (speedRatio > 0.5) {
-                            color = '#f59e0b';
-                            width = 4;
-                            pattern = 'Moderate';
-                        } else if (speedRatio > 0.25) {
-                            color = '#ef4444';
-                            width = 5;
-                            pattern = 'Heavy';
-                        } else {
-                            color = '#991b1b';
-                            width = 6;
-                            pattern = 'Congested';
-                        }
-                        
-                        const polyline = L.polyline(coords, {
-                            color: color,
-                            weight: width,
-                            opacity: 0.75,
-                            lineCap: 'round',
-                            lineJoin: 'round',
-                            interactive: true
-                        }).addTo(map);
-                        
-                        polyline.on('mouseover', function() {
-                            this.setStyle({
-                                weight: width + 2,
-                                opacity: 0.95
-                            });
-                        });
-                        
-                        polyline.on('mouseout', function() {
-                            this.setStyle({
-                                weight: width,
-                                opacity: 0.75
-                            });
-                        });
-                        
-                        const emoji = pattern === 'Free Flow' ? '🟢' : 
-                                     pattern === 'Moderate' ? '🟡' :
-                                     pattern === 'Heavy' ? '🔴' : '🔴🔴';
-                        
-                        const congestion = ((1 - speedRatio) * 100).toFixed(0);
-                        
-                        polyline.bindPopup(`
-                            <div style="padding: 12px; font-weight: 600; min-width: 280px;">
-                                <div style="font-size: 0.95rem; color: ${color}; margin-bottom: 10px; font-weight: 700;">${emoji} ${pattern}</div>
-                                <div style="font-weight: 700; color: #333; margin-bottom: 10px;">Road Segment</div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-size: 0.85rem; margin-bottom: 10px;">
-                                    <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px;">
-                                        <div style="color: #666; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px;">Current</div>
-                                        <div style="color: ${color}; font-weight: 900; font-size: 1.1rem;">${segment.currentSpeed}</div>
-                                        <div style="font-size: 0.7rem; color: #999;">km/h</div>
-                                    </div>
-                                    <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px;">
-                                        <div style="color: #666; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px;">Free Flow</div>
-                                        <div style="color: #10b981; font-weight: 900; font-size: 1.1rem;">${segment.freeFlowSpeed}</div>
-                                        <div style="font-size: 0.7rem; color: #999;">km/h</div>
-                                    </div>
-                                    <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px;">
-                                        <div style="color: #666; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px;">Congestion</div>
-                                        <div style="color: ${color}; font-weight: 900; font-size: 1.1rem;">${congestion}%</div>
-                                        <div style="font-size: 0.7rem; color: #999;">level</div>
-                                    </div>
-                                </div>
-                                <div style="background: linear-gradient(90deg, #e5e7eb 0%, ${color}40 ${speedRatio * 100}%, #e5e7eb 100%); padding: 8px; border-radius: 8px; margin-bottom: 8px;">
-                                    <div style="width: 100%; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden;">
-                                        <div style="width: ${speedRatio * 100}%; height: 100%; background: ${color}; border-radius: 4px;"></div>
-                                    </div>
-                                </div>
-                                <div style="font-size: 0.75rem; color: #999; text-align: center; padding-top: 8px; border-top: 1px solid #ddd;">
-                                    📍 Malaysia | 🔄 TomTom Real-Time | Updated now
-                                </div>
-                            </div>
-                        `);
-                        
-                        trafficFlowSegments.push(polyline);
-                        segmentsLoaded++;
-                    } catch (e) {
-                        console.error('Error processing traffic segment:', e);
-                    }
-                });
-                
-                if (segmentsLoaded > 0) {
-                    showToast(`✅ Loaded ${segmentsLoaded} traffic segments from TomTom!`);
-                } else {
-                    showErrorToast('Unable to load traffic data');
-                    trafficVisible = false;
-                    document.getElementById('trafficBtn').classList.remove('active');
-                }
-                
-            } catch (error) {
-                console.error('Traffic loading error:', error);
-                showErrorToast(`TomTom Traffic: ${error.message || 'Unable to load traffic data'}`);
-                trafficVisible = false;
-                document.getElementById('trafficBtn').classList.remove('active');
-            }
-        }
-        
-        function clearTrafficLayer() {
-            trafficFlowSegments.forEach(segment => {
-                if (map.hasLayer(segment)) {
-                    map.removeLayer(segment);
-                }
-            });
-            trafficFlowSegments = [];
-        }
-
         function showToast(message) {
             const toast = document.createElement('div');
             toast.style.cssText = `
@@ -3067,5 +2808,5 @@
 
         initSDK();
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb95468b0b93cd8',t:'MTc3MDcwMjYzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb963a766c18177',t:'MTc3MDcwMzI1OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
