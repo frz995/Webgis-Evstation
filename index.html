@@ -1742,7 +1742,12 @@
                 ❌ Offline: ${offline}
             `;
         }
-        
+
+        let allStations = [];
+        let allMarkersArray = [];
+        let clusterMarkersArray = [];
+        let markerClusterGroup; // inisialisasi di map setup
+        let stateData = {};
         function updateMarkerStatus(station) {
             allMarkersArray.forEach(marker => {
                 const content = marker.getPopup()?.getContent();
