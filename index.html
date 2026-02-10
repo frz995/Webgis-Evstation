@@ -488,18 +488,25 @@
             bottom: 0;
             background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
             backdrop-filter: blur(20px);
-            display: none;
+            display: flex;
             flex-direction: column;
-            z-index: 160;
+            z-index: 10000;
             opacity: 0;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.6s ease-out;
             align-items: center;
             justify-content: center;
+            pointer-events: none;
         }
 
         .turn-by-turn-panel.active {
-            display: flex;
             opacity: 1;
+            pointer-events: all;
+        }
+
+        .turn-by-turn-panel.fade-out {
+            opacity: 0 !important;
+            transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+            pointer-events: none !important;
         }
 
         .nav-overlay-container {
@@ -588,19 +595,6 @@
                 transform: scale(1.15) translateY(-8px);
                 opacity: 1;
                 filter: drop-shadow(0 8px 24px rgba(0, 127, 255, 0.6));
-            }
-        }
-
-        @keyframes glowPulse {
-            0%, 100% {
-                box-shadow: 
-                    0 0 0px rgba(0, 127, 255, 0),
-                    inset 0 0 20px rgba(0, 127, 255, 0);
-            }
-            50% {
-                box-shadow: 
-                    0 0 40px rgba(0, 127, 255, 0.4),
-                    inset 0 0 30px rgba(0, 127, 255, 0.1);
             }
         }
 
@@ -1316,7 +1310,7 @@
      <div class="routing-stat"><span class="routing-stat-label">Avg Speed</span> <span class="routing-stat-value" id="routingSpeed">-- km/h</span>
      </div>
      <div class="battery-section">
-      <div class="battery-header"><span>�� Battery Impact</span> <span id="batteryRemaining">100%</span>
+      <div class="battery-header"><span>🔋 Battery Impact</span> <span id="batteryRemaining">100%</span>
       </div>
       <div class="battery-bar">
        <div id="batteryFill" style="width: 100%;"></div>
@@ -1332,7 +1326,7 @@
     <div class="nav-overlay-container">
      <div class="turn-header" style="flex-direction: column; gap: 8px; align-items: center;">
       <div class="turn-title">
-       ��� Navigation
+       🧭 Navigation
       </div>
       <div style="font-size: 13px; color: #999; display: flex; gap: 16px; font-weight: 500;"><span id="turnTimeProgress">-- left</span> <span>•</span> <span id="turnDistanceProgress">-- km</span>
       </div>
@@ -1454,6 +1448,18 @@
         let vehicleMarker = null;
         let animationId = null;
         let routeCoordinates = [];
+        let overlayTimeoutId = null;
+        let navigationActive = false;
+        let navigationPaused = false;
+        let navStartTime = 0;
+        let navPausedTime = 0;
+        let navigationTurns = [];
+        let currentTurnIndex = 0;
+        let geolocationWatchId = null;
+        let navigationStartLocation = null;
+        let navigationDestination = null;
+        let navigationSimulationStartTime = 0;
+        let simulatedRouteProgress = 0;
 
         async function initSDK() {
             if (window.elementSdk) {
@@ -1565,11 +1571,10 @@
                     batteryFill.style.background = 'linear-gradient(90deg, #10b981 0%, #34d399 100%)';
                 }
                 
-                // Draw route with water-flow animation immediately
                 displayRouteOnMap();
                 
                 document.getElementById('routingPanel').classList.add('active');
-                showToast('��� Route ready! Click "Start Navigation" to begin...');
+                showToast('🗺️ Route ready! Click "Start Navigation" to begin...');
                 
                 const bounds = L.latLngBounds(routeCoordinates.map(c => [c.lat, c.lng]));
                 map.fitBounds(bounds, { padding: [50, 50] });
@@ -1584,7 +1589,6 @@
         function displayRouteOnMap() {
             if (!routeCoordinates || routeCoordinates.length === 0) return;
 
-            // Remove old route if exists
             if (routePolyline && map.hasLayer(routePolyline)) map.removeLayer(routePolyline);
             if (window.glowPolyline && map.hasLayer(window.glowPolyline)) map.removeLayer(window.glowPolyline);
             if (window.strokePolyline && map.hasLayer(window.strokePolyline)) map.removeLayer(window.strokePolyline);
@@ -1592,7 +1596,6 @@
 
             const routePath = routeCoordinates.map(c => [c.lat, c.lng]);
             
-            // Draw stroke/outline layer - dark blue
             window.strokePolyline = L.polyline(routePath, {
                 color: '#1a3a7a',
                 weight: 12,
@@ -1601,7 +1604,6 @@
                 lineJoin: 'round'
             }).addTo(map);
             
-            // Draw main route with blue gradient colors
             routePolyline = L.polyline(routePath, {
                 color: '#007FFF',
                 weight: 8,
@@ -1610,7 +1612,6 @@
                 lineJoin: 'round'
             }).addTo(map);
             
-            // Add animated glow layer - light blue
             window.glowPolyline = L.polyline(routePath, {
                 color: '#2a52be',
                 weight: 14,
@@ -1619,7 +1620,6 @@
                 lineJoin: 'round'
             }).addTo(map);
             
-            // Animate glow with pulsing effect
             let pulseScale = 1;
             let pulseDirection = 1;
             const animateGlow = () => {
@@ -1653,7 +1653,6 @@
                 center: [4.2105, 101.9758], zoom: 7, zoomControl: false
             });
 
-            // Add light basemap - stays visible throughout
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
                 attribution: '© OpenStreetMap contributors © CARTO',
                 maxZoom: 19,
@@ -1685,7 +1684,7 @@
 
         async function loadEVStations() {
             try {
-                showToast('�� Loading stations...');
+                showToast('⚡ Loading stations...');
                 const response = await fetch('data/ev_station.geojson');
                 const data = await response.json();
                 
@@ -1922,16 +1921,6 @@
             }, 5000);
         }
 
-        let navigationActive = false;
-        let navigationPaused = false;
-        let navStartTime = 0;
-        let navPausedTime = 0;
-        let navigationTurns = [];
-        let currentTurnIndex = 0;
-        let geolocationWatchId = null;
-        let navigationStartLocation = null;
-        let navigationDestination = null;
-
         function calculateBearing(from, to) {
             const dLon = (to.lng - from.lng) * Math.PI / 180;
             const lat1 = from.lat * Math.PI / 180;
@@ -1953,14 +1942,14 @@
 
         function getTurnIcon(turn) {
             const absT = Math.abs(turn);
-            if (absT < 15) return { icon: '�����', text: 'Continue ahead', color: '#3559E8' };
+            if (absT < 15) return { icon: '⬆', text: 'Continue ahead', color: '#3559E8' };
             if (turn > 15 && turn < 45) return { icon: '↗', text: 'Slight right', color: '#8B5CF6' };
             if (turn >= 45 && turn < 110) return { icon: '→', text: 'Turn right', color: '#3B82F6' };
-            if (turn >= 110 && turn < 150) return { icon: '⤴', text: 'Sharp right', color: '#1D4ED8' };
+            if (turn >= 110 && turn < 150) return { icon: '↘', text: 'Sharp right', color: '#1D4ED8' };
             if (turn >= 150) return { icon: '↩', text: 'Make a U-turn', color: '#DC2626' };
             if (turn < -15 && turn > -45) return { icon: '↖', text: 'Slight left', color: '#8B5CF6' };
             if (turn <= -45 && turn > -110) return { icon: '←', text: 'Turn left', color: '#3B82F6' };
-            if (turn <= -110 && turn > -150) return { icon: '⤵', text: 'Sharp left', color: '#1D4ED8' };
+            if (turn <= -110 && turn > -150) return { icon: '↙', text: 'Sharp left', color: '#1D4ED8' };
             if (turn <= -150) return { icon: '↩', text: 'Make a U-turn', color: '#DC2626' };
             return { icon: '⬆', text: 'Continue', color: '#3559E8' };
         }
@@ -2024,7 +2013,6 @@
             
             navigationTurns = generateNavigationTurns(routeCoordinates);
 
-            // Update route line to active gradient colors during navigation
             if (window.strokePolyline) {
                 window.strokePolyline.setStyle({
                     color: '#007FFF',
@@ -2047,7 +2035,6 @@
                 });
             }
 
-            // Vehicle marker with modern design
             const vehicleIcon = L.divIcon({
                 html: '<div style="width: 40px; height: 40px; background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3), 0 4px 12px rgba(16, 185, 129, 0.4);"><svg viewBox="0 0 24 24" fill="white" style="width: 20px; height: 20px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>',
                 iconSize: [40, 40],
@@ -2070,43 +2057,44 @@
             navStartTime = Date.now();
             navPausedTime = 0;
 
-            // Show intro overlay for 3 seconds
             const turnByTurnPanel = document.getElementById('turnByTurnPanel');
             turnByTurnPanel.classList.add('active');
+            turnByTurnPanel.classList.remove('fade-out');
             
-            // Keep the turn-by-turn content fully visible
             const navOverlayContainer = turnByTurnPanel.querySelector('.nav-overlay-container');
+            navOverlayContainer.style.transition = 'none';
             navOverlayContainer.style.opacity = '1';
             navOverlayContainer.style.transform = 'scale(1)';
             
-            // Show "Ready to Navigate" message
             document.getElementById('turnArrow').textContent = '⬆';
             document.getElementById('turnDistanceText').textContent = 'Ready?';
             document.getElementById('turnInstructionText').textContent = 'Starting navigation in 3 seconds...';
             document.getElementById('turnInstructionText').style.color = 'rgba(255, 255, 255, 0.8)';
             
-            // After 3 seconds, transition to active navigation and close overlay
-            setTimeout(() => {
-                navOverlayContainer.style.opacity = '1';
-                navOverlayContainer.style.transition = 'all 0.6s ease';
-                navOverlayContainer.style.transform = 'scale(1)';
+            if (overlayTimeoutId) clearTimeout(overlayTimeoutId);
+            
+            // Schedule overlay fade-out after 3 seconds
+            overlayTimeoutId = setTimeout(() => {
+                console.log('Fade-out triggered at 3 seconds');
+                turnByTurnPanel.classList.add('fade-out');
                 
-                // Close the overlay after 3 seconds
-                turnByTurnPanel.classList.remove('active');
-                
-                startActiveNavigation(totalTime, navigationTurns);
+                // After fade-out animation completes, remove active class
+                setTimeout(() => {
+                    console.log('Removing active class after fade-out');
+                    if (turnByTurnPanel.classList.contains('fade-out')) {
+                        turnByTurnPanel.classList.remove('active');
+                    }
+                }, 800);
             }, 3000);
+            
+            // Start geolocation immediately in background
+            beginGeolocationTracking(totalTime, navigationTurns);
         }
 
         let lastLocationUpdate = null;
         let smoothHeading = 0;
 
-        function startActiveNavigation(totalTime, navigationTurns) {
-            // Show turn-by-turn panel immediately
-            const turnByTurnPanel = document.getElementById('turnByTurnPanel');
-            turnByTurnPanel.classList.add('active');
-            
-            // Start watching user's real GPS location
+        function beginGeolocationTracking(totalTime, navigationTurns) {
             if (!geolocationWatchId) {
                 geolocationWatchId = navigator.geolocation.watchPosition(
                     (position) => {
@@ -2124,7 +2112,6 @@
                             timestamp: Date.now()
                         };
                         
-                        // Smooth heading transition
                         if (userLocation.heading !== null && userLocation.heading !== undefined) {
                             let headingDiff = userLocation.heading - smoothHeading;
                             if (headingDiff > 180) headingDiff -= 360;
@@ -2132,29 +2119,23 @@
                             smoothHeading += headingDiff * 0.15;
                         }
                         
-                        // Update vehicle marker with smooth animation
                         if (vehicleMarker) {
                             vehicleMarker.setLatLng([userLocation.lat, userLocation.lng]);
                             
-                            // Rotate vehicle marker based on heading
                             const heading = userLocation.heading !== null ? userLocation.heading : smoothHeading;
                             vehicleMarker._icon.style.transform = `rotate(${heading}deg) scale(1.1)`;
                             vehicleMarker._icon.style.filter = 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))';
                             
-                            // Add direction indicator
                             updateDirectionIndicator(heading);
                         }
                         
-                        // Dynamic camera follow with zoom based on speed
                         updateMapView(userLocation);
                         
-                        // Check if navigation destination is still valid
                         if (!navigationDestination) {
                             endNavigation();
                             return;
                         }
                         
-                        // Calculate remaining distance to destination
                         const remainingDistance = getDistance(
                             userLocation.lat,
                             userLocation.lng,
@@ -2162,13 +2143,11 @@
                             navigationDestination.lng
                         );
                         
-                        // Check if arrived (within 50 meters)
                         if (remainingDistance < 0.05) {
                             navigationComplete();
                             return;
                         }
                         
-                        // Find closest point on route
                         let closestIndex = 0;
                         let closestDistance = Infinity;
                         for (let i = 0; i < routeCoordinates.length; i++) {
@@ -2184,7 +2163,6 @@
                             }
                         }
                         
-                        // Calculate elapsed time based on progress along route
                         const routeProgress = closestIndex / routeCoordinates.length;
                         const elapsedTime = routeProgress * totalTime;
                         const remainingSeconds = Math.max(0, (totalTime - elapsedTime) / 1000);
@@ -2202,10 +2180,8 @@
                         document.getElementById('turnDistanceProgress').textContent = `${remainingDistance.toFixed(1)} km`;
                         document.getElementById('turnProgressBar').style.width = `${(routeProgress * 100)}%`;
 
-                        // Update speed display
                         updateSpeedDisplay(userLocation.speed);
 
-                        // Get next turn info
                         const { turn: nextTurn, nextIndex } = getNextTurnInfo(closestIndex, navigationTurns);
 
                         if (nextTurn) {
@@ -2235,7 +2211,7 @@
                                         updateTurnDisplay(nextTurn, distanceToTurn > 1 ? Math.round(distanceToTurn * 1000) : Math.round(distanceToTurn * 1000), nextTurn.text, false);
                                     }
                                 } else {
-                                    updateTurnDisplay({ icon: '✓', text: 'Continue to destination' }, Math.round(remainingDistance * 1000), 'Continue to destination', false);
+                                    updateTurnDisplay({ icon: '🎯', text: 'Continue to destination' }, Math.round(remainingDistance * 1000), 'Continue to destination', false);
                                 }
                             }
                         } else {
@@ -2243,13 +2219,24 @@
                         }
                     },
                     (error) => {
-                        console.error('Geolocation error:', error);
-                        showErrorToast('Unable to track location during navigation');
+                        if (error.code === 3) {
+                            showToast('📍 Switching to simulation mode...');
+                            if (geolocationWatchId !== null) {
+                                navigator.geolocation.clearWatch(geolocationWatchId);
+                                geolocationWatchId = null;
+                            }
+                            simulateNavigation(totalTime, navigationTurns);
+                        } else if (error.code === 1) {
+                            showErrorToast('Location permission denied');
+                            endNavigation();
+                        } else if (error.code === 2) {
+                            showToast('Location unavailable - retrying...');
+                        }
                     },
                     {
-                        enableHighAccuracy: true,
-                        timeout: 5000,
-                        maximumAge: 0
+                        enableHighAccuracy: false,
+                        timeout: 20000,
+                        maximumAge: 8000
                     }
                 );
             }
@@ -2257,8 +2244,140 @@
             setupNavigationControls();
         }
 
+        function simulateNavigation(totalTime, navigationTurns) {
+            navigationSimulationStartTime = Date.now();
+            
+            function updateSimulation() {
+                const elapsedTime = Date.now() - navigationSimulationStartTime;
+                simulatedRouteProgress = Math.min(1, elapsedTime / totalTime);
+                
+                if (simulatedRouteProgress >= 1) {
+                    navigationComplete();
+                    return;
+                }
+                
+                const currentRouteIndex = Math.floor(simulatedRouteProgress * (routeCoordinates.length - 1));
+                const simLocation = routeCoordinates[currentRouteIndex];
+                
+                userLocation = {
+                    lat: simLocation.lat,
+                    lng: simLocation.lng,
+                    accuracy: 15,
+                    heading: currentRouteIndex < routeCoordinates.length - 1 
+                        ? calculateBearing(simLocation, routeCoordinates[currentRouteIndex + 1])
+                        : 0,
+                    speed: 15
+                };
+                
+                updateNavigationDisplay(userLocation, totalTime, navigationTurns);
+                animationId = requestAnimationFrame(updateSimulation);
+            }
+            
+            animationId = requestAnimationFrame(updateSimulation);
+        }
+
+        function updateNavigationDisplay(location, totalTime, navigationTurns) {
+            if (vehicleMarker) {
+                vehicleMarker.setLatLng([location.lat, location.lng]);
+                
+                const heading = location.heading !== null ? location.heading : smoothHeading;
+                vehicleMarker._icon.style.transform = `rotate(${heading}deg) scale(1.1)`;
+                vehicleMarker._icon.style.filter = 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))';
+                
+                updateDirectionIndicator(heading);
+            }
+            
+            updateMapView(location);
+            
+            if (!navigationDestination) {
+                endNavigation();
+                return;
+            }
+            
+            const remainingDistance = getDistance(
+                location.lat,
+                location.lng,
+                navigationDestination.lat,
+                navigationDestination.lng
+            );
+            
+            if (remainingDistance < 0.05) {
+                navigationComplete();
+                return;
+            }
+            
+            let closestIndex = 0;
+            let closestDistance = Infinity;
+            for (let i = 0; i < routeCoordinates.length; i++) {
+                const d = getDistance(
+                    location.lat,
+                    location.lng,
+                    routeCoordinates[i].lat,
+                    routeCoordinates[i].lng
+                );
+                if (d < closestDistance) {
+                    closestDistance = d;
+                    closestIndex = i;
+                }
+            }
+            
+            const routeProgress = closestIndex / routeCoordinates.length;
+            const elapsedTime = routeProgress * totalTime;
+            const remainingSeconds = Math.max(0, (totalTime - elapsedTime) / 1000);
+            
+            const hours = Math.floor(remainingSeconds / 3600);
+            const mins = Math.floor((remainingSeconds % 3600) / 60);
+            const secs = Math.floor(remainingSeconds % 60);
+
+            let timeStr = '';
+            if (hours > 0) timeStr = `${hours}h ${mins}m`;
+            else if (mins > 0) timeStr = `${mins}:${String(secs).padStart(2, '0')}`;
+            else timeStr = `${Math.ceil(secs)}s`;
+
+            document.getElementById('turnTimeProgress').textContent = timeStr;
+            document.getElementById('turnDistanceProgress').textContent = `${remainingDistance.toFixed(1)} km`;
+            document.getElementById('turnProgressBar').style.width = `${(routeProgress * 100)}%`;
+
+            updateSpeedDisplay(location.speed);
+
+            const { turn: nextTurn, nextIndex } = getNextTurnInfo(closestIndex, navigationTurns);
+
+            if (nextTurn) {
+                const distanceToTurn = getDistance(
+                    location.lat,
+                    location.lng,
+                    routeCoordinates[nextTurn.coordinateIndex].lat,
+                    routeCoordinates[nextTurn.coordinateIndex].lng
+                );
+
+                if (distanceToTurn < 0.5) {
+                    updateTurnDisplay(nextTurn, Math.round(distanceToTurn * 1000), `${nextTurn.icon} ${nextTurn.text}`, true);
+                } else {
+                    const futureIndex = nextIndex + 1;
+                    if (futureIndex < navigationTurns.length) {
+                        const futureTurn = navigationTurns[futureIndex];
+                        const distanceToFuture = getDistance(
+                            location.lat,
+                            location.lng,
+                            routeCoordinates[futureTurn.coordinateIndex].lat,
+                            routeCoordinates[futureTurn.coordinateIndex].lng
+                        );
+                        
+                        if (distanceToFuture < 1) {
+                            updateTurnDisplay(futureTurn, Math.round(distanceToFuture * 1000), `In ${Math.round(distanceToTurn * 1000)}m, ${futureTurn.text}`, false);
+                        } else {
+                            updateTurnDisplay(nextTurn, distanceToTurn > 1 ? Math.round(distanceToTurn * 1000) : Math.round(distanceToTurn * 1000), nextTurn.text, false);
+                        }
+                    } else {
+                        updateTurnDisplay({ icon: '🎯', text: 'Continue to destination' }, Math.round(remainingDistance * 1000), 'Continue to destination', false);
+                    }
+                }
+            } else {
+                updateTurnDisplay({ icon: '🎯', text: 'Approaching destination' }, Math.round(remainingDistance * 1000), 'Approaching destination', false);
+            }
+        }
+
         function updateMapView(location) {
-            // Dynamic zoom based on speed
             const speed = location.speed || 0;
             let zoomLevel = 18;
             
@@ -2271,11 +2390,6 @@
                 duration: 0.8,
                 easeLinearity: 0.25
             });
-
-            // Rotate map to match vehicle heading for immersive experience
-            if (location.heading !== null && location.heading !== undefined) {
-                map.setBearing(location.heading);
-            }
         }
 
         function updateSpeedDisplay(speed) {
@@ -2405,7 +2519,7 @@
                 navStartTime = Date.now();
                 pauseBtn.textContent = '⏸ Pause';
                 pauseBtn.style.background = 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)';
-                showToast('��� Navigation resumed');
+                showToast('🧭 Navigation resumed');
                 if (animationId) cancelAnimationFrame(animationId);
             } else {
                 navigationPaused = true;
@@ -2445,8 +2559,8 @@
             navigationPaused = false;
             if (animationId) cancelAnimationFrame(animationId);
             if (window.glowAnimationInterval) clearInterval(window.glowAnimationInterval);
+            if (overlayTimeoutId) clearTimeout(overlayTimeoutId);
             
-            // Stop watching GPS location
             if (geolocationWatchId !== null) {
                 navigator.geolocation.clearWatch(geolocationWatchId);
                 geolocationWatchId = null;
@@ -2459,16 +2573,12 @@
                 map.removeLayer(vehicleMarker);
             }
             
-            // Remove speed display
             const speedElement = document.getElementById('speedDisplay');
             if (speedElement) speedElement.remove();
             
-            // Remove direction indicator
             const directionElement = document.getElementById('directionIndicator');
             if (directionElement) directionElement.remove();
             
-            // Reset map bearing and zoom
-            map.setBearing(0);
             map.setZoom(14);
             
             const pauseBtn = document.getElementById('pauseNavBtn');
@@ -2479,7 +2589,6 @@
             const searchInput = document.getElementById('searchInput');
             const nightModeBtn = document.getElementById('nightModeBtn');
             
-            // Night mode toggle
             const savedNightMode = localStorage.getItem('nightMode') === 'true';
             if (savedNightMode) {
                 document.body.classList.add('night-mode');
@@ -2585,7 +2694,6 @@
                     if (userMarker) map.removeLayer(userMarker);
                     if (userLocationPulseLayer) map.removeLayer(userLocationPulseLayer);
                     
-                    // Create pulse circles using SVG
                     const pulseHtml = `
                         <svg width="120" height="120" viewBox="0 0 120 120" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;">
                             <circle cx="60" cy="60" r="0" fill="none" stroke="#10b981" stroke-width="2" opacity="0.8" class="location-pulse-circle" style="animation-delay: 0s;"/>
@@ -2628,5 +2736,5 @@
 
         initSDK();
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cbb65cd60d87249',t:'MTc3MDcyNDMxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cbb96b0564d6312',t:'MTc3MDcyNjMyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
