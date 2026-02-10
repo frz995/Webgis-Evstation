@@ -1,19 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EV Station Finder Malaysia</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.Default.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-heatmap@1.0.0/dist/leaflet-heatmap.css" />
-    <script src="/_sdk/element_sdk.js"></script>
-    <style>
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EV Station Finder Malaysia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-heatmap@1.0.0/dist/leaflet-heatmap.css">
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
         * {
             margin: 0;
             padding: 0;
@@ -1516,13 +1516,13 @@
 
             .legend {
                 position: fixed;
-                bottom: 100px;
+                bottom: 70px;
                 right: 12px;
                 left: auto;
                 top: auto;
                 padding: 12px 14px;
                 font-size: 0.75rem;
-                z-index: 350;
+                z-index: 340;
                 max-width: 160px;
                 width: auto;
             }
@@ -1563,7 +1563,7 @@
 
             .leaflet-control-zoom {
                 position: fixed !important;
-                bottom: 180px !important;
+                bottom: 130px !important;
                 left: 12px !important;
                 right: auto !important;
                 top: auto !important;
@@ -1885,196 +1885,183 @@
             }
         }
     </style>
-</head>
-<body>
-    <div class="app-container">
-        <!-- Loading Overlay -->
-        <div class="loading-overlay" id="loadingOverlay">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Loading EV Stations...</div>
-        </div>
-
-        <!-- Header -->
-        <header class="header">
-            <div class="logo-section">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                </div>
-                <span class="logo-text" id="mapTitle">EV Station Finder</span>
-            </div>
-
-            <div class="header-spacer"></div>
-
-            <div class="header-controls">
-                <div class="search-container">
-                    <div class="search-wrapper">
-                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-                        </svg>
-                        <input type="text" class="search-input" id="searchInput" placeholder="Search EV stations...">
-                    </div>
-                    <div class="search-results" id="searchResults"></div>
-                </div>
-
-                <button class="location-btn" id="locationBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>
-                    </svg>
-                    <span>My Location</span>
-                </button>
-
-                <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                    </svg>
-                </button>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Map -->
-            <div id="map"></div>
-
-            <!-- Toggle Panel Button (Mobile) -->
-            <button class="toggle-panel-btn" id="togglePanelBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 12h18M3 6h18M3 18h18"/>
-                </svg>
-            </button>
-
-            <!-- Side Panel -->
-            <aside class="side-panel" id="sidePanel">
-                <div class="panel-header">
-                    <h2 class="panel-title">EV Stations</h2>
-                    <p class="panel-subtitle">Filter & explore charging stations</p>
-                </div>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalStations">0</div>
-                        <div class="stat-label">Total Stations</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalStates">0</div>
-                        <div class="stat-label">States</div>
-                    </div>
-                </div>
-
-                <!-- Visualization Filters -->
-                <div class="filter-section">
-                    <div class="filter-title">Visualization</div>
-                    <div class="filter-options">
-                        <button class="filter-toggle active" id="viewClustered" data-view="clustered">Clustered</button>
-                        <button class="filter-toggle" id="viewIndividual" data-view="individual">Individual</button>
-                    </div>
-                </div>
-
-                <!-- Nearest Stations -->
-                <div class="nearest-stations">
-                    <div class="nearest-title">Nearest to You</div>
-                    <div id="nearestList"></div>
-                </div>
-
-                <!-- States List -->
-                <div class="state-list-container">
-                    <div style="padding: 0 6px; margin-bottom: 10px;">
-                        <div class="state-list-header">States by Stations</div>
-                    </div>
-                    <div id="stateList"></div>
-                </div>
-
-                <button class="clear-filter-btn" id="clearFilterBtn">Clear Filter</button>
-            </aside>
-
-            <!-- Legend -->
-            <div class="legend">
-                <div class="legend-title">Legend</div>
-                <div class="legend-item">
-                    <div class="legend-marker" style="background: linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%); border: 2px solid white; box-shadow: 0 4px 12px rgba(53, 89, 232, 0.3);">
-                        <svg viewBox="0 0 24 24" fill="white" style="width: 14px; height: 14px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                    </div>
-                    <span class="legend-text">EV Station</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-marker" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border: 2px solid white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
-                        <svg viewBox="0 0 24 24" fill="white" style="width: 14px; height: 14px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                    </div>
-                    <span class="legend-text">Filtered State</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-marker" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border: 2px solid white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
-                        <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center;"><div style="width: 4px; height: 4px; background: white; border-radius: 50%;"></div></div>
-                    </div>
-                    <span class="legend-text">Your Location</span>
-                </div>
-            </div>
-
-            <!-- Routing Panel -->
-            <div class="routing-panel" id="routingPanel">
-                <div class="routing-header">
-                    <span class="routing-title">Route Details</span>
-                    <button class="routing-close" id="routingClose">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18 6L6 18M6 6l12 12"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="routing-destination">
-                    <div class="routing-destination-label">Destination</div>
-                    <div class="routing-destination-name" id="routingDestination">-</div>
-                </div>
-                <div class="routing-stats">
-                    <div class="routing-stat">
-                        <div class="routing-stat-value" id="routingDistance">-</div>
-                        <div class="routing-stat-label">Distance</div>
-                    </div>
-                    <div class="routing-stat">
-                        <div class="routing-stat-value" id="routingTime">-</div>
-                        <div class="routing-stat-label">ETA</div>
-                    </div>
-                    <div class="routing-stat">
-                        <div class="routing-stat-value" id="routingSpeed">-</div>
-                        <div class="routing-stat-label">Avg Speed</div>
-                    </div>
-                </div>
-                <div class="routing-battery">
-                    <div class="routing-battery-header">
-                        <svg class="routing-battery-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/>
-                        </svg>
-                        <span class="routing-battery-title">Battery Estimate</span>
-                    </div>
-                    <div class="routing-battery-bar">
-                        <div class="routing-battery-fill" id="batteryFill" style="width: 100%"></div>
-                    </div>
-                    <div class="routing-battery-text">
-                        <span id="batteryUsed">0 kWh used</span>
-                        <span id="batteryRemaining">100% remaining</span>
-                    </div>
-                </div>
-                <button class="start-navigation-btn" id="startNavBtn">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
-                    </svg>
-                    Open in Google Maps
-                </button>
-            </div>
-        </div>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="app-container"><!-- Loading Overlay -->
+   <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">
+     Loading EV Stations...
     </div>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.5.0/dist/leaflet.markercluster.js"></script>
-    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
-    <script src="https://unpkg.com/heatmap.js@2.0.5/heatmap.js"></script>
-    <script src="https://unpkg.com/leaflet-heatmap@1.0.0/leaflet-heatmap.js"></script>
-    <script src="https://unpkg.com/leaflet-control-geocoder@1.13.0/Control.Geocoder.js"></script>
-    <style>
+   </div><!-- Header -->
+   <header class="header">
+    <div class="logo-section">
+     <div class="logo-icon">
+      <svg viewbox="0 0 24 24" fill="currentColor">
+       <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+      </svg>
+     </div><span class="logo-text" id="mapTitle">EV Station Finder</span>
+    </div>
+    <div class="header-spacer"></div>
+    <div class="header-controls">
+     <div class="search-container">
+      <div class="search-wrapper">
+       <svg class="search-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+       </svg><input type="text" class="search-input" id="searchInput" placeholder="Search EV stations...">
+      </div>
+      <div class="search-results" id="searchResults"></div>
+     </div><button class="location-btn" id="locationBtn">
+      <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3" /><path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
+      </svg><span>My Location</span> </button> <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+      <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg></button>
+    </div>
+   </header><!-- Main Content -->
+   <div class="main-content"><!-- Map -->
+    <div id="map"></div><!-- Toggle Panel Button (Mobile) --> <button class="toggle-panel-btn" id="togglePanelBtn">
+     <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18" />
+     </svg></button> <!-- Side Panel -->
+    <aside class="side-panel" id="sidePanel">
+     <div class="panel-header">
+      <h2 class="panel-title">EV Stations</h2>
+      <p class="panel-subtitle">Filter &amp; explore charging stations</p>
+     </div>
+     <div class="stats-grid">
+      <div class="stat-card">
+       <div class="stat-value" id="totalStations">
+        0
+       </div>
+       <div class="stat-label">
+        Total Stations
+       </div>
+      </div>
+      <div class="stat-card">
+       <div class="stat-value" id="totalStates">
+        0
+       </div>
+       <div class="stat-label">
+        States
+       </div>
+      </div>
+     </div><!-- Visualization Filters -->
+     <div class="filter-section">
+      <div class="filter-title">
+       Visualization
+      </div>
+      <div class="filter-options"><button class="filter-toggle active" id="viewClustered" data-view="clustered">Clustered</button> <button class="filter-toggle" id="viewIndividual" data-view="individual">Individual</button>
+      </div>
+     </div><!-- Nearest Stations -->
+     <div class="nearest-stations">
+      <div class="nearest-title">
+       Nearest to You
+      </div>
+      <div id="nearestList"></div>
+     </div><!-- States List -->
+     <div class="state-list-container">
+      <div style="padding: 0 6px; margin-bottom: 10px;">
+       <div class="state-list-header">
+        States by Stations
+       </div>
+      </div>
+      <div id="stateList"></div>
+     </div><button class="clear-filter-btn" id="clearFilterBtn">Clear Filter</button>
+    </aside><!-- Legend -->
+    <div class="legend">
+     <div class="legend-title">
+      Legend
+     </div>
+     <div class="legend-item">
+      <div class="legend-marker" style="background: linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%); border: 2px solid white; box-shadow: 0 4px 12px rgba(53, 89, 232, 0.3);">
+       <svg viewbox="0 0 24 24" fill="white" style="width: 14px; height: 14px;">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+       </svg>
+      </div><span class="legend-text">EV Station</span>
+     </div>
+     <div class="legend-item">
+      <div class="legend-marker" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border: 2px solid white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+       <svg viewbox="0 0 24 24" fill="white" style="width: 14px; height: 14px;">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+       </svg>
+      </div><span class="legend-text">Filtered State</span>
+     </div>
+     <div class="legend-item">
+      <div class="legend-marker" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border: 2px solid white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+       <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+        <div style="width: 4px; height: 4px; background: white; border-radius: 50%;"></div>
+       </div>
+      </div><span class="legend-text">Your Location</span>
+     </div>
+    </div><!-- Routing Panel -->
+    <div class="routing-panel" id="routingPanel">
+     <div class="routing-header"><span class="routing-title">Route Details</span> <button class="routing-close" id="routingClose">
+       <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12" />
+       </svg></button>
+     </div>
+     <div class="routing-destination">
+      <div class="routing-destination-label">
+       Destination
+      </div>
+      <div class="routing-destination-name" id="routingDestination">
+       -
+      </div>
+     </div>
+     <div class="routing-stats">
+      <div class="routing-stat">
+       <div class="routing-stat-value" id="routingDistance">
+        -
+       </div>
+       <div class="routing-stat-label">
+        Distance
+       </div>
+      </div>
+      <div class="routing-stat">
+       <div class="routing-stat-value" id="routingTime">
+        -
+       </div>
+       <div class="routing-stat-label">
+        ETA
+       </div>
+      </div>
+      <div class="routing-stat">
+       <div class="routing-stat-value" id="routingSpeed">
+        -
+       </div>
+       <div class="routing-stat-label">
+        Avg Speed
+       </div>
+      </div>
+     </div>
+     <div class="routing-battery">
+      <div class="routing-battery-header">
+       <svg class="routing-battery-icon" viewbox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z" />
+       </svg><span class="routing-battery-title">Battery Estimate</span>
+      </div>
+      <div class="routing-battery-bar">
+       <div class="routing-battery-fill" id="batteryFill" style="width: 100%"></div>
+      </div>
+      <div class="routing-battery-text"><span id="batteryUsed">0 kWh used</span> <span id="batteryRemaining">100% remaining</span>
+      </div>
+     </div><button class="start-navigation-btn" id="startNavBtn">
+      <svg viewbox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
+      </svg> Open in Google Maps </button>
+    </div>
+   </div>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.0/dist/leaflet.markercluster.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+  <script src="https://unpkg.com/heatmap.js@2.0.5/heatmap.js"></script>
+  <script src="https://unpkg.com/leaflet-heatmap@1.0.0/leaflet-heatmap.js"></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder@1.13.0/Control.Geocoder.js"></script>
+  <style>
         .leaflet-default-icon-path {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 41"><path fill="%233B82F6" d="M12.5 0C6.1 0 1 5.1 1 11.5c0 6.4 11.5 29 11.5 29s11.5-22.6 11.5-29C24 5.1 18.9 0 12.5 0z"/></svg>');
         }
     </style>
-    <script>
+  <script>
         const defaultConfig = {
             map_title: 'Malaysia EV Charging Stations',
             search_placeholder: 'Search EV stations...'
@@ -2841,5 +2828,5 @@
 
         initSDK();
     </script>
-</body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb97708819af004',t:'MTc3MDcwNDA1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
