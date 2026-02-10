@@ -1627,69 +1627,78 @@
         }
 
         // Load EV Stations from GeoServer
-        let allStations = [];
-        let allMarkersArray = [];
-        
-        async function loadEVStations() {
+       async function loadEVStations() {
             try {
-                const geojsonUrl = 'data/ev_station.geojson';
-                const response = await fetch(geojsonUrl);
-                if (!response.ok) throw new Error(`GeoJSON error: ${response.status}`);
+                const geoserverUrl = 'data/ev_station.geojson';
+                
+                const response = await fetch(geoserverUrl);
+                if (!response.ok) {
+                    throw new Error(`GeoServer error: ${response.status}`);
+                }
+                
                 const data = await response.json();
-        
+                
                 if (!data.features || data.features.length === 0) {
-                    showErrorToast('No EV stations found');
+                    showErrorToast('No EV stations found in GeoServer');
                     document.getElementById('loadingOverlay').classList.add('hidden');
                     return;
                 }
-        
+                
+                // Map GeoServer features to station format
                 allStations = data.features.map((feature, idx) => {
                     const props = feature.properties || {};
                     const coords = feature.geometry?.coordinates || [101.9758, 4.2105];
+                    
                     return {
                         properties: {
-                            name: props.name || props.station_name || `Station ${idx+1}`,
+                            name: props.name || props.station_name || `Station ${idx + 1}`,
                             operator: props.operator || props.provider || 'N/A',
                             state: props.state || props.district || 'Unknown',
                             chargers: props.chargers || props.charger_count || 1,
                             ...props
                         },
-                        geometry: { coordinates: coords },
+                        geometry: {
+                            coordinates: coords
+                        },
                         id: idx
                     };
                 });
-        
-                processStations(); // must call!
+                
+                processStations();
                 renderStations();
                 updateStats();
                 populateStateList();
                 updateNearestStations();
-        
                 document.getElementById('loadingOverlay').classList.add('hidden');
-                showToast(`✅ Loaded ${allStations.length} EV stations!`);
-            } catch (err) {
-                console.error(err);
+                showToast(`✅ Loaded ${allStations.length} EV charging stations!`);
+            } catch (error) {
+                console.error('Error loading EV stations:', error);
                 document.getElementById('loadingOverlay').classList.add('hidden');
-                showErrorToast(`Unable to load EV stations: ${err.message}`);
+                showErrorToast(`Unable to load from GeoServer: ${error.message}`);
             }
         }
-        
+
         function processStations() {
             stateData = {};
             allStations.forEach(station => {
                 const state = station.properties?.state || 'Unknown';
-                if (!stateData[state]) stateData[state] = [];
-        
-                const total = station.properties.chargers || 1;
+                if (!stateData[state]) {
+                    stateData[state] = [];
+                }
+                
+                // Add simulated live status data
+                const totalChargers = station.properties?.chargers || 1;
                 station.liveStatus = {
-                    available: Math.floor(Math.random() * (total + 1)),
-                    charging: Math.floor(Math.random() * (total + 1)),
-                    offline: Math.max(0, total - Math.floor(Math.random() * total))
+                    available: Math.floor(Math.random() * (totalChargers + 1)),
+                    charging: Math.floor(Math.random() * (totalChargers + 1)),
+                    offline: Math.max(0, totalChargers - Math.floor(Math.random() * totalChargers))
                 };
-                station.liveStatus.available = Math.max(0, total - station.liveStatus.charging - station.liveStatus.offline);
-        
+                station.liveStatus.available = Math.max(0, totalChargers - station.liveStatus.charging - station.liveStatus.offline);
+                
                 stateData[state].push(station);
             });
+            
+            // Simulate status updates every 5 seconds
             startStatusSimulation();
         }
         
