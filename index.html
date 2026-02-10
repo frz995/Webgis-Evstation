@@ -480,34 +480,63 @@
             transform: translateX(-50%);
             background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
             color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
+            padding: 18px 28px;
+            border-radius: 16px;
             z-index: 1002;
-            box-shadow: 0 8px 24px rgba(0, 127, 255, 0.3);
-            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 127, 255, 0.25);
+            max-width: 90%;
+            width: 520px;
             text-align: center;
             display: none;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            animation: instructionSlideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes instructionSlideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
         }
 
         .turn-instruction-bar.active {
-            display: block;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
 
         .turn-instruction-icon {
-            font-size: 28px;
-            margin-bottom: 8px;
+            font-size: 32px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .turn-instruction-distance {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 4px;
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 2px;
+            letter-spacing: -0.5px;
+            font-family: 'Segoe UI', 'Courier New', monospace;
         }
 
         .turn-instruction-text {
-            font-size: 14px;
-            opacity: 0.9;
+            font-size: 13px;
+            opacity: 0.92;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .map-legend {
@@ -805,64 +834,137 @@
             position: fixed;
             bottom: 40px;
             right: 20px;
-            background: linear-gradient(135deg, rgba(0, 127, 255, 0.95) 0%, rgba(42, 82, 190, 0.95) 100%);
-            color: white;
-            padding: 16px 24px;
-            border-radius: 16px;
+            background: white;
+            color: #1a1a1a;
+            padding: 14px 16px;
+            border-radius: 18px;
             z-index: 3002;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 24px rgba(0, 127, 255, 0.4);
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
             display: none;
             flex-direction: column;
-            gap: 8px;
-            min-width: 180px;
+            gap: 10px;
+            min-width: 260px;
+            animation: hudSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes hudSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px) translateX(16px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) translateX(0) scale(1);
+            }
         }
 
         .nav-hud.active {
             display: flex;
         }
 
+        .hud-metric {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .hud-metric-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, #e0eeff 0%, #cce0ff 100%);
+            border-radius: 12px;
+            border: 1.5px solid #99ccff;
+            transition: all 0.25s ease;
+            justify-content: center;
+        }
+
+        .hud-metric-row:hover {
+            background: linear-gradient(135deg, #cce0ff 0%, #99ccff 100%);
+            border-color: #5b7eef;
+            transform: translateY(-1px);
+        }
+
+        .hud-icon {
+            font-size: 20px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
+            border-radius: 8px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .hud-metric-content {
+            flex: 1;
+            min-width: 0;
+        }
+
         .hud-label {
-            font-size: 11px;
-            opacity: 0.8;
+            font-size: 9px;
+            opacity: 0.55;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
+            letter-spacing: 0.6px;
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 1px;
         }
 
         .hud-value {
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1;
         }
 
         .hud-divider {
             height: 1px;
-            background: rgba(255, 255, 255, 0.2);
-            margin: 8px 0;
+            background: linear-gradient(90deg, rgba(0, 127, 255, 0.1) 0%, transparent 100%);
+            margin: 6px 0 4px 0;
         }
 
         .nav-control-buttons {
             display: flex;
             gap: 8px;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .nav-control-btn {
             flex: 1;
-            padding: 8px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-radius: 8px;
+            padding: 9px 12px;
+            border: 1.5px solid #d0d0d0;
+            background: white;
+            color: #333;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.2s;
+            font-size: 11px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
         }
 
         .nav-control-btn:active {
-            background: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
+            color: white;
+            border-color: #007FFF;
             transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 127, 255, 0.2);
         }
 
         /* Mobile Optimizations */
@@ -1019,6 +1121,89 @@
 
             .turn-instruction-text {
                 font-size: 12px;
+            }
+
+            @media (max-width: 480px) {
+                .turn-instruction-bar {
+                    width: 92%;
+                    max-width: 100%;
+                    left: 4%;
+                    right: 4%;
+                    padding: 10px 14px;
+                    top: 66px;
+                    gap: 8px;
+                }
+
+                .turn-instruction-icon {
+                    font-size: 20px;
+                    width: 36px;
+                    height: 36px;
+                    margin-bottom: 4px;
+                }
+
+                .turn-instruction-distance {
+                    font-size: 18px;
+                    margin-bottom: 1px;
+                    letter-spacing: -0.3px;
+                }
+
+                .turn-instruction-text {
+                    font-size: 11px;
+                    opacity: 0.9;
+                    max-width: 90%;
+                    word-break: break-word;
+                    line-height: 1.3;
+                }
+
+                .nav-hud {
+                    bottom: 12px;
+                    right: 8px;
+                    left: 8px;
+                    width: calc(100% - 16px);
+                    padding: 12px 14px;
+                    min-width: unset;
+                    gap: 10px;
+                    border-radius: 14px;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                }
+
+                .hud-metric-row {
+                    padding: 8px 10px;
+                    border-radius: 10px;
+                    gap: 8px;
+                }
+
+                .hud-icon {
+                    width: 24px;
+                    height: 24px;
+                    font-size: 14px;
+                    border-radius: 6px;
+                    flex-shrink: 0;
+                }
+
+                .hud-label {
+                    font-size: 8px;
+                    letter-spacing: 0.5px;
+                }
+
+                .hud-value {
+                    font-size: 16px;
+                    font-weight: 800;
+                    letter-spacing: -0.3px;
+                }
+
+                .nav-control-buttons {
+                    gap: 6px;
+                    margin-top: 8px;
+                }
+
+                .nav-control-btn {
+                    padding: 7px 10px;
+                    font-size: 10px;
+                    border-radius: 8px;
+                    letter-spacing: 0.3px;
+                }
             }
 
             .station-detail-panel {
@@ -1287,12 +1472,12 @@
             }
 
             .turn-instruction-bar {
-                width: 92%;
-                left: 4%;
-                right: 4%;
-                padding: 10px 12px;
-                top: 62px;
-                border-radius: 10px;
+                width: 90%;
+                max-width: 320px;
+                left: 5%;
+                right: 5%;
+                padding: 12px 16px;
+                top: 70px;
             }
 
             .turn-instruction-icon {
@@ -1367,23 +1552,29 @@
 
             .nav-hud {
                 bottom: 12px;
-                right: 5px;
-                left: 5px;
-                padding: 10px 12px;
-                border-radius: 12px;
+                right: 10px;
+                left: 10px;
+                width: auto;
+                padding: 16px;
+                min-width: unset;
+                gap: 14px;
             }
 
             .hud-label {
-                font-size: 9px;
+                font-size: 10px;
             }
 
             .hud-value {
-                font-size: 18px;
+                font-size: 24px;
+            }
+
+            .hud-divider {
+                margin: 6px 0;
             }
 
             .nav-control-btn {
-                padding: 5px 8px;
-                font-size: 10px;
+                padding: 10px 8px;
+                font-size: 11px;
             }
 
             .map-legend {
@@ -1429,6 +1620,168 @@
             background: #333;
             border-color: #666;
         }
+
+        .mobile-panel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1400;
+        }
+
+        .mobile-panel-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        #mobileMenuBtn {
+            display: none !important;
+        }
+
+        @media (max-width: 480px) {
+            #mobileMenuBtn {
+                display: flex !important;
+                order: -1;
+            }
+
+            #mapTitle {
+                flex: 1;
+                margin-right: auto;
+            }
+
+            .side-panel {
+                transform: translateX(-120%);
+                transition: transform 0.3s ease;
+                z-index: 1500;
+                top: 56px;
+                max-height: calc(100vh - 56px);
+                left: 0;
+                border-radius: 0;
+                width: 280px;
+            }
+
+            .side-panel.mobile-open {
+                transform: translateX(0);
+            }
+
+            .turn-instruction-bar {
+                gap: 6px;
+            }
+
+            .turn-instruction-distance {
+                font-size: 18px;
+                margin-bottom: 1px;
+                letter-spacing: -0.3px;
+            }
+
+            .turn-instruction-text {
+                font-size: 11px;
+                opacity: 0.92;
+                max-width: 280px;
+                word-break: break-word;
+                line-height: 1.3;
+                hyphens: auto;
+            }
+
+            .turn-instruction-icon {
+                font-size: 20px;
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+            }
+
+            @media (max-width: 380px) {
+                .turn-instruction-bar {
+                    width: 88%;
+                    left: 6%;
+                    right: 6%;
+                    padding: 10px 12px;
+                    top: 64px;
+                }
+
+                .turn-instruction-distance {
+                    font-size: 16px;
+                }
+
+                .turn-instruction-text {
+                    font-size: 10px;
+                    max-width: 240px;
+                    line-height: 1.2;
+                }
+
+                .turn-instruction-icon {
+                    font-size: 18px;
+                    width: 28px;
+                    height: 28px;
+                    margin-bottom: 2px;
+                }
+
+                .nav-hud {
+                    bottom: 8px;
+                    right: 6px;
+                    left: 6px;
+                    width: calc(100% - 12px);
+                    padding: 12px 12px;
+                    min-width: unset;
+                    gap: 8px;
+                    border-radius: 12px;
+                }
+
+                .hud-metric-row {
+                    padding: 8px 10px;
+                    gap: 8px;
+                    border-radius: 10px;
+                }
+
+                .hud-icon {
+                    width: 22px;
+                    height: 22px;
+                    font-size: 12px;
+                    border-radius: 5px;
+                }
+
+                .hud-label {
+                    font-size: 7px;
+                    letter-spacing: 0.4px;
+                }
+
+                .hud-value {
+                    font-size: 14px;
+                    font-weight: 700;
+                    letter-spacing: -0.3px;
+                }
+
+                .nav-control-buttons {
+                    gap: 6px;
+                    margin-top: 6px;
+                }
+
+                .nav-control-btn {
+                    padding: 6px 8px;
+                    font-size: 9px;
+                    border-radius: 6px;
+                    letter-spacing: 0.2px;
+                }
+
+                .routing-panel {
+                    width: 94%;
+                    left: 3%;
+                    right: 3%;
+                    max-width: 100%;
+                }
+
+                .station-detail-panel {
+                    width: 96%;
+                    left: 2%;
+                    right: 2%;
+                }
+            }
+        }
     </style>
   <script src="/_sdk/element_sdk.js"></script>
   <style>@view-transition { navigation: auto; }</style>
@@ -1438,7 +1791,10 @@
  <body>
   <div id="root" style="height: 100%; width: 100%;">
    <div id="map"></div>
-   <div class="header">
+   <div class="header"><button id="mobileMenuBtn" class="btn" style="display: none;">
+     <svg fill="currentColor" viewbox="0 0 24 24">
+      <path d="M3 12h18M3 6h18M3 18h18" />
+     </svg></button>
     <div id="mapTitle">
      ⚡ EV Station Finder
     </div>
@@ -1454,6 +1810,7 @@
       </svg> Location </button>
     </div>
    </div>
+   <div id="mobilePanelOverlay" class="mobile-panel-overlay"></div>
    <div id="sidePanel" class="side-panel">
     <div class="panel-section" style="padding: 16px; border-bottom: 1px solid #f0f0f0;">
      <div style="margin-bottom: 4px;">
@@ -1509,7 +1866,7 @@
     <div class="routing-header">
      <div class="routing-destination" id="routingDestination">
       Loading...
-     </div><button id="routingClose" class="routing-close">✕</button>
+     </div><button id="routingClose" class="routing-close">��</button>
     </div>
     <div class="routing-content">
      <div class="routing-stat"><span class="routing-stat-label">Distance</span> <span class="routing-stat-value" id="routingDistance">-- km</span>
@@ -1533,35 +1890,46 @@
    </div>
    <div id="turnInstructionBar" class="turn-instruction-bar">
     <div class="turn-instruction-icon" id="turnArrow">
-     ⬆
+     <svg viewbox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" style="width: 22px; height: 22px;"><polyline points="12 5 19 12 12 19" /><line x1="19" y1="12" x2="5" y2="12" />
+     </svg>
     </div>
     <div class="turn-instruction-distance" id="turnDistanceText">
-     --m
+     -- km
     </div>
     <div class="turn-instruction-text" id="turnInstructionText">
-     Navigation started
+     Navigation active
     </div>
    </div>
    <div id="navHUD" class="nav-hud">
-    <div class="hud-label">
-     Distance to Destination
+    <div class="hud-metric-row">
+     <div class="hud-metric-content">
+      <div class="hud-label">
+       Distance
+      </div>
+      <div class="hud-value" id="hudDistance">
+       -- km
+      </div>
+     </div>
     </div>
-    <div class="hud-value" id="hudDistance">
-     -- km
+    <div class="hud-metric-row">
+     <div class="hud-metric-content">
+      <div class="hud-label">
+       ETA
+      </div>
+      <div class="hud-value" id="hudTime">
+       --:--
+      </div>
+     </div>
     </div>
-    <div class="hud-divider"></div>
-    <div class="hud-label">
-     Time Remaining
-    </div>
-    <div class="hud-value" id="hudTime">
-     --:--
-    </div>
-    <div class="hud-divider"></div>
-    <div class="hud-label">
-     Current Speed
-    </div>
-    <div class="hud-value" id="hudSpeed">
-     -- km/h
+    <div class="hud-metric-row">
+     <div class="hud-metric-content">
+      <div class="hud-label">
+       Speed
+      </div>
+      <div class="hud-value" id="hudSpeed">
+       -- km/h
+      </div>
+     </div>
     </div>
     <div class="nav-control-buttons"><button class="nav-control-btn" onclick="toggleNavigationPause()">Pause</button> <button class="nav-control-btn" onclick="endNavigation()">End</button>
     </div>
@@ -1789,7 +2157,7 @@
                 displayRouteOnMap();
                 
                 document.getElementById('routingPanel').classList.add('active');
-                showToast('🗺️ Route ready! Click "Start Navigation" to begin...');
+                showToast('��️ Route ready! Click "Start Navigation" to begin...');
                 
                 const bounds = L.latLngBounds(routeCoordinates.map(c => [c.lat, c.lng]));
                 map.fitBounds(bounds, { padding: [50, 50] });
@@ -2103,6 +2471,8 @@
             navigationPauseTime = 0;
 
             document.getElementById('routingPanel').classList.remove('active');
+            document.getElementById('sidePanel').style.display = 'none';
+            document.getElementById('mapLegend').style.display = 'none';
             document.getElementById('turnInstructionBar').classList.add('active');
             document.getElementById('navHUD').classList.add('active');
 
@@ -2115,9 +2485,9 @@
             }
 
             const vehicleIcon = L.divIcon({
-                html: '<div style="width: 40px; height: 40px; background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3), 0 4px 12px rgba(16, 185, 129, 0.4);"><svg viewBox="0 0 24 24" fill="white" style="width: 20px; height: 20px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>',
+                html: '<div style="width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-bottom: 40px solid #F6CE53; filter: drop-shadow(0 0 8px rgba(246, 206, 83, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));"></div>',
                 iconSize: [40, 40],
-                iconAnchor: [20, 20],
+                iconAnchor: [20, 35],
                 className: 'nav-vehicle-marker'
             });
 
@@ -2127,7 +2497,7 @@
             // Show navigation info toast
             const distance = parseFloat(totalRoutDistance).toFixed(1);
             const routeTime = (parseFloat(totalRoutDistance) / 50 * 60).toFixed(0);
-            showToast(`🧭 Navigation started • ${distance} km • ~${routeTime} min`);
+            showToast(`🧭 Navigation started ��� ${distance} km • ~${routeTime} min`);
 
             beginLiveTracking();
         }
@@ -2137,9 +2507,14 @@
                 navigator.geolocation.clearWatch(geolocationWatchId);
             }
 
+            let gpsTimeoutCounter = 0;
+            const maxTimeoutsBeforeError = 3;
+
             geolocationWatchId = navigator.geolocation.watchPosition(
                 (position) => {
                     if (!navigationActive) return;
+
+                    gpsTimeoutCounter = 0; // Reset timeout counter on success
 
                     userLocation = {
                         lat: position.coords.latitude,
@@ -2148,29 +2523,50 @@
                         speed: (position.coords.speed || 0) * 3.6
                     };
 
-                    if (vehicleMarker) {
+                    // Always ensure marker exists - recreate if missing
+                    if (!vehicleMarker || !map.hasLayer(vehicleMarker)) {
+                        if (vehicleMarker) map.removeLayer(vehicleMarker);
+                        
+                        const vehicleIcon = L.divIcon({
+                            html: '<div style="width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-bottom: 40px solid #F6CE53; filter: drop-shadow(0 0 8px rgba(246, 206, 83, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));"></div>',
+                            iconSize: [40, 40],
+                            iconAnchor: [20, 35],
+                            className: 'nav-vehicle-marker'
+                        });
+                        
+                        vehicleMarker = L.marker([userLocation.lat, userLocation.lng], { icon: vehicleIcon }).addTo(map);
+                    } else {
                         vehicleMarker.setLatLng([userLocation.lat, userLocation.lng]);
-                        if (vehicleMarker._icon) {
-                            vehicleMarker._icon.style.transform = `rotate(${userLocation.heading}deg)`;
-                            vehicleMarker._icon.style.filter = 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))';
-                        }
+                    }
+
+                    // Update marker rotation and glow
+                    if (vehicleMarker._icon) {
+                        vehicleMarker._icon.style.transform = `rotate(${userLocation.heading}deg)`;
+                        vehicleMarker._icon.style.filter = 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))';
                     }
 
                     updateVehicleDisplay();
                 },
                 (error) => {
+                    gpsTimeoutCounter++;
+                    
                     if (error.code === 1) {
                         showErrorToast('Location permission denied');
+                        endNavigation();
                     } else if (error.code === 2) {
-                        showErrorToast('Position unavailable');
+                        if (gpsTimeoutCounter >= maxTimeoutsBeforeError) {
+                            showErrorToast('GPS signal lost - position unavailable');
+                        }
                     } else if (error.code === 3) {
-                        showErrorToast('GPS timeout - enable location services');
+                        if (gpsTimeoutCounter >= maxTimeoutsBeforeError) {
+                            showErrorToast('GPS timeout - check location services');
+                        }
                     }
                 },
                 {
                     enableHighAccuracy: true,
-                    timeout: 5000,
-                    maximumAge: 0
+                    timeout: 8000,
+                    maximumAge: 2000 // Allow slightly older position data
                 }
             );
 
@@ -2218,7 +2614,7 @@
             document.getElementById('hudSpeed').textContent = `${speed} km/h`;
 
             document.getElementById('turnDistanceText').textContent = destDistance < 1 ? `${Math.round(destDistance * 1000)}m` : `${destDistance.toFixed(1)} km`;
-            document.getElementById('turnInstructionText').textContent = `📍 ${navigationDestination.name} • ETA ${etaStr}`;
+            document.getElementById('turnInstructionText').textContent = `���� ${navigationDestination.name} • ETA ${etaStr}`;
             document.getElementById('turnArrow').textContent = '→';
         }
 
@@ -2228,7 +2624,7 @@
             document.getElementById('turnInstructionText').textContent = '✓ Arrived!';
             document.getElementById('turnArrow').textContent = '✓';
             
-            showToast('🎉 You\'ve arrived at the charging station!');
+            showToast('�� You\'ve arrived at the charging station!');
             
             setTimeout(() => {
                 endNavigation();
@@ -2263,6 +2659,8 @@
             document.getElementById('turnInstructionBar').classList.remove('active');
             document.getElementById('navHUD').classList.remove('active');
             document.getElementById('routingPanel').classList.remove('active');
+            document.getElementById('sidePanel').style.display = '';
+            document.getElementById('mapLegend').style.display = '';
 
             map.setView([userLocation.lat, userLocation.lng], 14);
             showToast('✓ Navigation ended');
@@ -2291,6 +2689,26 @@
             document.getElementById('routingClose2').addEventListener('click', () => document.getElementById('routingPanel').classList.remove('active'));
 
             document.getElementById('startNavBtn').addEventListener('click', startRealTimeNavigation);
+
+            // Mobile menu handling
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidePanel = document.getElementById('sidePanel');
+            const mobilePanelOverlay = document.getElementById('mobilePanelOverlay');
+
+            if (isMobile) {
+                mobileMenuBtn.style.display = 'flex';
+            }
+
+            mobileMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sidePanel.classList.toggle('mobile-open');
+                mobilePanelOverlay.classList.toggle('active');
+            });
+
+            mobilePanelOverlay.addEventListener('click', () => {
+                sidePanel.classList.remove('mobile-open');
+                mobilePanelOverlay.classList.remove('active');
+            });
 
             document.getElementById('viewClustered').addEventListener('click', () => {
                 currentView = 'clustered';
@@ -2343,19 +2761,6 @@
                 const searchResults = document.getElementById('searchResults');
                 if (!e.target.closest('.search-container')) searchResults.classList.remove('active');
             });
-
-            // Mobile menu toggle
-            if (isMobile) {
-                document.getElementById('locationBtn').addEventListener('click', function() {
-                    // Toggle side panel visibility on mobile
-                    const panel = document.getElementById('sidePanel');
-                    setTimeout(() => {
-                        if (panel.classList.contains('mobile-open')) {
-                            panel.classList.remove('mobile-open');
-                        }
-                    }, 1000);
-                });
-            }
         }
 
         function getUserLocation() {
@@ -2416,5 +2821,5 @@
 
         initSDK();
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cbbdbbb6317310b',t:'MTc3MDcyOTE0OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cbc13d40595310b',t:'MTc3MDczMTQ0Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
