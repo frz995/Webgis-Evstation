@@ -2124,6 +2124,11 @@
             vehicleMarker = L.marker([userLocation.lat, userLocation.lng], { icon: vehicleIcon }).addTo(map);
             map.setView([userLocation.lat, userLocation.lng], 17);
 
+            // Show navigation info toast
+            const distance = parseFloat(totalRoutDistance).toFixed(1);
+            const routeTime = (parseFloat(totalRoutDistance) / 50 * 60).toFixed(0);
+            showToast(`🧭 Navigation started • ${distance} km • ~${routeTime} min`);
+
             beginLiveTracking();
         }
 
@@ -2140,8 +2145,16 @@
                         lat: position.coords.latitude,
                         lng: position.coords.longitude,
                         heading: position.coords.heading || 0,
-                        speed: position.coords.speed || 0
+                        speed: (position.coords.speed || 0) * 3.6
                     };
+
+                    if (vehicleMarker) {
+                        vehicleMarker.setLatLng([userLocation.lat, userLocation.lng]);
+                        if (vehicleMarker._icon) {
+                            vehicleMarker._icon.style.transform = `rotate(${userLocation.heading}deg)`;
+                            vehicleMarker._icon.style.filter = 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))';
+                        }
+                    }
 
                     updateVehicleDisplay();
                 },
@@ -2156,7 +2169,7 @@
                 },
                 {
                     enableHighAccuracy: true,
-                    timeout: 10000,
+                    timeout: 5000,
                     maximumAge: 0
                 }
             );
@@ -2165,15 +2178,7 @@
         }
 
         function updateVehicleDisplay() {
-            if (!vehicleMarker || !navigationActive) return;
-
-            vehicleMarker.setLatLng([userLocation.lat, userLocation.lng]);
-
-            const heading = userLocation.heading || 0;
-            if (vehicleMarker._icon) {
-                vehicleMarker._icon.style.transform = `rotate(${heading}deg)`;
-                vehicleMarker._icon.style.filter = 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))';
-            }
+            if (!vehicleMarker || !navigationActive || !navigationDestination) return;
 
             map.setView([userLocation.lat, userLocation.lng], 17, {
                 animate: true,
@@ -2192,25 +2197,28 @@
                 return;
             }
 
-            const elapsedSeconds = (Date.now() - navigationStartTime - navigationPauseTime) / 1000;
-            const totalSeconds = parseFloat(totalRoutDistance) / (userLocation.speed ? userLocation.speed * 3.6 : 50) * 3600;
-            const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
-            const remainingMinutes = Math.ceil(remainingSeconds / 60);
-
+            const avgSpeed = userLocation.speed || 50;
+            const remainingSeconds = (destDistance * 1000) / (avgSpeed / 3.6);
+            
             const hours = Math.floor(remainingSeconds / 3600);
             const mins = Math.floor((remainingSeconds % 3600) / 60);
             let timeStr = '';
             if (hours > 0) timeStr = `${hours}h ${mins}m`;
-            else timeStr = `${Math.ceil(remainingSeconds / 60)}m`;
+            else timeStr = `${Math.max(1, Math.ceil(remainingSeconds / 60))}m`;
 
-            const speed = userLocation.speed ? Math.round(userLocation.speed * 3.6) : 0;
+            const eta = new Date(Date.now() + remainingSeconds * 1000);
+            const etaHour = String(eta.getHours()).padStart(2, '0');
+            const etaMin = String(eta.getMinutes()).padStart(2, '0');
+            const etaStr = `${etaHour}:${etaMin}`;
 
-            document.getElementById('hudDistance').textContent = `${destDistance.toFixed(1)} km`;
-            document.getElementById('hudTime').textContent = timeStr;
+            const speed = Math.round(userLocation.speed) || 0;
+
+            document.getElementById('hudDistance').textContent = destDistance < 1 ? `${Math.round(destDistance * 1000)}m` : `${destDistance.toFixed(1)} km`;
+            document.getElementById('hudTime').textContent = `ETA ${etaStr}`;
             document.getElementById('hudSpeed').textContent = `${speed} km/h`;
 
             document.getElementById('turnDistanceText').textContent = destDistance < 1 ? `${Math.round(destDistance * 1000)}m` : `${destDistance.toFixed(1)} km`;
-            document.getElementById('turnInstructionText').textContent = `🧭 ${navigationDestination.name}`;
+            document.getElementById('turnInstructionText').textContent = `📍 ${navigationDestination.name} • ETA ${etaStr}`;
             document.getElementById('turnArrow').textContent = '→';
         }
 
@@ -2408,5 +2416,5 @@
 
         initSDK();
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cbbcca210aea483',t:'MTc3MDcyODUzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cbbdbbb6317310b',t:'MTc3MDcyOTE0OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
