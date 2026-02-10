@@ -1943,36 +1943,30 @@
 
         // Load EV Stations from WFS
         async function loadEVStations() {
-            const wfsUrl = 'http://localhost:8080/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=public:ev_station&outputFormat=application/json';
-            
+            const geojsonUrl = 'data/ev_station.geojson';
+        
             try {
-                const response = await fetch(wfsUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                
+                const response = await fetch(geojsonUrl);
+        
                 if (!response.ok) {
-                    throw new Error(`Server responded with status ${response.status}`);
+                    throw new Error(`Failed to load GeoJSON (${response.status})`);
                 }
-                
+        
                 const data = await response.json();
-                
-                // Check if we got features
+        
                 if (!data.features || data.features.length === 0) {
-                    throw new Error('No EV stations found in GeoServer');
+                    throw new Error('No EV stations found in GeoJSON');
                 }
-                
+        
                 allStations = data.features;
-                
+        
                 console.log(`Loaded ${allStations.length} EV stations`);
-                
+        
                 processStations();
                 renderStations();
                 updateStats();
                 populateStateList();
-                
+        
                 document.getElementById('loadingOverlay').classList.add('hidden');
                 showToast(`Loaded ${allStations.length} EV charging stations`);
             } catch (error) {
@@ -1980,21 +1974,6 @@
                 document.getElementById('loadingOverlay').classList.add('hidden');
                 showErrorToast(`Unable to load EV stations: ${error.message}`);
             }
-        }
-
-        // Process stations to extract state data
-        function processStations() {
-            stateData = {};
-            
-            allStations.forEach(station => {
-                const props = station.properties || {};
-                const state = props.state || props.negeri || 'Unknown';
-                
-                if (!stateData[state]) {
-                    stateData[state] = [];
-                }
-                stateData[state].push(station);
-            });
         }
 
         // Render stations on map
@@ -2534,3 +2513,4 @@
     </script>
 </body>
 </html>
+
