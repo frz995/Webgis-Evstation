@@ -491,6 +491,7 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(12px);
             animation: instructionSlideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            right: 50%;
         }
 
         @keyframes instructionSlideDown {
@@ -1474,8 +1475,9 @@
             .turn-instruction-bar {
                 width: 90%;
                 max-width: 320px;
-                left: 5%;
-                right: 5%;
+                left: 50% !important;
+                right: auto !important;
+                transform: translateX(-50%) !important;
                 padding: 12px 16px;
                 top: 70px;
             }
@@ -1807,7 +1809,7 @@
       </svg><span id="nightModeLabel">Night</span> </button> <button id="locationBtn" class="btn">
       <svg fill="currentColor" viewbox="0 0 24 24">
        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
-      </svg> Location </button>
+      </svg> Locate </button>
     </div>
    </div>
    <div id="mobilePanelOverlay" class="mobile-panel-overlay"></div>
@@ -1866,7 +1868,7 @@
     <div class="routing-header">
      <div class="routing-destination" id="routingDestination">
       Loading...
-     </div><button id="routingClose" class="routing-close">��</button>
+     </div><button id="routingClose" class="routing-close">✕</button>
     </div>
     <div class="routing-content">
      <div class="routing-stat"><span class="routing-stat-label">Distance</span> <span class="routing-stat-value" id="routingDistance">-- km</span>
@@ -1884,7 +1886,7 @@
       <div style="font-size: 11px; color: #999; margin-top: 6px;"><span id="batteryUsed">0 kWh used</span>
       </div>
      </div>
-     <div class="nav-buttons"><button id="startNavBtn" class="nav-button primary">Start Navigation</button> <button id="routingClose2" class="nav-button secondary">Cancel</button>
+     <div class="nav-buttons"><button id="startNavBtn" class="nav-button primary">Navigate</button> <button id="routingClose2" class="nav-button secondary">Cancel</button>
      </div>
     </div>
    </div>
@@ -1931,7 +1933,7 @@
       </div>
      </div>
     </div>
-    <div class="nav-control-buttons"><button class="nav-control-btn" onclick="toggleNavigationPause()">Pause</button> <button class="nav-control-btn" onclick="endNavigation()">End</button>
+    <div class="nav-control-buttons"><button class="nav-control-btn" onclick="toggleNavigationPause()">⏸ Pause</button> <button class="nav-control-btn" onclick="endNavigation()">🛑 End</button>
     </div>
    </div>
    <div id="stationDetailPanel" class="station-detail-panel">
@@ -1941,7 +1943,7 @@
        Station Name
       </div>
       <div class="station-detail-subtitle">
-       ⚡ EV Charging
+       🔌 EV Charging
       </div>
      </div><button class="station-detail-close" onclick="closeStationDetail()">✕</button>
     </div>
@@ -1990,7 +1992,7 @@
      </div>
      <div class="station-detail-divider"></div><button class="station-detail-action" onclick="startDirectionsFromDetail()">
       <svg viewbox="0 0 24 24" fill="currentColor" style="width: 18px; height: 18px;"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
-      </svg> Get Directions </button>
+      </svg> Directions </button>
     </div>
    </div>
    <div id="mapLegend" class="map-legend">
@@ -2157,7 +2159,7 @@
                 displayRouteOnMap();
                 
                 document.getElementById('routingPanel').classList.add('active');
-                showToast('��️ Route ready! Click "Start Navigation" to begin...');
+                showToast('⚡ Route ready! Click "Start Navigation" to begin...');
                 
                 const bounds = L.latLngBounds(routeCoordinates.map(c => [c.lat, c.lng]));
                 map.fitBounds(bounds, { padding: [50, 50] });
@@ -2304,16 +2306,24 @@
         }
 
         function renderStations(filterState = null) {
-            markerClusterGroup.clearLayers();
-            allMarkersArray.forEach(marker => {
+            const isClusteredView = currentView === 'clustered';
+            
+            // Remove clusters if showing individual
+            if (map.hasLayer(markerClusterGroup)) {
+                markerClusterGroup.clearLayers();
+                map.removeLayer(markerClusterGroup);
+            }
+
+            // Clear existing markers
+            allMarkersArray.forEach((marker) => {
                 if (map.hasLayer(marker)) map.removeLayer(marker);
             });
+
             allMarkersArray = [];
-            if (map.hasLayer(markerClusterGroup)) map.removeLayer(markerClusterGroup);
-            
+
             const stationsToRender = filterState ? allStations.filter(s => s.properties?.state === filterState) : allStations;
 
-            stationsToRender.forEach(station => {
+            stationsToRender.forEach((station, idx) => {
                 const coords = station.geometry?.coordinates;
                 if (!coords) return;
 
@@ -2332,19 +2342,23 @@
                 marker.on('click', function() {
                     showStationPopup(station);
                 });
-                markerClusterGroup.addLayer(marker);
+
+                if (isClusteredView) {
+                    markerClusterGroup.addLayer(marker);
+                } else {
+                    map.addLayer(marker);
+                }
+
                 allMarkersArray.push(marker);
             });
 
-            if (currentView === 'clustered') {
+            if (isClusteredView) {
                 map.addLayer(markerClusterGroup);
-            } else {
-                allMarkersArray.forEach(marker => map.addLayer(marker));
             }
 
             if (filterState && stationsToRender.length > 0) {
                 const bounds = L.latLngBounds(stationsToRender.map(s => [s.geometry.coordinates[1], s.geometry.coordinates[0]]));
-                map.fitBounds(bounds, { padding: [50, 50] });
+                map.fitBounds(bounds, { padding: [50, 50], animate: true, duration: 0.8 });
             }
         }
 
@@ -2411,51 +2425,11 @@
         }
 
         function showToast(message) {
-            const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 100px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #1f2937;
-                color: white;
-                padding: 14px 24px;
-                border-radius: 12px;
-                font-weight: 500;
-                z-index: 3000;
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            `;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
+            // Toast messages removed
         }
 
         function showErrorToast(message) {
-            const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 100px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #dc2626;
-                color: white;
-                padding: 14px 24px;
-                border-radius: 12px;
-                font-weight: 600;
-                z-index: 3000;
-                box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
-                max-width: 90%;
-                text-align: center;
-            `;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 5000);
+            // Error toast messages removed
         }
 
         function startRealTimeNavigation() {
@@ -2492,12 +2466,15 @@
             });
 
             vehicleMarker = L.marker([userLocation.lat, userLocation.lng], { icon: vehicleIcon }).addTo(map);
-            map.setView([userLocation.lat, userLocation.lng], 17);
+            
+            // Smooth zoom animation from current zoom to closer view (like Google Maps)
+            map.setView([userLocation.lat, userLocation.lng], 17, {
+                animate: true,
+                duration: 1.2,
+                easeLinearity: 0.5
+            });
 
-            // Show navigation info toast
-            const distance = parseFloat(totalRoutDistance).toFixed(1);
-            const routeTime = (parseFloat(totalRoutDistance) / 50 * 60).toFixed(0);
-            showToast(`🧭 Navigation started ��� ${distance} km • ~${routeTime} min`);
+            showToast(`🧭 Navigation started ⚡ ${parseFloat(totalRoutDistance).toFixed(1)} km • ~${(parseFloat(totalRoutDistance) / 50 * 60).toFixed(0)} min`);
 
             beginLiveTracking();
         }
@@ -2509,24 +2486,27 @@
 
             let gpsTimeoutCounter = 0;
             const maxTimeoutsBeforeError = 3;
+            let lastValidPosition = null;
 
             geolocationWatchId = navigator.geolocation.watchPosition(
                 (position) => {
                     if (!navigationActive) return;
 
-                    gpsTimeoutCounter = 0; // Reset timeout counter on success
+                    gpsTimeoutCounter = 0;
+
+                    const newLat = position.coords.latitude;
+                    const newLng = position.coords.longitude;
+
+                    lastValidPosition = { lat: newLat, lng: newLng };
 
                     userLocation = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
+                        lat: newLat,
+                        lng: newLng,
                         heading: position.coords.heading || 0,
                         speed: (position.coords.speed || 0) * 3.6
                     };
 
-                    // Always ensure marker exists - recreate if missing
-                    if (!vehicleMarker || !map.hasLayer(vehicleMarker)) {
-                        if (vehicleMarker) map.removeLayer(vehicleMarker);
-                        
+                    if (!vehicleMarker) {
                         const vehicleIcon = L.divIcon({
                             html: '<div style="width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-bottom: 40px solid #F6CE53; filter: drop-shadow(0 0 8px rgba(246, 206, 83, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));"></div>',
                             iconSize: [40, 40],
@@ -2534,15 +2514,21 @@
                             className: 'nav-vehicle-marker'
                         });
                         
-                        vehicleMarker = L.marker([userLocation.lat, userLocation.lng], { icon: vehicleIcon }).addTo(map);
+                        vehicleMarker = L.marker([newLat, newLng], { icon: vehicleIcon }).addTo(map);
                     } else {
-                        vehicleMarker.setLatLng([userLocation.lat, userLocation.lng]);
+                        vehicleMarker.setLatLng([newLat, newLng]);
                     }
 
-                    // Update marker rotation and glow
                     if (vehicleMarker._icon) {
                         vehicleMarker._icon.style.transform = `rotate(${userLocation.heading}deg)`;
-                        vehicleMarker._icon.style.filter = 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))';
+                        vehicleMarker._icon.style.filter = 'drop-shadow(0 0 8px rgba(246, 206, 83, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
+                    }
+
+                    const mapCenter = map.getCenter();
+                    const distanceFromCenter = getDistance(mapCenter.lat, mapCenter.lng, newLat, newLng);
+                    
+                    if (distanceFromCenter > 0.05) {
+                        map.panTo([newLat, newLng], { animate: true, duration: 0.3 });
                     }
 
                     updateVehicleDisplay();
@@ -2566,7 +2552,7 @@
                 {
                     enableHighAccuracy: true,
                     timeout: 8000,
-                    maximumAge: 2000 // Allow slightly older position data
+                    maximumAge: 0
                 }
             );
 
@@ -2576,17 +2562,24 @@
         function updateVehicleDisplay() {
             if (!vehicleMarker || !navigationActive || !navigationDestination) return;
 
-            map.setView([userLocation.lat, userLocation.lng], 17, {
-                animate: true,
-                duration: 0.5
-            });
-
             const destDistance = getDistance(
                 userLocation.lat,
                 userLocation.lng,
                 navigationDestination.lat,
                 navigationDestination.lng
             );
+
+            let targetZoom = 18;
+            if (destDistance > 3) {
+                targetZoom = 14;
+            } else if (destDistance > 1) {
+                targetZoom = 16;
+            }
+
+            map.setView([userLocation.lat, userLocation.lng], targetZoom, {
+                animate: true,
+                duration: 0.5
+            });
 
             if (destDistance < 0.05) {
                 navigationComplete();
@@ -2614,7 +2607,7 @@
             document.getElementById('hudSpeed').textContent = `${speed} km/h`;
 
             document.getElementById('turnDistanceText').textContent = destDistance < 1 ? `${Math.round(destDistance * 1000)}m` : `${destDistance.toFixed(1)} km`;
-            document.getElementById('turnInstructionText').textContent = `���� ${navigationDestination.name} • ETA ${etaStr}`;
+            document.getElementById('turnInstructionText').textContent = `🛣️ ${navigationDestination.name} • ETA ${etaStr}`;
             document.getElementById('turnArrow').textContent = '→';
         }
 
@@ -2624,7 +2617,7 @@
             document.getElementById('turnInstructionText').textContent = '✓ Arrived!';
             document.getElementById('turnArrow').textContent = '✓';
             
-            showToast('�� You\'ve arrived at the charging station!');
+            showToast('🎉 You\'ve arrived at the charging station!');
             
             setTimeout(() => {
                 endNavigation();
@@ -2690,7 +2683,6 @@
 
             document.getElementById('startNavBtn').addEventListener('click', startRealTimeNavigation);
 
-            // Mobile menu handling
             const mobileMenuBtn = document.getElementById('mobileMenuBtn');
             const sidePanel = document.getElementById('sidePanel');
             const mobilePanelOverlay = document.getElementById('mobilePanelOverlay');
@@ -2807,7 +2799,6 @@
         window.toggleNavigationPause = toggleNavigationPause;
         window.endNavigation = endNavigation;
 
-        // Handle window resize for mobile detection
         window.addEventListener('resize', () => {
             const wasMobile = isMobile;
             isMobile = window.innerWidth <= 480;
@@ -2821,5 +2812,5 @@
 
         initSDK();
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cbc13d40595310b',t:'MTc3MDczMTQ0Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cbc4b5bf00bd964',t:'MTc3MDczMzcyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
