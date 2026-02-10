@@ -1202,72 +1202,7 @@
             padding: 2px 8px;
         }
 
-        .leaflet-control-layers {
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-        }
 
-        .leaflet-control-layers-toggle {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(173, 181, 189, 0.25);
-            background-image: url('https://cdn-icons-png.flaticon.com/512/1673/1673797.png');
-            background-size: 18px 18px;
-            background-position: center;
-            background-repeat: no-repeat;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .leaflet-control-layers-toggle::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
-            pointer-events: none;
-            border-radius: 10px;
-        }
-
-        .leaflet-control-layers-toggle:hover {
-            background: linear-gradient(135deg, #ffffff 0%, #f1f3f5 100%);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-            border-color: rgba(173, 181, 189, 0.4);
-            transform: translateY(-1px);
-        }
-
-        .leaflet-control-layers-toggle:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(0, 0, 0, 0.05);
-        }
-
-        body.dark-mode .leaflet-control-layers-toggle {
-            background: linear-gradient(135deg, #374151 0%, #2d3748 100%);
-            border-color: rgba(107, 114, 128, 0.3);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        }
-
-        body.dark-mode .leaflet-control-layers-toggle:hover {
-            background: linear-gradient(135deg, #4b5563 0%, #3a4252 100%);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-            border-color: rgba(107, 114, 128, 0.5);
-        }
-
-        .leaflet-control-layers-expanded {
-            border-radius: 12px;
-            background: var(--white);
-            box-shadow: var(--shadow-lg);
-            border: 1px solid rgba(229, 231, 235, 0.6);
-        }
-
-        body.dark-mode .leaflet-control-layers-expanded {
-            background: var(--gray-100);
-            border-color: rgba(100, 100, 100, 0.3);
-        }
 
         @media (max-width: 1024px) {
             .side-panel {
@@ -1554,7 +1489,7 @@
 
             .leaflet-control-layers {
                 position: fixed !important;
-                bottom: 20px !important;
+                bottom: 100px !important;
                 left: 12px !important;
                 right: auto !important;
                 top: auto !important;
@@ -2107,6 +2042,8 @@
             }
             applyConfig();
             initMap();
+            
+
         }
 
         function applyConfig() {
@@ -2832,5 +2769,5 @@
 
         initSDK();
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb994e692aff50a',t:'MTc3MDcwNTI3Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb99f2f02f71d95',t:'MTc3MDcwNTY5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
