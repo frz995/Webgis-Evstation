@@ -2,7 +2,7 @@
 <html lang="en">
  <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <title>EV Station Finder - Navigation &amp; Route Planning</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.css">
@@ -12,6 +12,9 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         body {
@@ -20,6 +23,7 @@
             background: #f5f7fa;
             color: #333;
             overflow: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
         html, body, #root {
@@ -112,8 +116,8 @@
             transition: background 0.2s;
         }
 
-        .search-result-item:hover {
-            background: #f9f9f9;
+        .search-result-item:active {
+            background: #f0f0f0;
         }
 
         .search-result-name {
@@ -146,15 +150,12 @@
             background: white;
             color: #333;
             border: 1px solid #d0d0d0;
-        }
-
-        .btn:hover {
-            background: #f0f0f0;
-            border-color: #aaa;
+            -webkit-user-select: none;
         }
 
         .btn:active {
             transform: scale(0.98);
+            background: #f0f0f0;
         }
 
         .btn svg {
@@ -244,10 +245,6 @@
             border-radius: 3px;
         }
 
-        .state-summary-grid-container::-webkit-scrollbar-thumb:hover {
-            background: #999;
-        }
-
         .state-summary-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -267,7 +264,7 @@
             font-size: 13px;
         }
 
-        .state-summary-card:hover {
+        .state-summary-card:active {
             transform: translateX(3px);
             box-shadow: 0 3px 10px rgba(15, 82, 186, 0.15);
             border-color: #0f52ba;
@@ -315,7 +312,7 @@
             transition: all 0.2s;
         }
 
-        .nearest-item:hover {
+        .nearest-item:active {
             border-color: #007FFF;
             box-shadow: 0 2px 8px rgba(0, 127, 255, 0.2);
         }
@@ -351,10 +348,6 @@
         #nearestList::-webkit-scrollbar-thumb {
             background: #d0d0d0;
             border-radius: 3px;
-        }
-
-        #nearestList::-webkit-scrollbar-thumb:hover {
-            background: #999;
         }
 
         .routing-panel {
@@ -469,7 +462,7 @@
             color: white;
         }
 
-        .nav-button.primary:hover {
+        .nav-button.primary:active {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 127, 255, 0.3);
         }
@@ -480,245 +473,41 @@
             border: 1px solid #d0d0d0;
         }
 
-        .turn-by-turn-panel {
+        .turn-instruction-bar {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
             background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
-            backdrop-filter: blur(20px);
-            display: flex;
-            flex-direction: column;
-            z-index: 10000;
-            opacity: 0;
-            transition: opacity 0.6s ease-out;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-        }
-
-        .turn-by-turn-panel.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .turn-by-turn-panel.fade-out {
-            opacity: 0 !important;
-            transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-            pointer-events: none !important;
-        }
-
-        .nav-overlay-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 32px;
-            width: 100%;
-            max-width: 480px;
-            padding: 0 20px;
-            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .turn-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0;
-            border-bottom: none;
-            width: 100%;
-            margin-bottom: 0;
-        }
-
-        .turn-title {
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 10px;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
-
-        .turn-progress-bar {
-            height: 2px;
-            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.1));
-            background-size: 200% 100%;
-            width: 100%;
-            margin-top: 32px;
-            border-radius: 1px;
-            order: 10;
-            box-shadow: 0 0 12px rgba(255, 255, 255, 0.1) inset;
-            animation: progressFlow 3s ease-in-out infinite;
-        }
-
-        #turnProgressBar {
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            background-size: 200% 100%;
-            transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            border-radius: 1px;
-            animation: progressFlow 2s ease-in-out infinite;
-            box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
-        }
-
-        .turn-instruction-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 28px;
-            width: 100%;
-        }
-
-        #turnArrow {
-            font-size: 80px;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.9);
-            animation: arrowPulse 2.2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100px;
-            letter-spacing: -2px;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-        }
-
-        @keyframes arrowPulse {
-            0%, 100% {
-                transform: scale(1) translateY(0);
-                opacity: 0.6;
-                filter: drop-shadow(0 0 0px rgba(0, 127, 255, 0));
-            }
-            50% {
-                transform: scale(1.15) translateY(-8px);
-                opacity: 1;
-                filter: drop-shadow(0 8px 24px rgba(0, 127, 255, 0.6));
-            }
-        }
-
-        @keyframes textFloat {
-            0%, 100% {
-                opacity: 0.7;
-                transform: translateY(0);
-            }
-            50% {
-                opacity: 1;
-                transform: translateY(-4px);
-            }
-        }
-
-        @keyframes progressFlow {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        .turn-details {
-            flex: 1;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            z-index: 1002;
+            box-shadow: 0 8px 24px rgba(0, 127, 255, 0.3);
+            max-width: 400px;
             text-align: center;
-            width: 100%;
-        }
-
-        #turnDistanceText {
-            font-size: 48px;
-            font-weight: 300;
-            color: #ffffff;
-            margin-bottom: 6px;
-            letter-spacing: -0.5px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            animation: textFloat 2.4s ease-in-out infinite;
-        }
-
-        #turnInstructionText {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 400;
-            line-height: 1.6;
-            letter-spacing: 0.2px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            animation: textFloat 2.4s ease-in-out infinite;
-            animation-delay: 0.1s;
-        }
-
-        .turn-controls {
-            display: flex;
-            gap: 12px;
-            padding: 0;
-            width: 100%;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .turn-control-btn {
-            padding: 11px 24px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 13px;
-            transition: all 0.3s;
-            min-width: 130px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            letter-spacing: 0.2px;
-        }
-
-        .turn-control-btn.end {
-            background: rgba(255, 255, 255, 0.12);
-            color: rgba(255, 255, 255, 0.85);
+            display: none;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .turn-control-btn.end:hover {
-            background: rgba(255, 255, 255, 0.18);
-            border-color: rgba(255, 255, 255, 0.35);
-            transform: translateY(-1px);
+        .turn-instruction-bar.active {
+            display: block;
         }
 
-        #pauseNavBtn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        .turn-instruction-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
         }
 
-        #pauseNavBtn:hover {
-            transform: translateY(-2px);
-            background: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+        .turn-instruction-distance {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
         }
 
-        .view-toggle {
-            display: flex;
-            gap: 6px;
-            background: white;
-            padding: 4px;
-            border-radius: 12px;
-            border: 1px solid #d0d0d0;
-        }
-
-        .view-btn {
-            padding: 6px 12px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            color: #666;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-
-        .view-btn.active {
-            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
-            color: white;
+        .turn-instruction-text {
+            font-size: 14px;
+            opacity: 0.9;
         }
 
         .map-legend {
@@ -840,7 +629,7 @@
             flex-shrink: 0;
         }
 
-        .station-detail-close:hover {
+        .station-detail-close:active {
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.05);
         }
@@ -917,35 +706,35 @@
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
         }
 
-        .station-detail-action:hover {
+        .station-detail-action:active {
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
         }
 
-        body.night-mode .station-detail-panel {
-            background: #2a2a2a;
-            border-color: #444;
+        .view-toggle {
+            display: flex;
+            gap: 6px;
+            background: white;
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid #d0d0d0;
         }
 
-        body.night-mode .station-detail-body {
-            border-top-color: #444;
+        .view-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            border-radius: 8px;
+            transition: all 0.2s;
         }
 
-        body.night-mode .detail-icon {
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-            border-color: #444;
-        }
-
-        body.night-mode .detail-label {
-            color: #999;
-        }
-
-        body.night-mode .detail-value {
-            color: #e0e0e0;
-        }
-
-        body.night-mode .station-detail-divider {
-            background: #444;
+        .view-btn.active {
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
+            color: white;
         }
 
         .leaflet-control-attribution {
@@ -970,28 +759,6 @@
             }
             50% {
                 filter: drop-shadow(0 0 8px rgba(53, 89, 232, 0.6));
-            }
-        }
-
-        @keyframes waterFlow {
-            0% {
-                background-position: 0% 0%;
-            }
-            100% {
-                background-position: 100% 0%;
-            }
-        }
-
-        .water-flow-line {
-            animation: waterFlow 3s linear infinite;
-        }
-
-        @keyframes markerBounce {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
             }
         }
 
@@ -1034,20 +801,606 @@
             animation: routeGlow 2s ease-in-out infinite;
         }
 
+        .nav-hud {
+            position: fixed;
+            bottom: 40px;
+            right: 20px;
+            background: linear-gradient(135deg, rgba(0, 127, 255, 0.95) 0%, rgba(42, 82, 190, 0.95) 100%);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 16px;
+            z-index: 3002;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 24px rgba(0, 127, 255, 0.4);
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 180px;
+        }
+
+        .nav-hud.active {
+            display: flex;
+        }
+
+        .hud-label {
+            font-size: 11px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .hud-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .hud-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 8px 0;
+        }
+
+        .nav-control-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .nav-control-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .nav-control-btn:active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Mobile Optimizations */
         @media (max-width: 768px) {
-            .search-container {
-                width: 200px;
+            .header {
+                height: 60px;
+                padding: 0 12px;
+                gap: 8px;
             }
 
             #mapTitle {
-                font-size: 18px;
+                font-size: 16px;
+            }
+
+            .search-container {
+                width: 140px;
+                height: 36px;
+            }
+
+            #searchInput {
+                font-size: 12px;
+                padding: 0 10px;
+            }
+
+            .control-buttons {
+                gap: 4px;
+            }
+
+            .btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            #map {
+                margin-top: 60px;
+                height: calc(100% - 60px);
+            }
+
+            .side-panel {
+                left: 8px;
+                top: 70px;
+                width: 250px;
+                max-height: calc(100vh - 100px);
+                border-radius: 12px;
+            }
+
+            .panel-section {
+                padding: 12px;
+            }
+
+            .section-title {
+                font-size: 11px;
+                margin-bottom: 8px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+
+            .stat-card {
+                padding: 8px;
+                border-radius: 8px;
+            }
+
+            .stat-value {
+                font-size: 16px;
+            }
+
+            .stat-label {
+                font-size: 10px;
+            }
+
+            .state-summary-card {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .state-summary-count {
+                font-size: 12px;
+                padding: 2px 6px;
+                min-width: 30px;
+            }
+
+            .nearest-item {
+                padding: 10px;
+                margin-bottom: 6px;
+            }
+
+            .nearest-name {
+                font-size: 13px;
+                margin-bottom: 3px;
+            }
+
+            .nearest-distance {
+                font-size: 11px;
+            }
+
+            .routing-panel {
+                width: 90%;
+                max-width: 320px;
+                bottom: 10px;
+                right: 5%;
+                left: 5%;
+            }
+
+            .routing-header {
+                padding: 12px;
+            }
+
+            .routing-destination {
+                font-size: 14px;
+            }
+
+            .routing-content {
+                padding: 12px;
+            }
+
+            .routing-stat {
+                font-size: 13px;
+                margin-bottom: 10px;
+            }
+
+            .nav-buttons {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+                margin-top: 12px;
+            }
+
+            .nav-button {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .turn-instruction-bar {
+                width: 90%;
+                max-width: 320px;
+                left: 5%;
+                right: 5%;
+                padding: 12px 16px;
+                top: 70px;
+            }
+
+            .turn-instruction-icon {
+                font-size: 24px;
+                margin-bottom: 6px;
+            }
+
+            .turn-instruction-distance {
+                font-size: 20px;
+                margin-bottom: 2px;
+            }
+
+            .turn-instruction-text {
+                font-size: 12px;
+            }
+
+            .station-detail-panel {
+                width: 95%;
+                max-width: 320px;
+                right: 2.5%;
+                left: 2.5%;
+                top: auto;
+                bottom: 60px;
+                max-height: 70vh;
+                transform: translateY(120%);
+            }
+
+            .station-detail-panel.active {
+                transform: translateY(0);
+            }
+
+            .station-detail-header {
+                padding: 14px 12px;
+            }
+
+            .station-detail-title {
+                font-size: 14px;
+            }
+
+            .station-detail-close {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+            }
+
+            .station-detail-body {
+                padding: 12px;
+            }
+
+            .detail-item {
+                gap: 10px;
+                margin-bottom: 12px;
+            }
+
+            .detail-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+            }
+
+            .detail-label {
+                font-size: 10px;
+            }
+
+            .detail-value {
+                font-size: 13px;
+            }
+
+            .station-detail-divider {
+                margin: 12px 0;
+            }
+
+            .station-detail-action {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .nav-hud {
+                bottom: 20px;
+                right: 10px;
+                left: 10px;
+                width: auto;
+                padding: 12px 16px;
+                min-width: unset;
+            }
+
+            .hud-label {
+                font-size: 10px;
+            }
+
+            .hud-value {
+                font-size: 20px;
+            }
+
+            .hud-divider {
+                margin: 6px 0;
+            }
+
+            .nav-control-btn {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+
+            .map-legend {
+                width: 90%;
+                max-width: 280px;
+                bottom: 90px;
+                right: 5%;
+                left: auto;
+                padding: 12px;
+            }
+
+            .legend-title {
+                font-size: 12px;
+                margin-bottom: 8px;
+            }
+
+            .legend-item {
+                gap: 8px;
+                margin-bottom: 8px;
+                font-size: 11px;
+            }
+
+            .legend-color-box {
+                width: 16px;
+                height: 16px;
+            }
+
+            .battery-section {
+                margin: 12px 0;
+            }
+
+            .battery-header {
+                font-size: 12px;
+                margin-bottom: 6px;
+            }
+
+            .battery-bar {
+                height: 6px;
             }
         }
 
-        /* Night Mode Styles */
-        body.night-mode {
-            background: #1a1a1a;
-            color: #e0e0e0;
+        @media (max-width: 480px) {
+            .header {
+                height: 56px;
+                padding: 0 8px;
+                gap: 4px;
+            }
+
+            #mapTitle {
+                font-size: 14px;
+            }
+
+            .search-container {
+                display: none;
+            }
+
+            .btn {
+                padding: 5px 8px;
+                font-size: 11px;
+            }
+
+            .btn span {
+                display: none;
+            }
+
+            .btn svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            #map {
+                margin-top: 56px;
+                height: calc(100% - 56px);
+            }
+
+            .side-panel {
+                left: 4px;
+                top: 64px;
+                width: calc(100% - 8px);
+                max-width: 100%;
+                max-height: calc(100vh - 95px);
+                border-radius: 10px;
+                display: none;
+                z-index: 1500;
+            }
+
+            .side-panel.mobile-open {
+                display: flex;
+            }
+
+            .panel-section {
+                padding: 10px;
+            }
+
+            .section-title {
+                font-size: 10px;
+                margin-bottom: 6px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+                margin-bottom: 8px;
+            }
+
+            .stat-card {
+                padding: 6px;
+            }
+
+            .stat-value {
+                font-size: 14px;
+            }
+
+            .stat-label {
+                font-size: 9px;
+            }
+
+            .state-summary-card {
+                padding: 6px 8px;
+                font-size: 11px;
+                margin-bottom: 4px;
+            }
+
+            .state-summary-count {
+                font-size: 11px;
+                padding: 2px 4px;
+                min-width: 26px;
+            }
+
+            .nearest-item {
+                padding: 8px;
+                margin-bottom: 4px;
+            }
+
+            .nearest-name {
+                font-size: 12px;
+            }
+
+            .nearest-distance {
+                font-size: 10px;
+            }
+
+            .routing-panel {
+                width: 96%;
+                max-width: 100%;
+                bottom: 5px;
+                right: 2%;
+                left: 2%;
+                max-height: 60vh;
+                border-radius: 12px;
+            }
+
+            .routing-header {
+                padding: 10px;
+            }
+
+            .routing-destination {
+                font-size: 13px;
+            }
+
+            .routing-content {
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            .routing-stat {
+                font-size: 12px;
+                margin-bottom: 8px;
+            }
+
+            .nav-buttons {
+                gap: 4px;
+                margin-top: 10px;
+            }
+
+            .nav-button {
+                padding: 6px;
+                font-size: 11px;
+            }
+
+            .turn-instruction-bar {
+                width: 92%;
+                left: 4%;
+                right: 4%;
+                padding: 10px 12px;
+                top: 62px;
+                border-radius: 10px;
+            }
+
+            .turn-instruction-icon {
+                font-size: 20px;
+            }
+
+            .turn-instruction-distance {
+                font-size: 18px;
+            }
+
+            .turn-instruction-text {
+                font-size: 11px;
+            }
+
+            .station-detail-panel {
+                width: 98%;
+                left: 1%;
+                right: 1%;
+                bottom: 45px;
+                top: auto;
+                max-height: 70vh;
+                transform: translateY(120%);
+                border-radius: 12px;
+            }
+
+            .station-detail-panel.active {
+                transform: translateY(0);
+            }
+
+            .station-detail-header {
+                padding: 12px 10px;
+            }
+
+            .station-detail-title {
+                font-size: 13px;
+            }
+
+            .station-detail-close {
+                width: 26px;
+                height: 26px;
+                font-size: 14px;
+            }
+
+            .station-detail-body {
+                padding: 10px;
+                max-height: 60vh;
+                overflow-y: auto;
+            }
+
+            .detail-item {
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+
+            .detail-icon {
+                width: 32px;
+                height: 32px;
+            }
+
+            .detail-label {
+                font-size: 9px;
+            }
+
+            .detail-value {
+                font-size: 12px;
+            }
+
+            .station-detail-action {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .nav-hud {
+                bottom: 12px;
+                right: 5px;
+                left: 5px;
+                padding: 10px 12px;
+                border-radius: 12px;
+            }
+
+            .hud-label {
+                font-size: 9px;
+            }
+
+            .hud-value {
+                font-size: 18px;
+            }
+
+            .nav-control-btn {
+                padding: 5px 8px;
+                font-size: 10px;
+            }
+
+            .map-legend {
+                display: none;
+            }
+
+            .battery-section {
+                margin: 10px 0;
+            }
+
+            .battery-header {
+                font-size: 11px;
+            }
+
+            .battery-bar {
+                height: 5px;
+            }
         }
 
         body.night-mode .header {
@@ -1061,15 +1414,9 @@
 
         body.night-mode .side-panel,
         body.night-mode .routing-panel,
-        body.night-mode .turn-by-turn-panel,
         body.night-mode .map-legend {
             background: #2a2a2a;
             border-color: #444;
-        }
-
-        body.night-mode .panel-section,
-        body.night-mode .routing-content {
-            border-bottom-color: #444;
         }
 
         body.night-mode .btn {
@@ -1078,147 +1425,9 @@
             border-color: #444;
         }
 
-        body.night-mode .btn:hover {
+        body.night-mode .btn:active {
             background: #333;
             border-color: #666;
-        }
-
-        body.night-mode #searchInput {
-            background: #1f1f1f;
-            color: #e0e0e0;
-            border-color: #444;
-        }
-
-        body.night-mode #searchInput::placeholder {
-            color: #999;
-        }
-
-        body.night-mode #searchInput:focus {
-            border-color: #00D9FF;
-        }
-
-        body.night-mode #searchResults {
-            background: #2a2a2a;
-            border-color: #444;
-        }
-
-        body.night-mode .search-result-item {
-            background: #1f1f1f;
-            border-color: #444;
-            color: #e0e0e0;
-        }
-
-        body.night-mode .search-result-item:hover {
-            background: #333;
-        }
-
-        body.night-mode .search-result-name {
-            color: #e0e0e0;
-        }
-
-        body.night-mode .search-result-operator {
-            color: #999;
-        }
-
-        body.night-mode .state-summary-card {
-            background: linear-gradient(135deg, #1f1f1f 0%, #252525 100%);
-            border-color: #444;
-        }
-
-        body.night-mode .state-summary-name {
-            color: #e0e0e0;
-        }
-
-        body.night-mode .nearest-item {
-            background: #1f1f1f;
-            border-color: #444;
-        }
-
-        body.night-mode .nearest-item:hover {
-            border-color: #00D9FF;
-        }
-
-        body.night-mode .nearest-name {
-            color: #e0e0e0;
-        }
-
-        body.night-mode .nearest-distance {
-            color: #999;
-        }
-
-        body.night-mode .section-title {
-            color: #999;
-        }
-
-        body.night-mode .stat-card {
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-            border-color: #444;
-        }
-
-        body.night-mode .routing-destination {
-            color: #e0e0e0;
-        }
-
-        body.night-mode .routing-stat-label {
-            color: #999;
-        }
-
-        body.night-mode .battery-header {
-            color: #e0e0e0;
-        }
-
-        body.night-mode .turn-header {
-            background: #2a2a2a;
-            border-bottom-color: #444;
-        }
-
-        body.night-mode .turn-title {
-            color: #e0e0e0;
-        }
-
-        body.night-mode .turn-details {
-            color: #e0e0e0;
-        }
-
-        body.night-mode #turnInstructionText {
-            color: #999;
-        }
-
-        body.night-mode .turn-progress-bar {
-            background: #444;
-        }
-
-        body.night-mode .turn-control-btn {
-            background: #1f1f1f;
-            color: #e0e0e0;
-            border: 1px solid #444;
-        }
-
-        body.night-mode .legend-title {
-            color: #e0e0e0;
-        }
-
-        body.night-mode .legend-item {
-            color: #999;
-        }
-
-        body.night-mode .view-btn {
-            color: #999;
-        }
-
-        body.night-mode .view-btn.active {
-            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
-            color: white;
-        }
-
-        body.night-mode #nightModeLabel {
-            display: inline;
-        }
-
-        @media (max-width: 768px) {
-            #nightModeLabel {
-                display: none;
-            }
         }
     </style>
   <script src="/_sdk/element_sdk.js"></script>
@@ -1258,7 +1467,7 @@
     </div>
     <div class="panel-section" style="padding: 12px; border-bottom: 1px solid #f0f0f0;">
      <div class="section-title">
-      States
+      🗺️ States
      </div><button id="clearFilterBtn" class="btn" style="font-size: 11px; padding: 4px 8px; display: none;">Clear</button>
      <div class="state-summary-grid-container">
       <div style="display: flex; gap: 6px; margin-bottom: 12px; background: white; padding: 4px; border-radius: 12px; border: 1px solid #d0d0d0;"><button id="viewClustered" class="view-btn active" style="flex: 1; padding: 6px 12px;">Clustered</button> <button id="viewIndividual" class="view-btn" style="flex: 1; padding: 6px 12px;">Individual</button>
@@ -1268,7 +1477,7 @@
     </div>
     <div class="panel-section" style="padding: 12px; border-bottom: 1px solid #f0f0f0;">
      <div class="section-title">
-      ⚡ Overall Stats
+      📊 Overall Stats
      </div>
      <div class="stats-grid">
       <div class="stat-card">
@@ -1322,33 +1531,39 @@
      </div>
     </div>
    </div>
-   <div id="turnByTurnPanel" class="turn-by-turn-panel">
-    <div class="nav-overlay-container">
-     <div class="turn-header" style="flex-direction: column; gap: 8px; align-items: center;">
-      <div class="turn-title">
-       🧭 Navigation
-      </div>
-      <div style="font-size: 13px; color: #999; display: flex; gap: 16px; font-weight: 500;"><span id="turnTimeProgress">-- left</span> <span>•</span> <span id="turnDistanceProgress">-- km</span>
-      </div>
-     </div>
-     <div class="turn-instruction-area">
-      <div id="turnArrow">
-       ➤
-      </div>
-      <div class="turn-details">
-       <div id="turnDistanceText">
-        --m
-       </div>
-       <div id="turnInstructionText">
-        Continue
-       </div>
-      </div>
-     </div>
-     <div class="turn-controls"><button id="turnCloseBtn" class="turn-control-btn end">✕ Exit</button> <button id="turnEndBtn" class="turn-control-btn end">✓ Arrived</button>
-     </div>
-     <div class="turn-progress-bar" style="margin-top: 20px;">
-      <div id="turnProgressBar" style="width: 0%;"></div>
-     </div>
+   <div id="turnInstructionBar" class="turn-instruction-bar">
+    <div class="turn-instruction-icon" id="turnArrow">
+     ⬆
+    </div>
+    <div class="turn-instruction-distance" id="turnDistanceText">
+     --m
+    </div>
+    <div class="turn-instruction-text" id="turnInstructionText">
+     Navigation started
+    </div>
+   </div>
+   <div id="navHUD" class="nav-hud">
+    <div class="hud-label">
+     Distance to Destination
+    </div>
+    <div class="hud-value" id="hudDistance">
+     -- km
+    </div>
+    <div class="hud-divider"></div>
+    <div class="hud-label">
+     Time Remaining
+    </div>
+    <div class="hud-value" id="hudTime">
+     --:--
+    </div>
+    <div class="hud-divider"></div>
+    <div class="hud-label">
+     Current Speed
+    </div>
+    <div class="hud-value" id="hudSpeed">
+     -- km/h
+    </div>
+    <div class="nav-control-buttons"><button class="nav-control-btn" onclick="toggleNavigationPause()">Pause</button> <button class="nav-control-btn" onclick="endNavigation()">End</button>
     </div>
    </div>
    <div id="stationDetailPanel" class="station-detail-panel">
@@ -1446,20 +1661,15 @@
         let allMarkersArray = [];
         let routePolyline = null;
         let vehicleMarker = null;
-        let animationId = null;
         let routeCoordinates = [];
-        let overlayTimeoutId = null;
         let navigationActive = false;
         let navigationPaused = false;
-        let navStartTime = 0;
-        let navPausedTime = 0;
-        let navigationTurns = [];
-        let currentTurnIndex = 0;
         let geolocationWatchId = null;
-        let navigationStartLocation = null;
         let navigationDestination = null;
-        let navigationSimulationStartTime = 0;
-        let simulatedRouteProgress = 0;
+        let totalRoutDistance = 0;
+        let navigationStartTime = 0;
+        let navigationPauseTime = 0;
+        let isMobile = window.innerWidth <= 480;
 
         async function initSDK() {
             if (window.elementSdk) {
@@ -1538,8 +1748,12 @@
             
             selectedStation = { lat, lng, name };
             
+            if (isMobile) {
+                document.getElementById('sidePanel').classList.remove('mobile-open');
+            }
+            
             try {
-                showToast('🧭 Calculating route...');
+                showToast('🛣️ Calculating route...');
                 const routeData = await getOSRMRoute(userLocation.lat, userLocation.lng, lat, lng);
                 
                 const summary = routeData.summary;
@@ -1548,6 +1762,7 @@
                 const avgSpeed = (summary.lengthInMeters / summary.travelTimeInSeconds * 3.6).toFixed(0);
                 
                 routeCoordinates = routeData.legs[0].points || [];
+                totalRoutDistance = distance;
                 
                 const batteryCapacity = 60;
                 const consumptionRate = 17;
@@ -1556,7 +1771,7 @@
                 
                 document.getElementById('routingDestination').textContent = name;
                 document.getElementById('routingDistance').textContent = `${distance} km`;
-                document.getElementById('routingTime').textContent = formatTime(time);
+                document.getElementById('routingTime').textContent = `${Math.floor(time / 60)}h ${time % 60}m`;
                 document.getElementById('routingSpeed').textContent = `${avgSpeed} km/h`;
                 document.getElementById('batteryFill').style.width = `${batteryPercent}%`;
                 document.getElementById('batteryUsed').textContent = `${batteryUsed} kWh used`;
@@ -1590,62 +1805,16 @@
             if (!routeCoordinates || routeCoordinates.length === 0) return;
 
             if (routePolyline && map.hasLayer(routePolyline)) map.removeLayer(routePolyline);
-            if (window.glowPolyline && map.hasLayer(window.glowPolyline)) map.removeLayer(window.glowPolyline);
-            if (window.strokePolyline && map.hasLayer(window.strokePolyline)) map.removeLayer(window.strokePolyline);
-            if (window.glowAnimationInterval) clearInterval(window.glowAnimationInterval);
 
             const routePath = routeCoordinates.map(c => [c.lat, c.lng]);
-            
-            window.strokePolyline = L.polyline(routePath, {
-                color: '#1a3a7a',
-                weight: 12,
-                opacity: 0.6,
-                lineCap: 'round',
-                lineJoin: 'round'
-            }).addTo(map);
             
             routePolyline = L.polyline(routePath, {
                 color: '#007FFF',
                 weight: 8,
-                opacity: 1,
+                opacity: 0.8,
                 lineCap: 'round',
                 lineJoin: 'round'
             }).addTo(map);
-            
-            window.glowPolyline = L.polyline(routePath, {
-                color: '#2a52be',
-                weight: 14,
-                opacity: 0.3,
-                lineCap: 'round',
-                lineJoin: 'round'
-            }).addTo(map);
-            
-            let pulseScale = 1;
-            let pulseDirection = 1;
-            const animateGlow = () => {
-                pulseScale += (0.02 * pulseDirection);
-                
-                if (pulseScale > 1.3) pulseDirection = -1;
-                if (pulseScale < 0.7) pulseDirection = 1;
-                
-                if (window.glowPolyline._path) {
-                    window.glowPolyline._path.style.opacity = 0.2 + (0.25 * Math.sin(pulseScale));
-                }
-                if (routePolyline._path) {
-                    routePolyline._path.style.filter = `drop-shadow(0 0 ${6 * Math.sin(pulseScale)}px rgba(0, 127, 255, 0.5))`;
-                }
-            };
-            
-            window.glowAnimationInterval = setInterval(animateGlow, 30);
-        }
-
-        function formatTime(minutes) {
-            if (minutes < 60) {
-                return `${minutes} min`;
-            }
-            const hours = Math.floor(minutes / 60);
-            const mins = minutes % 60;
-            return `${hours}h ${mins}m`;
         }
 
         function initMap() {
@@ -1825,7 +1994,7 @@
                 .forEach(([state, stations]) => {
                     const summaryCard = document.createElement('div');
                     summaryCard.className = 'state-summary-card';
-                    summaryCard.innerHTML = `<span class="state-summary-name">${state}</span><span class="state-summary-count">${stations.length}</span>`;
+                    summaryCard.innerHTML = `<span class="state-summary-name">⚡ ${state}</span><span class="state-summary-count">${stations.length}</span>`;
                     summaryCard.addEventListener('click', () => filterByState(state));
                     stateSummary.appendChild(summaryCard);
                 });
@@ -1921,118 +2090,28 @@
             }, 5000);
         }
 
-        function calculateBearing(from, to) {
-            const dLon = (to.lng - from.lng) * Math.PI / 180;
-            const lat1 = from.lat * Math.PI / 180;
-            const lat2 = to.lat * Math.PI / 180;
-            
-            const y = Math.sin(dLon) * Math.cos(lat2);
-            const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-            const bearing = Math.atan2(y, x) * 180 / Math.PI;
-            
-            return (bearing + 360) % 360;
-        }
-
-        function calculateTurn(prevBearing, nextBearing) {
-            let turn = nextBearing - prevBearing;
-            while (turn > 180) turn -= 360;
-            while (turn < -180) turn += 360;
-            return turn;
-        }
-
-        function getTurnIcon(turn) {
-            const absT = Math.abs(turn);
-            if (absT < 15) return { icon: '⬆', text: 'Continue ahead', color: '#3559E8' };
-            if (turn > 15 && turn < 45) return { icon: '↗', text: 'Slight right', color: '#8B5CF6' };
-            if (turn >= 45 && turn < 110) return { icon: '→', text: 'Turn right', color: '#3B82F6' };
-            if (turn >= 110 && turn < 150) return { icon: '↘', text: 'Sharp right', color: '#1D4ED8' };
-            if (turn >= 150) return { icon: '↩', text: 'Make a U-turn', color: '#DC2626' };
-            if (turn < -15 && turn > -45) return { icon: '↖', text: 'Slight left', color: '#8B5CF6' };
-            if (turn <= -45 && turn > -110) return { icon: '←', text: 'Turn left', color: '#3B82F6' };
-            if (turn <= -110 && turn > -150) return { icon: '↙', text: 'Sharp left', color: '#1D4ED8' };
-            if (turn <= -150) return { icon: '↩', text: 'Make a U-turn', color: '#DC2626' };
-            return { icon: '⬆', text: 'Continue', color: '#3559E8' };
-        }
-
-        function generateNavigationTurns(coordinates) {
-            const turns = [];
-            
-            for (let i = 1; i < coordinates.length - 1; i++) {
-                const prevCoord = coordinates[i - 1];
-                const currentCoord = coordinates[i];
-                const nextCoord = coordinates[i + 1];
-                
-                const prevBearing = calculateBearing(prevCoord, currentCoord);
-                const nextBearing = calculateBearing(currentCoord, nextCoord);
-                const turn = calculateTurn(prevBearing, nextBearing);
-                
-                const absT = Math.abs(turn);
-                if (absT > 15) {
-                    let distanceFromTurn = 0;
-                    for (let j = i; j > 0; j--) {
-                        distanceFromTurn += getDistance(
-                            coordinates[j - 1].lat,
-                            coordinates[j - 1].lng,
-                            coordinates[j].lat,
-                            coordinates[j].lng
-                        );
-                    }
-                    
-                    const turnInfo = getTurnIcon(turn);
-                    turns.push({
-                        coordinateIndex: i,
-                        turn,
-                        distance: distanceFromTurn,
-                        ...turnInfo
-                    });
-                }
-            }
-            
-            return turns;
-        }
-
-        function getNextTurnInfo(currentIndex, turns) {
-            for (let i = 0; i < turns.length; i++) {
-                if (turns[i].coordinateIndex > currentIndex) {
-                    return { turn: turns[i], nextIndex: i };
-                }
-            }
-            return { turn: null, nextIndex: -1 };
-        }
-
         function startRealTimeNavigation() {
-            if (!routeCoordinates || routeCoordinates.length === 0) return;
+            if (!routeCoordinates || routeCoordinates.length === 0) {
+                showErrorToast('No route found');
+                return;
+            }
 
             navigationActive = true;
             navigationPaused = false;
-            currentTurnIndex = 0;
-            navigationStartLocation = userLocation ? { ...userLocation } : null;
             navigationDestination = selectedStation;
-            
-            if (animationId) cancelAnimationFrame(animationId);
-            
-            navigationTurns = generateNavigationTurns(routeCoordinates);
+            navigationStartTime = Date.now();
+            navigationPauseTime = 0;
 
-            if (window.strokePolyline) {
-                window.strokePolyline.setStyle({
-                    color: '#007FFF',
-                    weight: 12,
-                    opacity: 0.9
-                });
+            document.getElementById('routingPanel').classList.remove('active');
+            document.getElementById('turnInstructionBar').classList.add('active');
+            document.getElementById('navHUD').classList.add('active');
+
+            if (userMarker && map.hasLayer(userMarker)) {
+                map.removeLayer(userMarker);
             }
-            if (routePolyline) {
-                routePolyline.setStyle({
-                    color: '#2a52be',
-                    weight: 10,
-                    opacity: 1
-                });
-            }
-            if (window.glowPolyline) {
-                window.glowPolyline.setStyle({
-                    color: '#007FFF',
-                    weight: 14,
-                    opacity: 0.6
-                });
+
+            if (vehicleMarker && map.hasLayer(vehicleMarker)) {
+                map.removeLayer(vehicleMarker);
             }
 
             const vehicleIcon = L.divIcon({
@@ -2042,547 +2121,143 @@
                 className: 'nav-vehicle-marker'
             });
 
-            if (vehicleMarker && map.hasLayer(vehicleMarker)) map.removeLayer(vehicleMarker);
             vehicleMarker = L.marker([userLocation.lat, userLocation.lng], { icon: vehicleIcon }).addTo(map);
             map.setView([userLocation.lat, userLocation.lng], 17);
 
-            const totalDistance = routeCoordinates.reduce((sum, coord, i) => {
-                if (i === 0) return 0;
-                return sum + getDistance(routeCoordinates[i - 1].lat, routeCoordinates[i - 1].lng, coord.lat, coord.lng);
-            }, 0);
-            
-            const navigationSpeed = 50;
-            const totalTime = (totalDistance / navigationSpeed) * 3600 * 1000;
-            
-            navStartTime = Date.now();
-            navPausedTime = 0;
-
-            const turnByTurnPanel = document.getElementById('turnByTurnPanel');
-            turnByTurnPanel.classList.add('active');
-            turnByTurnPanel.classList.remove('fade-out');
-            
-            const navOverlayContainer = turnByTurnPanel.querySelector('.nav-overlay-container');
-            navOverlayContainer.style.transition = 'none';
-            navOverlayContainer.style.opacity = '1';
-            navOverlayContainer.style.transform = 'scale(1)';
-            
-            document.getElementById('turnArrow').textContent = '⬆';
-            document.getElementById('turnDistanceText').textContent = 'Ready?';
-            document.getElementById('turnInstructionText').textContent = 'Starting navigation in 3 seconds...';
-            document.getElementById('turnInstructionText').style.color = 'rgba(255, 255, 255, 0.8)';
-            
-            if (overlayTimeoutId) clearTimeout(overlayTimeoutId);
-            
-            // Schedule overlay fade-out after 3 seconds
-            overlayTimeoutId = setTimeout(() => {
-                console.log('Fade-out triggered at 3 seconds');
-                turnByTurnPanel.classList.add('fade-out');
-                
-                // After fade-out animation completes, remove active class
-                setTimeout(() => {
-                    console.log('Removing active class after fade-out');
-                    if (turnByTurnPanel.classList.contains('fade-out')) {
-                        turnByTurnPanel.classList.remove('active');
-                    }
-                }, 800);
-            }, 3000);
-            
-            // Start geolocation immediately in background
-            beginGeolocationTracking(totalTime, navigationTurns);
+            beginLiveTracking();
         }
 
-        let lastLocationUpdate = null;
-        let smoothHeading = 0;
-
-        function beginGeolocationTracking(totalTime, navigationTurns) {
-            if (!geolocationWatchId) {
-                geolocationWatchId = navigator.geolocation.watchPosition(
-                    (position) => {
-                        userLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude,
-                            accuracy: position.coords.accuracy,
-                            heading: position.coords.heading,
-                            speed: position.coords.speed
-                        };
-                        
-                        lastLocationUpdate = {
-                            lat: userLocation.lat,
-                            lng: userLocation.lng,
-                            timestamp: Date.now()
-                        };
-                        
-                        if (userLocation.heading !== null && userLocation.heading !== undefined) {
-                            let headingDiff = userLocation.heading - smoothHeading;
-                            if (headingDiff > 180) headingDiff -= 360;
-                            if (headingDiff < -180) headingDiff += 360;
-                            smoothHeading += headingDiff * 0.15;
-                        }
-                        
-                        if (vehicleMarker) {
-                            vehicleMarker.setLatLng([userLocation.lat, userLocation.lng]);
-                            
-                            const heading = userLocation.heading !== null ? userLocation.heading : smoothHeading;
-                            vehicleMarker._icon.style.transform = `rotate(${heading}deg) scale(1.1)`;
-                            vehicleMarker._icon.style.filter = 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))';
-                            
-                            updateDirectionIndicator(heading);
-                        }
-                        
-                        updateMapView(userLocation);
-                        
-                        if (!navigationDestination) {
-                            endNavigation();
-                            return;
-                        }
-                        
-                        const remainingDistance = getDistance(
-                            userLocation.lat,
-                            userLocation.lng,
-                            navigationDestination.lat,
-                            navigationDestination.lng
-                        );
-                        
-                        if (remainingDistance < 0.05) {
-                            navigationComplete();
-                            return;
-                        }
-                        
-                        let closestIndex = 0;
-                        let closestDistance = Infinity;
-                        for (let i = 0; i < routeCoordinates.length; i++) {
-                            const d = getDistance(
-                                userLocation.lat,
-                                userLocation.lng,
-                                routeCoordinates[i].lat,
-                                routeCoordinates[i].lng
-                            );
-                            if (d < closestDistance) {
-                                closestDistance = d;
-                                closestIndex = i;
-                            }
-                        }
-                        
-                        const routeProgress = closestIndex / routeCoordinates.length;
-                        const elapsedTime = routeProgress * totalTime;
-                        const remainingSeconds = Math.max(0, (totalTime - elapsedTime) / 1000);
-                        
-                        const hours = Math.floor(remainingSeconds / 3600);
-                        const mins = Math.floor((remainingSeconds % 3600) / 60);
-                        const secs = Math.floor(remainingSeconds % 60);
-
-                        let timeStr = '';
-                        if (hours > 0) timeStr = `${hours}h ${mins}m`;
-                        else if (mins > 0) timeStr = `${mins}:${String(secs).padStart(2, '0')}`;
-                        else timeStr = `${Math.ceil(secs)}s`;
-
-                        document.getElementById('turnTimeProgress').textContent = timeStr;
-                        document.getElementById('turnDistanceProgress').textContent = `${remainingDistance.toFixed(1)} km`;
-                        document.getElementById('turnProgressBar').style.width = `${(routeProgress * 100)}%`;
-
-                        updateSpeedDisplay(userLocation.speed);
-
-                        const { turn: nextTurn, nextIndex } = getNextTurnInfo(closestIndex, navigationTurns);
-
-                        if (nextTurn) {
-                            const distanceToTurn = getDistance(
-                                userLocation.lat,
-                                userLocation.lng,
-                                routeCoordinates[nextTurn.coordinateIndex].lat,
-                                routeCoordinates[nextTurn.coordinateIndex].lng
-                            );
-
-                            if (distanceToTurn < 0.5) {
-                                updateTurnDisplay(nextTurn, Math.round(distanceToTurn * 1000), `${nextTurn.icon} ${nextTurn.text}`, true);
-                            } else {
-                                const futureIndex = nextIndex + 1;
-                                if (futureIndex < navigationTurns.length) {
-                                    const futureTurn = navigationTurns[futureIndex];
-                                    const distanceToFuture = getDistance(
-                                        userLocation.lat,
-                                        userLocation.lng,
-                                        routeCoordinates[futureTurn.coordinateIndex].lat,
-                                        routeCoordinates[futureTurn.coordinateIndex].lng
-                                    );
-                                    
-                                    if (distanceToFuture < 1) {
-                                        updateTurnDisplay(futureTurn, Math.round(distanceToFuture * 1000), `In ${Math.round(distanceToTurn * 1000)}m, ${futureTurn.text}`, false);
-                                    } else {
-                                        updateTurnDisplay(nextTurn, distanceToTurn > 1 ? Math.round(distanceToTurn * 1000) : Math.round(distanceToTurn * 1000), nextTurn.text, false);
-                                    }
-                                } else {
-                                    updateTurnDisplay({ icon: '🎯', text: 'Continue to destination' }, Math.round(remainingDistance * 1000), 'Continue to destination', false);
-                                }
-                            }
-                        } else {
-                            updateTurnDisplay({ icon: '🎯', text: 'Approaching destination' }, Math.round(remainingDistance * 1000), 'Approaching destination', false);
-                        }
-                    },
-                    (error) => {
-                        if (error.code === 3) {
-                            showToast('📍 Switching to simulation mode...');
-                            if (geolocationWatchId !== null) {
-                                navigator.geolocation.clearWatch(geolocationWatchId);
-                                geolocationWatchId = null;
-                            }
-                            simulateNavigation(totalTime, navigationTurns);
-                        } else if (error.code === 1) {
-                            showErrorToast('Location permission denied');
-                            endNavigation();
-                        } else if (error.code === 2) {
-                            showToast('Location unavailable - retrying...');
-                        }
-                    },
-                    {
-                        enableHighAccuracy: false,
-                        timeout: 20000,
-                        maximumAge: 8000
-                    }
-                );
+        function beginLiveTracking() {
+            if (geolocationWatchId !== null) {
+                navigator.geolocation.clearWatch(geolocationWatchId);
             }
 
-            setupNavigationControls();
-        }
+            geolocationWatchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    if (!navigationActive) return;
 
-        function simulateNavigation(totalTime, navigationTurns) {
-            navigationSimulationStartTime = Date.now();
-            
-            function updateSimulation() {
-                const elapsedTime = Date.now() - navigationSimulationStartTime;
-                simulatedRouteProgress = Math.min(1, elapsedTime / totalTime);
-                
-                if (simulatedRouteProgress >= 1) {
-                    navigationComplete();
-                    return;
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        heading: position.coords.heading || 0,
+                        speed: position.coords.speed || 0
+                    };
+
+                    updateVehicleDisplay();
+                },
+                (error) => {
+                    if (error.code === 1) {
+                        showErrorToast('Location permission denied');
+                    } else if (error.code === 2) {
+                        showErrorToast('Position unavailable');
+                    } else if (error.code === 3) {
+                        showErrorToast('GPS timeout - enable location services');
+                    }
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
                 }
-                
-                const currentRouteIndex = Math.floor(simulatedRouteProgress * (routeCoordinates.length - 1));
-                const simLocation = routeCoordinates[currentRouteIndex];
-                
-                userLocation = {
-                    lat: simLocation.lat,
-                    lng: simLocation.lng,
-                    accuracy: 15,
-                    heading: currentRouteIndex < routeCoordinates.length - 1 
-                        ? calculateBearing(simLocation, routeCoordinates[currentRouteIndex + 1])
-                        : 0,
-                    speed: 15
-                };
-                
-                updateNavigationDisplay(userLocation, totalTime, navigationTurns);
-                animationId = requestAnimationFrame(updateSimulation);
-            }
-            
-            animationId = requestAnimationFrame(updateSimulation);
+            );
+
+            showToast('🧭 Navigation started - tracking real GPS...');
         }
 
-        function updateNavigationDisplay(location, totalTime, navigationTurns) {
-            if (vehicleMarker) {
-                vehicleMarker.setLatLng([location.lat, location.lng]);
-                
-                const heading = location.heading !== null ? location.heading : smoothHeading;
-                vehicleMarker._icon.style.transform = `rotate(${heading}deg) scale(1.1)`;
+        function updateVehicleDisplay() {
+            if (!vehicleMarker || !navigationActive) return;
+
+            vehicleMarker.setLatLng([userLocation.lat, userLocation.lng]);
+
+            const heading = userLocation.heading || 0;
+            if (vehicleMarker._icon) {
+                vehicleMarker._icon.style.transform = `rotate(${heading}deg)`;
                 vehicleMarker._icon.style.filter = 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))';
-                
-                updateDirectionIndicator(heading);
             }
-            
-            updateMapView(location);
-            
-            if (!navigationDestination) {
-                endNavigation();
-                return;
-            }
-            
-            const remainingDistance = getDistance(
-                location.lat,
-                location.lng,
+
+            map.setView([userLocation.lat, userLocation.lng], 17, {
+                animate: true,
+                duration: 0.5
+            });
+
+            const destDistance = getDistance(
+                userLocation.lat,
+                userLocation.lng,
                 navigationDestination.lat,
                 navigationDestination.lng
             );
-            
-            if (remainingDistance < 0.05) {
+
+            if (destDistance < 0.05) {
                 navigationComplete();
                 return;
             }
-            
-            let closestIndex = 0;
-            let closestDistance = Infinity;
-            for (let i = 0; i < routeCoordinates.length; i++) {
-                const d = getDistance(
-                    location.lat,
-                    location.lng,
-                    routeCoordinates[i].lat,
-                    routeCoordinates[i].lng
-                );
-                if (d < closestDistance) {
-                    closestDistance = d;
-                    closestIndex = i;
-                }
-            }
-            
-            const routeProgress = closestIndex / routeCoordinates.length;
-            const elapsedTime = routeProgress * totalTime;
-            const remainingSeconds = Math.max(0, (totalTime - elapsedTime) / 1000);
-            
+
+            const elapsedSeconds = (Date.now() - navigationStartTime - navigationPauseTime) / 1000;
+            const totalSeconds = parseFloat(totalRoutDistance) / (userLocation.speed ? userLocation.speed * 3.6 : 50) * 3600;
+            const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
+            const remainingMinutes = Math.ceil(remainingSeconds / 60);
+
             const hours = Math.floor(remainingSeconds / 3600);
             const mins = Math.floor((remainingSeconds % 3600) / 60);
-            const secs = Math.floor(remainingSeconds % 60);
-
             let timeStr = '';
             if (hours > 0) timeStr = `${hours}h ${mins}m`;
-            else if (mins > 0) timeStr = `${mins}:${String(secs).padStart(2, '0')}`;
-            else timeStr = `${Math.ceil(secs)}s`;
+            else timeStr = `${Math.ceil(remainingSeconds / 60)}m`;
 
-            document.getElementById('turnTimeProgress').textContent = timeStr;
-            document.getElementById('turnDistanceProgress').textContent = `${remainingDistance.toFixed(1)} km`;
-            document.getElementById('turnProgressBar').style.width = `${(routeProgress * 100)}%`;
+            const speed = userLocation.speed ? Math.round(userLocation.speed * 3.6) : 0;
 
-            updateSpeedDisplay(location.speed);
+            document.getElementById('hudDistance').textContent = `${destDistance.toFixed(1)} km`;
+            document.getElementById('hudTime').textContent = timeStr;
+            document.getElementById('hudSpeed').textContent = `${speed} km/h`;
 
-            const { turn: nextTurn, nextIndex } = getNextTurnInfo(closestIndex, navigationTurns);
-
-            if (nextTurn) {
-                const distanceToTurn = getDistance(
-                    location.lat,
-                    location.lng,
-                    routeCoordinates[nextTurn.coordinateIndex].lat,
-                    routeCoordinates[nextTurn.coordinateIndex].lng
-                );
-
-                if (distanceToTurn < 0.5) {
-                    updateTurnDisplay(nextTurn, Math.round(distanceToTurn * 1000), `${nextTurn.icon} ${nextTurn.text}`, true);
-                } else {
-                    const futureIndex = nextIndex + 1;
-                    if (futureIndex < navigationTurns.length) {
-                        const futureTurn = navigationTurns[futureIndex];
-                        const distanceToFuture = getDistance(
-                            location.lat,
-                            location.lng,
-                            routeCoordinates[futureTurn.coordinateIndex].lat,
-                            routeCoordinates[futureTurn.coordinateIndex].lng
-                        );
-                        
-                        if (distanceToFuture < 1) {
-                            updateTurnDisplay(futureTurn, Math.round(distanceToFuture * 1000), `In ${Math.round(distanceToTurn * 1000)}m, ${futureTurn.text}`, false);
-                        } else {
-                            updateTurnDisplay(nextTurn, distanceToTurn > 1 ? Math.round(distanceToTurn * 1000) : Math.round(distanceToTurn * 1000), nextTurn.text, false);
-                        }
-                    } else {
-                        updateTurnDisplay({ icon: '🎯', text: 'Continue to destination' }, Math.round(remainingDistance * 1000), 'Continue to destination', false);
-                    }
-                }
-            } else {
-                updateTurnDisplay({ icon: '🎯', text: 'Approaching destination' }, Math.round(remainingDistance * 1000), 'Approaching destination', false);
-            }
-        }
-
-        function updateMapView(location) {
-            const speed = location.speed || 0;
-            let zoomLevel = 18;
-            
-            if (speed > 20) zoomLevel = 17;
-            else if (speed > 10) zoomLevel = 17.5;
-            else if (speed > 5) zoomLevel = 18;
-            else zoomLevel = 18.5;
-
-            map.flyTo([location.lat, location.lng], zoomLevel, {
-                duration: 0.8,
-                easeLinearity: 0.25
-            });
-        }
-
-        function updateSpeedDisplay(speed) {
-            let speedDisplay = '0 km/h';
-            if (speed !== null && speed !== undefined) {
-                const kmh = Math.round((speed || 0) * 3.6);
-                speedDisplay = `${kmh} km/h`;
-            }
-
-            let speedElement = document.getElementById('speedDisplay');
-            if (!speedElement) {
-                speedElement = document.createElement('div');
-                speedElement.id = 'speedDisplay';
-                speedElement.style.cssText = `
-                    position: fixed;
-                    bottom: 40px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: linear-gradient(135deg, rgba(0, 127, 255, 0.95) 0%, rgba(42, 82, 190, 0.95) 100%);
-                    color: white;
-                    padding: 12px 24px;
-                    border-radius: 12px;
-                    font-weight: 700;
-                    z-index: 3001;
-                    font-size: 18px;
-                    border: 2px solid rgba(255, 255, 255, 0.3);
-                    backdrop-filter: blur(10px);
-                    box-shadow: 0 8px 24px rgba(0, 127, 255, 0.4);
-                `;
-                document.body.appendChild(speedElement);
-            }
-            speedElement.textContent = speedDisplay;
-        }
-
-        function updateDirectionIndicator(heading) {
-            let directionElement = document.getElementById('directionIndicator');
-            if (!directionElement) {
-                directionElement = document.createElement('div');
-                directionElement.id = 'directionIndicator';
-                directionElement.style.cssText = `
-                    position: fixed;
-                    top: 90px;
-                    right: 16px;
-                    width: 60px;
-                    height: 60px;
-                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%);
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 1002;
-                    border: 2px solid rgba(0, 127, 255, 0.3);
-                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-                `;
-                document.body.appendChild(directionElement);
-            }
-            
-            const arrow = document.createElement('div');
-            arrow.style.cssText = `
-                font-size: 32px;
-                transform: rotate(${heading}deg);
-                transition: transform 0.3s ease;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            `;
-            arrow.textContent = '⬆';
-            
-            directionElement.innerHTML = '';
-            directionElement.appendChild(arrow);
-        }
-
-        function updateTurnDisplay(turnInfo, distance, instruction, isImmediate) {
-            const arrow = document.getElementById('turnArrow');
-            const distText = document.getElementById('turnDistanceText');
-            const instText = document.getElementById('turnInstructionText');
-
-            if (isImmediate) {
-                arrow.style.animation = 'none';
-                setTimeout(() => {
-                    arrow.style.animation = 'arrowPulse 2.2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite';
-                }, 10);
-            }
-
-            arrow.textContent = turnInfo.icon;
-            arrow.style.color = 'rgba(255, 255, 255, 0.95)';
-            
-            distText.style.opacity = '0.5';
-            distText.style.transform = 'scale(0.8)';
-            setTimeout(() => {
-                distText.textContent = distance > 1000 ? `${(distance / 1000).toFixed(1)} km` : `${distance}m`;
-                distText.style.opacity = '1';
-                distText.style.transform = 'scale(1)';
-                distText.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            }, 100);
-
-            instText.style.opacity = '0.5';
-            setTimeout(() => {
-                instText.textContent = instruction;
-                instText.style.opacity = isImmediate ? '1' : '0.8';
-                instText.style.transition = 'opacity 0.4s ease';
-            }, 100);
-        }
-
-        function setupNavigationControls() {
-            const navPanel = document.getElementById('turnByTurnPanel');
-            
-            if (!document.getElementById('pauseNavBtn')) {
-                const pauseBtn = document.createElement('button');
-                pauseBtn.id = 'pauseNavBtn';
-                pauseBtn.className = 'turn-control-btn';
-                pauseBtn.style.cssText = 'background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: white; grid-column: auto;';
-                pauseBtn.textContent = '⏸ Pause';
-                pauseBtn.onclick = toggleNavigationPause;
-                
-                const controlsDiv = navPanel.querySelector('.turn-controls');
-                controlsDiv.insertBefore(pauseBtn, controlsDiv.firstChild);
-            }
-        }
-
-        function toggleNavigationPause() {
-            const pauseBtn = document.getElementById('pauseNavBtn');
-            
-            if (navigationPaused) {
-                navigationPaused = false;
-                navPausedTime += Date.now() - navStartTime;
-                navStartTime = Date.now();
-                pauseBtn.textContent = '⏸ Pause';
-                pauseBtn.style.background = 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)';
-                showToast('🧭 Navigation resumed');
-                if (animationId) cancelAnimationFrame(animationId);
-            } else {
-                navigationPaused = true;
-                pauseBtn.textContent = '▶ Resume';
-                pauseBtn.style.background = 'linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%)';
-                showToast('⏸ Navigation paused');
-                if (animationId) cancelAnimationFrame(animationId);
-            }
+            document.getElementById('turnDistanceText').textContent = destDistance < 1 ? `${Math.round(destDistance * 1000)}m` : `${destDistance.toFixed(1)} km`;
+            document.getElementById('turnInstructionText').textContent = `🧭 ${navigationDestination.name}`;
+            document.getElementById('turnArrow').textContent = '→';
         }
 
         function navigationComplete() {
             navigationActive = false;
-            if (animationId) cancelAnimationFrame(animationId);
-            
             document.getElementById('turnDistanceText').textContent = '0m';
-            document.getElementById('turnInstructionText').textContent = '✓ Arrived at destination!';
-            document.getElementById('turnInstructionText').style.color = 'rgba(255, 255, 255, 0.95)';
+            document.getElementById('turnInstructionText').textContent = '✓ Arrived!';
             document.getElementById('turnArrow').textContent = '✓';
-            document.getElementById('turnArrow').style.color = 'rgba(255, 255, 255, 0.95)';
-            document.getElementById('turnProgressBar').style.width = '100%';
-            
-            if (vehicleMarker && vehicleMarker._icon) {
-                vehicleMarker._icon.style.animation = 'markerBounce 0.6s ease-in-out 3';
-            }
             
             showToast('🎉 You\'ve arrived at the charging station!');
             
             setTimeout(() => {
-                document.getElementById('turnByTurnPanel').classList.remove('active');
-                document.getElementById('routingPanel').classList.remove('active');
                 endNavigation();
-            }, 4000);
+            }, 3000);
+        }
+
+        function toggleNavigationPause() {
+            if (navigationPaused) {
+                navigationPaused = false;
+                navigationStartTime += Date.now() - navigationPauseTime;
+                showToast('🧭 Navigation resumed');
+            } else {
+                navigationPaused = true;
+                navigationPauseTime = Date.now();
+                showToast('⏸ Navigation paused');
+            }
         }
 
         function endNavigation() {
             navigationActive = false;
             navigationPaused = false;
-            if (animationId) cancelAnimationFrame(animationId);
-            if (window.glowAnimationInterval) clearInterval(window.glowAnimationInterval);
-            if (overlayTimeoutId) clearTimeout(overlayTimeoutId);
-            
+
             if (geolocationWatchId !== null) {
                 navigator.geolocation.clearWatch(geolocationWatchId);
                 geolocationWatchId = null;
             }
-            
-            if (routePolyline && map.hasLayer(routePolyline)) {
-                map.removeLayer(routePolyline);
-            }
+
             if (vehicleMarker && map.hasLayer(vehicleMarker)) {
                 map.removeLayer(vehicleMarker);
             }
-            
-            const speedElement = document.getElementById('speedDisplay');
-            if (speedElement) speedElement.remove();
-            
-            const directionElement = document.getElementById('directionIndicator');
-            if (directionElement) directionElement.remove();
-            
-            map.setZoom(14);
-            
-            const pauseBtn = document.getElementById('pauseNavBtn');
-            if (pauseBtn) pauseBtn.remove();
+
+            document.getElementById('turnInstructionBar').classList.remove('active');
+            document.getElementById('navHUD').classList.remove('active');
+            document.getElementById('routingPanel').classList.remove('active');
+
+            map.setView([userLocation.lat, userLocation.lng], 14);
+            showToast('✓ Navigation ended');
         }
 
         function setupEventListeners() {
@@ -2606,19 +2281,8 @@
             document.getElementById('clearFilterBtn').addEventListener('click', clearFilter);
             document.getElementById('routingClose').addEventListener('click', () => document.getElementById('routingPanel').classList.remove('active'));
             document.getElementById('routingClose2').addEventListener('click', () => document.getElementById('routingPanel').classList.remove('active'));
-            document.getElementById('turnCloseBtn').addEventListener('click', () => {
-                document.getElementById('turnByTurnPanel').classList.remove('active');
-                endNavigation();
-            });
-            document.getElementById('turnEndBtn').addEventListener('click', () => {
-                document.getElementById('turnByTurnPanel').classList.remove('active');
-                endNavigation();
-            });
 
-            document.getElementById('startNavBtn').addEventListener('click', () => {
-                document.getElementById('routingPanel').classList.remove('active');
-                startRealTimeNavigation();
-            });
+            document.getElementById('startNavBtn').addEventListener('click', startRealTimeNavigation);
 
             document.getElementById('viewClustered').addEventListener('click', () => {
                 currentView = 'clustered';
@@ -2671,9 +2335,20 @@
                 const searchResults = document.getElementById('searchResults');
                 if (!e.target.closest('.search-container')) searchResults.classList.remove('active');
             });
-        }
 
-        let userLocationPulseLayer = null;
+            // Mobile menu toggle
+            if (isMobile) {
+                document.getElementById('locationBtn').addEventListener('click', function() {
+                    // Toggle side panel visibility on mobile
+                    const panel = document.getElementById('sidePanel');
+                    setTimeout(() => {
+                        if (panel.classList.contains('mobile-open')) {
+                            panel.classList.remove('mobile-open');
+                        }
+                    }, 1000);
+                });
+            }
+        }
 
         function getUserLocation() {
             if (!navigator.geolocation) {
@@ -2692,28 +2367,10 @@
                     };
                     
                     if (userMarker) map.removeLayer(userMarker);
-                    if (userLocationPulseLayer) map.removeLayer(userLocationPulseLayer);
-                    
-                    const pulseHtml = `
-                        <svg width="120" height="120" viewBox="0 0 120 120" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;">
-                            <circle cx="60" cy="60" r="0" fill="none" stroke="#10b981" stroke-width="2" opacity="0.8" class="location-pulse-circle" style="animation-delay: 0s;"/>
-                            <circle cx="60" cy="60" r="0" fill="none" stroke="#34d399" stroke-width="2" opacity="0.6" class="location-pulse-circle" style="animation-delay: 0.66s;"/>
-                            <circle cx="60" cy="60" r="0" fill="none" stroke="#6ee7b7" stroke-width="2" opacity="0.4" class="location-pulse-circle" style="animation-delay: 1.32s;"/>
-                        </svg>
-                    `;
-                    
-                    userLocationPulseLayer = L.marker([userLocation.lat, userLocation.lng], {
-                        icon: L.divIcon({
-                            html: pulseHtml,
-                            iconSize: [120, 120],
-                            iconAnchor: [60, 60],
-                            className: 'location-pulse-marker'
-                        })
-                    }).addTo(map);
                     
                     const userIcon = L.divIcon({
-                        html: '<div class="user-location-marker" style="width: 20px; height: 20px; background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);"></div>',
-                        iconSize: [24, 24], iconAnchor: [12, 12],
+                        html: '<div class="user-location-marker" style="width: 32px; height: 32px; background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);"><svg viewBox="0 0 24 24" fill="white" style="width: 16px; height: 16px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>',
+                        iconSize: [36, 36], iconAnchor: [18, 18],
                         className: 'user-marker-wrapper'
                     });
                     
@@ -2721,6 +2378,7 @@
                     map.setView([userLocation.lat, userLocation.lng], 14);
                     updateNearestStations();
                     btn.disabled = false;
+                    showToast('📍 Location enabled');
                 },
                 () => {
                     showToast('Unable to get location');
@@ -2733,8 +2391,22 @@
         window.getDirections = getDirections;
         window.closeStationDetail = closeStationDetail;
         window.startDirectionsFromDetail = startDirectionsFromDetail;
+        window.toggleNavigationPause = toggleNavigationPause;
+        window.endNavigation = endNavigation;
+
+        // Handle window resize for mobile detection
+        window.addEventListener('resize', () => {
+            const wasMobile = isMobile;
+            isMobile = window.innerWidth <= 480;
+            
+            if (wasMobile !== isMobile) {
+                if (isMobile) {
+                    document.getElementById('sidePanel').classList.remove('mobile-open');
+                }
+            }
+        });
 
         initSDK();
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cbb96b0564d6312',t:'MTc3MDcyNjMyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cbbcca210aea483',t:'MTc3MDcyODUzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
