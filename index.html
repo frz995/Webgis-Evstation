@@ -1509,6 +1509,8 @@
         let config = { ...defaultConfig };
         let map, markerClusterGroup, userMarker, routingControl;
         let allStations = [];
+        let clusterMarkersArray = [];
+        let statedata
         let userLocation = null;
         let selectedStation = null;
         let currentView = 'clustered';
@@ -1623,11 +1625,7 @@
             });
         }
 
-        // Load EV Stations from GeoServer
-        let allStations = [];
-        let allMarkersArray = [];
-        let clusterMarkersArray = [];
-        let stateData = {};
+        // Load EV Stations from GeoServer   
        async function loadEVStations() {
             try {
                 const geoserverUrl = 'data/ev_station.geojson';
