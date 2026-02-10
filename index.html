@@ -58,10 +58,6 @@
             font-weight: 700;
             color: #1a1a1a;
             margin-right: auto;
-            background: linear-gradient(135deg, #3559E8 0%, #00D9FF 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .search-container {
@@ -83,8 +79,8 @@
         }
 
         #searchInput:focus {
-            border-color: #00D9FF;
-            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+            border-color: #007FFF;
+            box-shadow: 0 0 0 3px rgba(0, 127, 255, 0.1);
         }
 
         #searchResults {
@@ -209,17 +205,17 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #f0f4ff 0%, #e0f2ff 100%);
+            background: linear-gradient(135deg, #e0eeff 0%, #cce0ff 100%);
             padding: 12px;
             border-radius: 12px;
             text-align: center;
-            border: 1px solid #d0e0ff;
+            border: 1px solid #99ccff;
         }
 
         .stat-value {
             font-size: 20px;
             font-weight: 700;
-            color: #3559E8;
+            color: #2a52be;
             margin-bottom: 4px;
         }
 
@@ -259,10 +255,10 @@
         }
 
         .state-summary-card {
-            background: linear-gradient(135deg, #f0f4ff 0%, #e0f2ff 100%);
+            background: linear-gradient(135deg, #e6f0ff 0%, #cce5ff 100%);
             padding: 10px 12px;
             border-radius: 8px;
-            border: 1.5px solid #d0e0ff;
+            border: 1.5px solid #99ccff;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -273,14 +269,14 @@
 
         .state-summary-card:hover {
             transform: translateX(3px);
-            box-shadow: 0 3px 10px rgba(53, 89, 232, 0.15);
-            border-color: #3559E8;
+            box-shadow: 0 3px 10px rgba(15, 82, 186, 0.15);
+            border-color: #0f52ba;
         }
 
         .state-summary-card.active {
-            background: linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%);
-            border-color: #3559E8;
-            box-shadow: 0 4px 12px rgba(53, 89, 232, 0.3);
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
+            border-color: #2a52be;
+            box-shadow: 0 4px 12px rgba(0, 127, 255, 0.3);
         }
 
         .state-summary-name {
@@ -296,7 +292,7 @@
         .state-summary-count {
             font-size: 14px;
             font-weight: 900;
-            color: #3559E8;
+            color: #2a52be;
             background: rgba(255, 255, 255, 0.8);
             padding: 3px 8px;
             border-radius: 6px;
@@ -305,7 +301,7 @@
         }
 
         .state-summary-card.active .state-summary-count {
-            color: #3559E8;
+            color: #0f52ba;
             background: white;
         }
 
@@ -320,8 +316,8 @@
         }
 
         .nearest-item:hover {
-            border-color: #00D9FF;
-            box-shadow: 0 2px 8px rgba(0, 217, 255, 0.2);
+            border-color: #007FFF;
+            box-shadow: 0 2px 8px rgba(0, 127, 255, 0.2);
         }
 
         .nearest-name {
@@ -419,7 +415,7 @@
         }
 
         .routing-stat-value {
-            color: #3559E8;
+            color: #2a52be;
             font-weight: 700;
         }
 
@@ -469,13 +465,13 @@
         }
 
         .nav-button.primary {
-            background: linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%);
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
             color: white;
         }
 
         .nav-button.primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(53, 89, 232, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 127, 255, 0.3);
         }
 
         .nav-button.secondary {
@@ -490,8 +486,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(42, 42, 42, 0.95) 100%);
-            backdrop-filter: blur(12px);
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
+            backdrop-filter: blur(20px);
             display: none;
             flex-direction: column;
             z-index: 160;
@@ -511,10 +507,11 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 40px;
+            gap: 32px;
             width: 100%;
-            max-width: 500px;
-            padding: 40px 20px;
+            max-width: 480px;
+            padding: 0 20px;
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .turn-header {
@@ -524,31 +521,38 @@
             padding: 0;
             border-bottom: none;
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 0;
         }
 
         .turn-title {
-            font-weight: 700;
-            color: #e0e0e0;
-            font-size: 14px;
-            letter-spacing: 1px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 10px;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
         .turn-progress-bar {
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.1));
+            background-size: 200% 100%;
             width: 100%;
-            margin-top: 20px;
-            border-radius: 3px;
+            margin-top: 32px;
+            border-radius: 1px;
             order: 10;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.1) inset;
+            animation: progressFlow 3s ease-in-out infinite;
         }
 
         #turnProgressBar {
             height: 100%;
-            background: linear-gradient(90deg, #3559E8 0%, #00D9FF 100%);
-            transition: width 0.5s;
-            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.9);
+            background-size: 200% 100%;
+            transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-radius: 1px;
+            animation: progressFlow 2s ease-in-out infinite;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
         }
 
         .turn-instruction-area {
@@ -557,29 +561,69 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 24px;
+            gap: 28px;
             width: 100%;
         }
 
         #turnArrow {
             font-size: 80px;
-            font-weight: 700;
-            color: #00D9FF;
-            animation: arrowPulse 1.5s ease-in-out infinite;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.9);
+            animation: arrowPulse 2.2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100px;
+            letter-spacing: -2px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
         }
 
         @keyframes arrowPulse {
             0%, 100% {
-                transform: scale(1);
-                text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+                transform: scale(1) translateY(0);
+                opacity: 0.6;
+                filter: drop-shadow(0 0 0px rgba(0, 127, 255, 0));
             }
             50% {
-                transform: scale(1.1);
-                text-shadow: 0 0 40px rgba(0, 217, 255, 0.6);
+                transform: scale(1.15) translateY(-8px);
+                opacity: 1;
+                filter: drop-shadow(0 8px 24px rgba(0, 127, 255, 0.6));
+            }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% {
+                box-shadow: 
+                    0 0 0px rgba(0, 127, 255, 0),
+                    inset 0 0 20px rgba(0, 127, 255, 0);
+            }
+            50% {
+                box-shadow: 
+                    0 0 40px rgba(0, 127, 255, 0.4),
+                    inset 0 0 30px rgba(0, 127, 255, 0.1);
+            }
+        }
+
+        @keyframes textFloat {
+            0%, 100% {
+                opacity: 0.7;
+                transform: translateY(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-4px);
+            }
+        }
+
+        @keyframes progressFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
             }
         }
 
@@ -591,18 +635,23 @@
 
         #turnDistanceText {
             font-size: 48px;
-            font-weight: 900;
+            font-weight: 300;
             color: #ffffff;
-            margin-bottom: 12px;
-            letter-spacing: -2px;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            animation: textFloat 2.4s ease-in-out infinite;
         }
 
         #turnInstructionText {
-            font-size: 24px;
-            color: #00D9FF;
-            font-weight: 700;
-            line-height: 1.4;
-            letter-spacing: 0.5px;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 400;
+            line-height: 1.6;
+            letter-spacing: 0.2px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            animation: textFloat 2.4s ease-in-out infinite;
+            animation-delay: 0.1s;
         }
 
         .turn-controls {
@@ -615,38 +664,41 @@
         }
 
         .turn-control-btn {
-            padding: 12px 28px;
+            padding: 11px 24px;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: 500;
+            font-size: 13px;
             transition: all 0.3s;
-            min-width: 140px;
+            min-width: 130px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            letter-spacing: 0.2px;
         }
 
         .turn-control-btn.end {
-            background: rgba(255, 255, 255, 0.1);
-            color: #e0e0e0;
-            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .turn-control-btn.end:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.35);
+            transform: translateY(-1px);
         }
 
         #pauseNavBtn {
-            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
-            border: none;
-            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
         }
 
         #pauseNavBtn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(245, 158, 11, 0.4);
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
         }
 
         .view-toggle {
@@ -671,7 +723,7 @@
         }
 
         .view-btn.active {
-            background: linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%);
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
             color: white;
         }
 
@@ -748,7 +800,7 @@
         }
 
         .station-detail-header {
-            background: linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%);
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
             color: white;
             padding: 20px 16px;
             display: flex;
@@ -816,13 +868,13 @@
         .detail-icon {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, #f0f4ff 0%, #e0f2ff 100%);
-            border: 1.5px solid #d0e0ff;
+            background: linear-gradient(135deg, #e0eeff 0%, #cce0ff 100%);
+            border: 1.5px solid #99ccff;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #3559E8;
+            color: #2a52be;
             flex-shrink: 0;
         }
 
@@ -927,6 +979,19 @@
             }
         }
 
+        @keyframes waterFlow {
+            0% {
+                background-position: 0% 0%;
+            }
+            100% {
+                background-position: 100% 0%;
+            }
+        }
+
+        .water-flow-line {
+            animation: waterFlow 3s linear infinite;
+        }
+
         @keyframes markerBounce {
             0%, 100% {
                 transform: scale(1);
@@ -934,6 +999,37 @@
             50% {
                 transform: scale(1.1);
             }
+        }
+
+        @keyframes locationPulse {
+            0% {
+                r: 0;
+                opacity: 1;
+            }
+            100% {
+                r: 30;
+                opacity: 0;
+            }
+        }
+
+        .location-pulse-circle {
+            animation: locationPulse 2s ease-out infinite;
+        }
+
+        @keyframes markerPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(16, 185, 129, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        .user-location-marker {
+            animation: markerPulse 2s infinite;
         }
 
         .animated-vehicle-marker {
@@ -1117,7 +1213,7 @@
         }
 
         body.night-mode .view-btn.active {
-            background: linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%);
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
             color: white;
         }
 
@@ -1220,7 +1316,7 @@
      <div class="routing-stat"><span class="routing-stat-label">Avg Speed</span> <span class="routing-stat-value" id="routingSpeed">-- km/h</span>
      </div>
      <div class="battery-section">
-      <div class="battery-header"><span>🔋 Battery Impact</span> <span id="batteryRemaining">100%</span>
+      <div class="battery-header"><span>�� Battery Impact</span> <span id="batteryRemaining">100%</span>
       </div>
       <div class="battery-bar">
        <div id="batteryFill" style="width: 100%;"></div>
@@ -1236,7 +1332,7 @@
     <div class="nav-overlay-container">
      <div class="turn-header" style="flex-direction: column; gap: 8px; align-items: center;">
       <div class="turn-title">
-       🧭 Navigation
+       ��� Navigation
       </div>
       <div style="font-size: 13px; color: #999; display: flex; gap: 16px; font-weight: 500;"><span id="turnTimeProgress">-- left</span> <span>•</span> <span id="turnDistanceProgress">-- km</span>
       </div>
@@ -1469,8 +1565,11 @@
                     batteryFill.style.background = 'linear-gradient(90deg, #10b981 0%, #34d399 100%)';
                 }
                 
+                // Draw route with water-flow animation immediately
+                displayRouteOnMap();
+                
                 document.getElementById('routingPanel').classList.add('active');
-                showToast('✅ Route ready! Starting navigation...');
+                showToast('��� Route ready! Click "Start Navigation" to begin...');
                 
                 const bounds = L.latLngBounds(routeCoordinates.map(c => [c.lat, c.lng]));
                 map.fitBounds(bounds, { padding: [50, 50] });
@@ -1480,6 +1579,64 @@
             }
             
             map.closePopup();
+        }
+
+        function displayRouteOnMap() {
+            if (!routeCoordinates || routeCoordinates.length === 0) return;
+
+            // Remove old route if exists
+            if (routePolyline && map.hasLayer(routePolyline)) map.removeLayer(routePolyline);
+            if (window.glowPolyline && map.hasLayer(window.glowPolyline)) map.removeLayer(window.glowPolyline);
+            if (window.strokePolyline && map.hasLayer(window.strokePolyline)) map.removeLayer(window.strokePolyline);
+            if (window.glowAnimationInterval) clearInterval(window.glowAnimationInterval);
+
+            const routePath = routeCoordinates.map(c => [c.lat, c.lng]);
+            
+            // Draw stroke/outline layer - dark blue
+            window.strokePolyline = L.polyline(routePath, {
+                color: '#1a3a7a',
+                weight: 12,
+                opacity: 0.6,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(map);
+            
+            // Draw main route with blue gradient colors
+            routePolyline = L.polyline(routePath, {
+                color: '#007FFF',
+                weight: 8,
+                opacity: 1,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(map);
+            
+            // Add animated glow layer - light blue
+            window.glowPolyline = L.polyline(routePath, {
+                color: '#2a52be',
+                weight: 14,
+                opacity: 0.3,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(map);
+            
+            // Animate glow with pulsing effect
+            let pulseScale = 1;
+            let pulseDirection = 1;
+            const animateGlow = () => {
+                pulseScale += (0.02 * pulseDirection);
+                
+                if (pulseScale > 1.3) pulseDirection = -1;
+                if (pulseScale < 0.7) pulseDirection = 1;
+                
+                if (window.glowPolyline._path) {
+                    window.glowPolyline._path.style.opacity = 0.2 + (0.25 * Math.sin(pulseScale));
+                }
+                if (routePolyline._path) {
+                    routePolyline._path.style.filter = `drop-shadow(0 0 ${6 * Math.sin(pulseScale)}px rgba(0, 127, 255, 0.5))`;
+                }
+            };
+            
+            window.glowAnimationInterval = setInterval(animateGlow, 30);
         }
 
         function formatTime(minutes) {
@@ -1528,7 +1685,7 @@
 
         async function loadEVStations() {
             try {
-                showToast('📍 Loading stations...');
+                showToast('�� Loading stations...');
                 const response = await fetch('data/ev_station.geojson');
                 const data = await response.json();
                 
@@ -1796,7 +1953,7 @@
 
         function getTurnIcon(turn) {
             const absT = Math.abs(turn);
-            if (absT < 15) return { icon: '⬆', text: 'Continue ahead', color: '#3559E8' };
+            if (absT < 15) return { icon: '�����', text: 'Continue ahead', color: '#3559E8' };
             if (turn > 15 && turn < 45) return { icon: '↗', text: 'Slight right', color: '#8B5CF6' };
             if (turn >= 45 && turn < 110) return { icon: '→', text: 'Turn right', color: '#3B82F6' };
             if (turn >= 110 && turn < 150) return { icon: '⤴', text: 'Sharp right', color: '#1D4ED8' };
@@ -1864,29 +2021,31 @@
             navigationDestination = selectedStation;
             
             if (animationId) cancelAnimationFrame(animationId);
-            if (routePolyline && map.hasLayer(routePolyline)) map.removeLayer(routePolyline);
-
-            const routePath = routeCoordinates.map(c => [c.lat, c.lng]);
-            navigationTurns = generateNavigationTurns(routeCoordinates);
             
-            // Draw full route in light color
-            L.polyline(routePath, {
-                color: '#3559E8',
-                weight: 4,
-                opacity: 0.2,
-                lineCap: 'round',
-                lineJoin: 'round',
-                dashArray: '10, 5'
-            }).addTo(map);
+            navigationTurns = generateNavigationTurns(routeCoordinates);
 
-            // Traveled route (will be updated with real GPS)
-            routePolyline = L.polyline([], {
-                color: '#3559E8',
-                weight: 5,
-                opacity: 0.9,
-                lineCap: 'round',
-                lineJoin: 'round'
-            }).addTo(map);
+            // Update route line to active gradient colors during navigation
+            if (window.strokePolyline) {
+                window.strokePolyline.setStyle({
+                    color: '#007FFF',
+                    weight: 12,
+                    opacity: 0.9
+                });
+            }
+            if (routePolyline) {
+                routePolyline.setStyle({
+                    color: '#2a52be',
+                    weight: 10,
+                    opacity: 1
+                });
+            }
+            if (window.glowPolyline) {
+                window.glowPolyline.setStyle({
+                    color: '#007FFF',
+                    weight: 14,
+                    opacity: 0.6
+                });
+            }
 
             // Vehicle marker with modern design
             const vehicleIcon = L.divIcon({
@@ -1911,8 +2070,42 @@
             navStartTime = Date.now();
             navPausedTime = 0;
 
-            document.getElementById('turnByTurnPanel').classList.add('active');
+            // Show intro overlay for 3 seconds
+            const turnByTurnPanel = document.getElementById('turnByTurnPanel');
+            turnByTurnPanel.classList.add('active');
+            
+            // Keep the turn-by-turn content fully visible
+            const navOverlayContainer = turnByTurnPanel.querySelector('.nav-overlay-container');
+            navOverlayContainer.style.opacity = '1';
+            navOverlayContainer.style.transform = 'scale(1)';
+            
+            // Show "Ready to Navigate" message
+            document.getElementById('turnArrow').textContent = '⬆';
+            document.getElementById('turnDistanceText').textContent = 'Ready?';
+            document.getElementById('turnInstructionText').textContent = 'Starting navigation in 3 seconds...';
+            document.getElementById('turnInstructionText').style.color = 'rgba(255, 255, 255, 0.8)';
+            
+            // After 3 seconds, transition to active navigation and close overlay
+            setTimeout(() => {
+                navOverlayContainer.style.opacity = '1';
+                navOverlayContainer.style.transition = 'all 0.6s ease';
+                navOverlayContainer.style.transform = 'scale(1)';
+                
+                // Close the overlay after 3 seconds
+                turnByTurnPanel.classList.remove('active');
+                
+                startActiveNavigation(totalTime, navigationTurns);
+            }, 3000);
+        }
 
+        let lastLocationUpdate = null;
+        let smoothHeading = 0;
+
+        function startActiveNavigation(totalTime, navigationTurns) {
+            // Show turn-by-turn panel immediately
+            const turnByTurnPanel = document.getElementById('turnByTurnPanel');
+            turnByTurnPanel.classList.add('active');
+            
             // Start watching user's real GPS location
             if (!geolocationWatchId) {
                 geolocationWatchId = navigator.geolocation.watchPosition(
@@ -1925,22 +2118,35 @@
                             speed: position.coords.speed
                         };
                         
-                        // Update vehicle marker to real location
+                        lastLocationUpdate = {
+                            lat: userLocation.lat,
+                            lng: userLocation.lng,
+                            timestamp: Date.now()
+                        };
+                        
+                        // Smooth heading transition
+                        if (userLocation.heading !== null && userLocation.heading !== undefined) {
+                            let headingDiff = userLocation.heading - smoothHeading;
+                            if (headingDiff > 180) headingDiff -= 360;
+                            if (headingDiff < -180) headingDiff += 360;
+                            smoothHeading += headingDiff * 0.15;
+                        }
+                        
+                        // Update vehicle marker with smooth animation
                         if (vehicleMarker) {
                             vehicleMarker.setLatLng([userLocation.lat, userLocation.lng]);
                             
-                            // Rotate based on device heading if available
-                            if (userLocation.heading !== null) {
-                                vehicleMarker._icon.style.transform = `rotate(${userLocation.heading}deg)`;
-                            }
+                            // Rotate vehicle marker based on heading
+                            const heading = userLocation.heading !== null ? userLocation.heading : smoothHeading;
+                            vehicleMarker._icon.style.transform = `rotate(${heading}deg) scale(1.1)`;
+                            vehicleMarker._icon.style.filter = 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))';
+                            
+                            // Add direction indicator
+                            updateDirectionIndicator(heading);
                         }
                         
-                        // Update traveled route with real position
-                        const traveledPath = [[userLocation.lat, userLocation.lng]];
-                        routePolyline.setLatLngs(traveledPath);
-                        
-                        // Smooth map follow
-                        map.panTo([userLocation.lat, userLocation.lng]);
+                        // Dynamic camera follow with zoom based on speed
+                        updateMapView(userLocation);
                         
                         // Check if navigation destination is still valid
                         if (!navigationDestination) {
@@ -1996,6 +2202,9 @@
                         document.getElementById('turnDistanceProgress').textContent = `${remainingDistance.toFixed(1)} km`;
                         document.getElementById('turnProgressBar').style.width = `${(routeProgress * 100)}%`;
 
+                        // Update speed display
+                        updateSpeedDisplay(userLocation.speed);
+
                         // Get next turn info
                         const { turn: nextTurn, nextIndex } = getNextTurnInfo(closestIndex, navigationTurns);
 
@@ -2008,11 +2217,7 @@
                             );
 
                             if (distanceToTurn < 0.5) {
-                                document.getElementById('turnArrow').textContent = nextTurn.icon;
-                                document.getElementById('turnArrow').style.color = nextTurn.color;
-                                document.getElementById('turnDistanceText').textContent = `${Math.round(distanceToTurn * 1000)}m`;
-                                document.getElementById('turnInstructionText').textContent = `${nextTurn.icon} ${nextTurn.text}`;
-                                document.getElementById('turnInstructionText').style.color = nextTurn.color;
+                                updateTurnDisplay(nextTurn, Math.round(distanceToTurn * 1000), `${nextTurn.icon} ${nextTurn.text}`, true);
                             } else {
                                 const futureIndex = nextIndex + 1;
                                 if (futureIndex < navigationTurns.length) {
@@ -2025,32 +2230,16 @@
                                     );
                                     
                                     if (distanceToFuture < 1) {
-                                        document.getElementById('turnArrow').textContent = futureTurn.icon;
-                                        document.getElementById('turnArrow').style.color = futureTurn.color;
-                                        document.getElementById('turnDistanceText').textContent = `${Math.round(distanceToFuture * 1000)}m`;
-                                        document.getElementById('turnInstructionText').textContent = `In ${Math.round(distanceToTurn * 1000)}m, ${futureTurn.text}`;
-                                        document.getElementById('turnInstructionText').style.color = futureTurn.color;
+                                        updateTurnDisplay(futureTurn, Math.round(distanceToFuture * 1000), `In ${Math.round(distanceToTurn * 1000)}m, ${futureTurn.text}`, false);
                                     } else {
-                                        document.getElementById('turnArrow').textContent = nextTurn.icon;
-                                        document.getElementById('turnArrow').style.color = nextTurn.color;
-                                        document.getElementById('turnDistanceText').textContent = distanceToTurn > 1 ? `${distanceToTurn.toFixed(1)} km` : `${Math.round(distanceToTurn * 1000)}m`;
-                                        document.getElementById('turnInstructionText').textContent = nextTurn.text;
-                                        document.getElementById('turnInstructionText').style.color = nextTurn.color;
+                                        updateTurnDisplay(nextTurn, distanceToTurn > 1 ? Math.round(distanceToTurn * 1000) : Math.round(distanceToTurn * 1000), nextTurn.text, false);
                                     }
                                 } else {
-                                    document.getElementById('turnArrow').textContent = '✓';
-                                    document.getElementById('turnArrow').style.color = '#10b981';
-                                    document.getElementById('turnDistanceText').textContent = `${remainingDistance.toFixed(1)} km`;
-                                    document.getElementById('turnInstructionText').textContent = 'Continue to destination';
-                                    document.getElementById('turnInstructionText').style.color = '#10b981';
+                                    updateTurnDisplay({ icon: '✓', text: 'Continue to destination' }, Math.round(remainingDistance * 1000), 'Continue to destination', false);
                                 }
                             }
                         } else {
-                            document.getElementById('turnArrow').textContent = '🎯';
-                            document.getElementById('turnArrow').style.color = '#10b981';
-                            document.getElementById('turnDistanceText').textContent = `${remainingDistance.toFixed(2)} km`;
-                            document.getElementById('turnInstructionText').textContent = 'Approaching destination';
-                            document.getElementById('turnInstructionText').style.color = '#10b981';
+                            updateTurnDisplay({ icon: '🎯', text: 'Approaching destination' }, Math.round(remainingDistance * 1000), 'Approaching destination', false);
                         }
                     },
                     (error) => {
@@ -2066,6 +2255,129 @@
             }
 
             setupNavigationControls();
+        }
+
+        function updateMapView(location) {
+            // Dynamic zoom based on speed
+            const speed = location.speed || 0;
+            let zoomLevel = 18;
+            
+            if (speed > 20) zoomLevel = 17;
+            else if (speed > 10) zoomLevel = 17.5;
+            else if (speed > 5) zoomLevel = 18;
+            else zoomLevel = 18.5;
+
+            map.flyTo([location.lat, location.lng], zoomLevel, {
+                duration: 0.8,
+                easeLinearity: 0.25
+            });
+
+            // Rotate map to match vehicle heading for immersive experience
+            if (location.heading !== null && location.heading !== undefined) {
+                map.setBearing(location.heading);
+            }
+        }
+
+        function updateSpeedDisplay(speed) {
+            let speedDisplay = '0 km/h';
+            if (speed !== null && speed !== undefined) {
+                const kmh = Math.round((speed || 0) * 3.6);
+                speedDisplay = `${kmh} km/h`;
+            }
+
+            let speedElement = document.getElementById('speedDisplay');
+            if (!speedElement) {
+                speedElement = document.createElement('div');
+                speedElement.id = 'speedDisplay';
+                speedElement.style.cssText = `
+                    position: fixed;
+                    bottom: 40px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: linear-gradient(135deg, rgba(0, 127, 255, 0.95) 0%, rgba(42, 82, 190, 0.95) 100%);
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 12px;
+                    font-weight: 700;
+                    z-index: 3001;
+                    font-size: 18px;
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    backdrop-filter: blur(10px);
+                    box-shadow: 0 8px 24px rgba(0, 127, 255, 0.4);
+                `;
+                document.body.appendChild(speedElement);
+            }
+            speedElement.textContent = speedDisplay;
+        }
+
+        function updateDirectionIndicator(heading) {
+            let directionElement = document.getElementById('directionIndicator');
+            if (!directionElement) {
+                directionElement = document.createElement('div');
+                directionElement.id = 'directionIndicator';
+                directionElement.style.cssText = `
+                    position: fixed;
+                    top: 90px;
+                    right: 16px;
+                    width: 60px;
+                    height: 60px;
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1002;
+                    border: 2px solid rgba(0, 127, 255, 0.3);
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+                `;
+                document.body.appendChild(directionElement);
+            }
+            
+            const arrow = document.createElement('div');
+            arrow.style.cssText = `
+                font-size: 32px;
+                transform: rotate(${heading}deg);
+                transition: transform 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+            arrow.textContent = '⬆';
+            
+            directionElement.innerHTML = '';
+            directionElement.appendChild(arrow);
+        }
+
+        function updateTurnDisplay(turnInfo, distance, instruction, isImmediate) {
+            const arrow = document.getElementById('turnArrow');
+            const distText = document.getElementById('turnDistanceText');
+            const instText = document.getElementById('turnInstructionText');
+
+            if (isImmediate) {
+                arrow.style.animation = 'none';
+                setTimeout(() => {
+                    arrow.style.animation = 'arrowPulse 2.2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite';
+                }, 10);
+            }
+
+            arrow.textContent = turnInfo.icon;
+            arrow.style.color = 'rgba(255, 255, 255, 0.95)';
+            
+            distText.style.opacity = '0.5';
+            distText.style.transform = 'scale(0.8)';
+            setTimeout(() => {
+                distText.textContent = distance > 1000 ? `${(distance / 1000).toFixed(1)} km` : `${distance}m`;
+                distText.style.opacity = '1';
+                distText.style.transform = 'scale(1)';
+                distText.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            }, 100);
+
+            instText.style.opacity = '0.5';
+            setTimeout(() => {
+                instText.textContent = instruction;
+                instText.style.opacity = isImmediate ? '1' : '0.8';
+                instText.style.transition = 'opacity 0.4s ease';
+            }, 100);
         }
 
         function setupNavigationControls() {
@@ -2093,7 +2405,7 @@
                 navStartTime = Date.now();
                 pauseBtn.textContent = '⏸ Pause';
                 pauseBtn.style.background = 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)';
-                showToast('🚗 Navigation resumed');
+                showToast('��� Navigation resumed');
                 if (animationId) cancelAnimationFrame(animationId);
             } else {
                 navigationPaused = true;
@@ -2109,8 +2421,10 @@
             if (animationId) cancelAnimationFrame(animationId);
             
             document.getElementById('turnDistanceText').textContent = '0m';
-            document.getElementById('turnInstructionText').textContent = '🎉 Arrived at destination!';
+            document.getElementById('turnInstructionText').textContent = '✓ Arrived at destination!';
+            document.getElementById('turnInstructionText').style.color = 'rgba(255, 255, 255, 0.95)';
             document.getElementById('turnArrow').textContent = '✓';
+            document.getElementById('turnArrow').style.color = 'rgba(255, 255, 255, 0.95)';
             document.getElementById('turnProgressBar').style.width = '100%';
             
             if (vehicleMarker && vehicleMarker._icon) {
@@ -2130,6 +2444,7 @@
             navigationActive = false;
             navigationPaused = false;
             if (animationId) cancelAnimationFrame(animationId);
+            if (window.glowAnimationInterval) clearInterval(window.glowAnimationInterval);
             
             // Stop watching GPS location
             if (geolocationWatchId !== null) {
@@ -2143,6 +2458,18 @@
             if (vehicleMarker && map.hasLayer(vehicleMarker)) {
                 map.removeLayer(vehicleMarker);
             }
+            
+            // Remove speed display
+            const speedElement = document.getElementById('speedDisplay');
+            if (speedElement) speedElement.remove();
+            
+            // Remove direction indicator
+            const directionElement = document.getElementById('directionIndicator');
+            if (directionElement) directionElement.remove();
+            
+            // Reset map bearing and zoom
+            map.setBearing(0);
+            map.setZoom(14);
             
             const pauseBtn = document.getElementById('pauseNavBtn');
             if (pauseBtn) pauseBtn.remove();
@@ -2237,6 +2564,8 @@
             });
         }
 
+        let userLocationPulseLayer = null;
+
         function getUserLocation() {
             if (!navigator.geolocation) {
                 showToast('Geolocation not supported');
@@ -2254,10 +2583,30 @@
                     };
                     
                     if (userMarker) map.removeLayer(userMarker);
+                    if (userLocationPulseLayer) map.removeLayer(userLocationPulseLayer);
+                    
+                    // Create pulse circles using SVG
+                    const pulseHtml = `
+                        <svg width="120" height="120" viewBox="0 0 120 120" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;">
+                            <circle cx="60" cy="60" r="0" fill="none" stroke="#10b981" stroke-width="2" opacity="0.8" class="location-pulse-circle" style="animation-delay: 0s;"/>
+                            <circle cx="60" cy="60" r="0" fill="none" stroke="#34d399" stroke-width="2" opacity="0.6" class="location-pulse-circle" style="animation-delay: 0.66s;"/>
+                            <circle cx="60" cy="60" r="0" fill="none" stroke="#6ee7b7" stroke-width="2" opacity="0.4" class="location-pulse-circle" style="animation-delay: 1.32s;"/>
+                        </svg>
+                    `;
+                    
+                    userLocationPulseLayer = L.marker([userLocation.lat, userLocation.lng], {
+                        icon: L.divIcon({
+                            html: pulseHtml,
+                            iconSize: [120, 120],
+                            iconAnchor: [60, 60],
+                            className: 'location-pulse-marker'
+                        })
+                    }).addTo(map);
                     
                     const userIcon = L.divIcon({
-                        html: '<div style="width: 20px; height: 20px; background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);"></div>',
-                        iconSize: [24, 24], iconAnchor: [12, 12]
+                        html: '<div class="user-location-marker" style="width: 20px; height: 20px; background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);"></div>',
+                        iconSize: [24, 24], iconAnchor: [12, 12],
+                        className: 'user-marker-wrapper'
                     });
                     
                     userMarker = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon }).addTo(map);
@@ -2279,5 +2628,5 @@
 
         initSDK();
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cbb1027172035be',t:'MTc3MDcyMDgxMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cbb65cd60d87249',t:'MTc3MDcyNDMxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
