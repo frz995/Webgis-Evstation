@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.Default.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css">
-
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-heatmap@1.0.0/dist/leaflet-heatmap.css">
   <script src="/_sdk/element_sdk.js"></script>
   <style>
         * {
@@ -1262,14 +1262,52 @@
             display: block;
         }
 
+        @media (max-width: 1024px) {
+            .side-panel {
+                width: 340px;
+                left: 12px;
+                top: 70px;
+                max-height: calc(100% - 130px);
+            }
+
+            .legend {
+                bottom: 20px;
+                right: 12px;
+                padding: 12px 14px;
+                font-size: 0.85rem;
+            }
+
+            .routing-panel {
+                right: 12px;
+                width: 320px;
+            }
+        }
+
         @media (max-width: 768px) {
             .header {
-                padding: 12px 16px;
-                flex-wrap: nowrap;
+                padding: 12px 12px;
+                gap: 8px;
+            }
+
+            .logo-icon {
+                width: 40px;
+                height: 40px;
             }
 
             .logo-text {
+                font-size: 1.1rem;
                 display: none;
+            }
+
+            .header-spacer {
+                display: none;
+            }
+
+            .header-controls {
+                gap: 6px;
+                order: 2;
+                flex: 1;
+                justify-content: flex-end;
             }
 
             .search-container {
@@ -1277,54 +1315,545 @@
                 flex-basis: 100%;
                 max-width: none;
                 position: fixed;
-                top: 70px;
-                left: 16px;
-                right: 16px;
+                top: 62px;
+                left: 12px;
+                right: 12px;
                 z-index: 999;
-                width: calc(100% - 32px);
+                width: calc(100% - 24px);
             }
 
-            .filter-btn span {
-                display: none;
+            .search-input {
+                padding: 10px 14px 10px 42px;
+                font-size: 0.85rem;
             }
 
-            .location-btn span {
+            .search-icon {
+                left: 14px;
+            }
+
+            .location-btn, .filter-btn {
+                padding: 10px 12px;
+                font-size: 0.7rem;
+                gap: 4px;
+            }
+
+            .location-btn span, .filter-btn span {
                 display: none;
             }
 
             .location-btn, .filter-btn {
-                padding: 12px;
+                min-width: 44px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .location-btn svg, .filter-btn svg {
+                width: 16px;
+                height: 16px;
+                margin: 0;
+            }
+
+            .dark-mode-toggle {
+                width: 40px;
+                height: 40px;
+            }
+
+            .dark-mode-toggle svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .main-content {
+                flex-direction: row;
+                margin-top: 50px;
             }
 
             .side-panel {
                 position: fixed;
-                bottom: 20px;
-                right: 20px;
-                left: auto;
+                bottom: 0;
+                right: 0;
+                left: 0;
                 top: auto;
-                width: 300px;
-                max-height: 60vh;
-                transform: translateY(120%);
+                width: 100%;
+                max-width: none;
+                max-height: 65vh;
+                transform: translateY(100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border-radius: 24px 24px 0 0;
+                z-index: 500;
             }
 
             .side-panel.open {
                 transform: translateY(0);
+                box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
             }
 
             .toggle-panel-btn {
                 display: flex;
+                position: fixed;
+                top: 72px;
+                right: 12px;
+                width: 44px;
+                height: 44px;
+                z-index: 499;
+            }
+
+            .toggle-panel-btn:active {
+                transform: scale(0.95);
+            }
+
+            .toggle-panel-btn svg {
+                width: 22px;
+                height: 22px;
+            }
+
+            .panel-header {
+                padding: 16px 16px 12px;
+                border-bottom: 1px solid rgba(229, 231, 235, 0.4);
+            }
+
+            .panel-title {
+                font-size: 1rem;
+            }
+
+            .panel-subtitle {
+                font-size: 0.75rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                padding: 12px 12px;
+            }
+
+            .stat-card {
+                padding: 14px 10px;
+                min-height: 80px;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .stat-label {
+                font-size: 0.7rem;
+            }
+
+            .filter-section {
+                padding: 12px 12px;
+            }
+
+            .filter-title {
+                font-size: 0.72rem;
+            }
+
+            .filter-toggle {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+
+            .state-list-container {
+                padding: 6px;
+                flex: 1;
+                max-height: calc(65vh - 380px);
+            }
+
+            .state-item {
+                padding: 8px 10px;
+                margin-bottom: 4px;
+                font-size: 0.85rem;
+            }
+
+            .state-name {
+                font-size: 0.85rem;
+            }
+
+            .state-count {
+                font-size: 0.7rem;
+                min-width: 28px;
+                padding: 2px 8px;
+            }
+
+            .nearest-stations {
+                padding: 12px;
+                display: none;
+            }
+
+            .nearest-title {
+                font-size: 0.72rem;
+            }
+
+            .nearest-item {
+                padding: 8px;
+                margin-bottom: 6px;
+                font-size: 0.8rem;
+            }
+
+            .nearest-name {
+                font-size: 0.85rem;
+                margin-bottom: 2px;
+            }
+
+            .nearest-distance {
+                font-size: 0.7rem;
+            }
+
+            .clear-filter-btn {
+                width: 92%;
+                padding: 12px;
+                margin: 10px auto;
+                font-size: 0.85rem;
+                min-height: 44px;
             }
 
             .legend {
-                bottom: 20px;
-                left: 10px;
-                padding: 14px 16px;
+                position: fixed;
+                bottom: 68vh;
+                right: 12px;
+                left: auto;
+                padding: 12px 14px;
+                font-size: 0.75rem;
+                z-index: 490;
+                max-width: 140px;
+            }
+
+            .legend-title {
+                font-size: 0.8rem;
+                margin-bottom: 8px;
+            }
+
+            .legend-item {
+                margin-bottom: 6px;
+                gap: 8px;
+            }
+
+            .legend-marker {
+                width: 18px;
+                height: 18px;
+            }
+
+            .legend-marker svg {
+                width: 9px;
+                height: 9px;
+            }
+
+            .legend-text {
+                font-size: 0.75rem;
             }
 
             .routing-panel {
-                right: 20px;
-                left: 20px;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                top: auto;
+                width: 100%;
                 max-width: none;
+                border-radius: 24px 24px 0 0;
+                max-height: 80vh;
+                overflow-y: auto;
+                z-index: 600;
+                animation: slideUpPanel 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                padding-bottom: 20px;
+            }
+
+            .routing-header {
+                padding: 16px;
+                background: linear-gradient(180deg, transparent 0%, rgba(124, 58, 237, 0.02) 100%);
+                margin: -18px -18px 14px -18px;
+            }
+
+            .routing-title {
+                font-size: 1rem;
+            }
+
+            .routing-close {
+                width: 36px;
+                height: 36px;
+            }
+
+            .routing-destination {
+                margin-bottom: 12px;
+            }
+
+            .routing-stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                margin-bottom: 12px;
+            }
+
+            .routing-stat {
+                padding: 10px;
+            }
+
+            .routing-stat-value {
+                font-size: 1rem;
+            }
+
+            .routing-stat-label {
+                font-size: 0.6rem;
+                margin-top: 2px;
+            }
+
+            .routing-battery {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+
+            .routing-battery-title {
+                font-size: 0.8rem;
+            }
+
+            .start-navigation-btn {
+                padding: 11px;
+                font-size: 0.75rem;
+                margin-bottom: 20px;
+            }
+
+            @keyframes slideUpPanel {
+                from {
+                    transform: translateY(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 10px 8px;
+            }
+
+            .logo-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .search-container {
+                top: 58px;
+                left: 8px;
+                right: 8px;
+                width: calc(100% - 16px);
+            }
+
+            .header-controls {
+                gap: 4px;
+            }
+
+            .location-btn, .filter-btn {
+                min-width: 40px;
+                min-height: 40px;
+                padding: 8px;
+            }
+
+            .location-btn svg, .filter-btn svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            .dark-mode-toggle {
+                width: 40px;
+                height: 40px;
+            }
+
+            .main-content {
+                margin-top: 46px;
+            }
+
+            .side-panel {
+                max-height: 60vh;
+            }
+
+            .side-panel.open {
+                max-height: 60vh;
+            }
+
+            .toggle-panel-btn {
+                top: 68px;
+                right: 8px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+                padding: 10px;
+            }
+
+            .stat-card {
+                padding: 12px 8px;
+                min-height: 70px;
+            }
+
+            .stat-value {
+                font-size: 1.8rem;
+            }
+
+            .stat-label {
+                font-size: 0.65rem;
+            }
+
+            .filter-section {
+                padding: 10px;
+            }
+
+            .filter-toggle {
+                padding: 5px 10px;
+                font-size: 0.7rem;
+            }
+
+            .state-list-container {
+                padding: 4px;
+                max-height: calc(60vh - 320px);
+            }
+
+            .state-item {
+                padding: 6px 8px;
+                margin-bottom: 3px;
+                font-size: 0.8rem;
+            }
+
+            .state-count {
+                font-size: 0.65rem;
+                min-width: 26px;
+                padding: 1px 6px;
+            }
+
+            .clear-filter-btn {
+                width: 90%;
+                padding: 10px;
+                margin: 8px auto;
+                font-size: 0.8rem;
+                min-height: 40px;
+            }
+
+            .legend {
+                bottom: 62vh;
+                right: 8px;
+                padding: 10px 12px;
+                font-size: 0.7rem;
+                max-width: 130px;
+            }
+
+            .legend-marker {
+                width: 16px;
+                height: 16px;
+            }
+
+            .legend-text {
+                font-size: 0.7rem;
+            }
+
+            .routing-panel {
+                border-radius: 20px 20px 0 0;
+                max-height: 75vh;
+            }
+
+            .routing-header {
+                padding: 12px;
+                margin: -14px -14px 10px -14px;
+            }
+
+            .routing-title {
+                font-size: 0.95rem;
+            }
+
+            .routing-close {
+                width: 32px;
+                height: 32px;
+            }
+
+            .routing-stats {
+                gap: 8px;
+            }
+
+            .routing-stat {
+                padding: 8px;
+            }
+
+            .routing-stat-value {
+                font-size: 0.9rem;
+            }
+
+            .start-navigation-btn {
+                padding: 10px;
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .header {
+                padding: 8px 6px;
+            }
+
+            .logo-icon {
+                width: 32px;
+                height: 32px;
+            }
+
+            .location-btn, .filter-btn {
+                min-width: 36px;
+                min-height: 36px;
+                padding: 6px;
+            }
+
+            .location-btn svg, .filter-btn svg {
+                width: 12px;
+                height: 12px;
+            }
+
+            .dark-mode-toggle {
+                width: 36px;
+                height: 36px;
+            }
+
+            .stats-grid {
+                gap: 6px;
+                padding: 8px;
+            }
+
+            .stat-card {
+                padding: 10px 6px;
+                min-height: 60px;
+            }
+
+            .stat-value {
+                font-size: 1.6rem;
+            }
+
+            .state-list-container {
+                max-height: calc(60vh - 300px);
+            }
+
+            .state-item {
+                padding: 5px 6px;
+            }
+
+            .clear-filter-btn {
+                width: 88%;
+                padding: 8px;
+                margin: 6px auto;
+            }
+
+            .legend {
+                bottom: 61vh;
+                right: 6px;
+                padding: 8px 10px;
+                max-width: 120px;
+            }
+
+            .routing-panel {
+                padding: 12px;
+            }
+
+            .routing-header {
+                margin: -12px -12px 8px -12px;
             }
         }
     </style>
@@ -1358,9 +1887,7 @@
       <div class="search-results" id="searchResults"></div>
      </div><button class="location-btn" id="locationBtn">
       <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3" /><path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
-      </svg><span>My Location</span> </button> <button class="location-btn" id="trafficBtn" title="Toggle live traffic">
-      <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v6H6z" /><path d="M6 15h12v6H6z" /><circle cx="12" cy="9" r="1.5" fill="currentColor" /><circle cx="12" cy="21" r="1.5" fill="currentColor" />
-      </svg><span>Traffic</span> </button> <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+      </svg><span>My Location</span> </button> <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
       <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
       </svg></button>
     </div>
@@ -1498,6 +2025,8 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.0/dist/leaflet.markercluster.js"></script>
   <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+  <script src="https://unpkg.com/heatmap.js@2.0.5/heatmap.js"></script>
+  <script src="https://unpkg.com/leaflet-heatmap@1.0.0/leaflet-heatmap.js"></script>
   <script src="https://unpkg.com/leaflet-control-geocoder@1.13.0/Control.Geocoder.js"></script>
   <script>
         // Configuration
@@ -1507,10 +2036,9 @@
         };
 
         let config = { ...defaultConfig };
-        let map, markerClusterGroup, userMarker, routingControl;
+        let map, markerClusterGroup, heatmapLayer, userMarker, routingControl;
         let allStations = [];
-        let clusterMarkersArray = [];
-        let statedata
+        let stateData = {};
         let userLocation = null;
         let selectedStation = null;
         let currentView = 'clustered';
@@ -1625,10 +2153,10 @@
             });
         }
 
-        // Load EV Stations from GeoServer   
-       async function loadEVStations() {
+        // Load EV Stations from GeoServer
+        async function loadEVStations() {
             try {
-                const geoserverUrl = 'data/ev_station.geojson';
+                const geoserverUrl = 'http://localhost:8080/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=public:ev_station&outputFormat=application/json';
                 
                 const response = await fetch(geoserverUrl);
                 if (!response.ok) {
@@ -1704,57 +2232,6 @@
         function startStatusSimulation() {
             setInterval(() => {
                 allStations.forEach(station => {
-                    const total = station.properties?.chargers || 1;
-                    const change = Math.random() > 0.7 ? Math.floor(Math.random() * 2) - 1 : 0;
-                    station.liveStatus.available = Math.max(0, Math.min(total, station.liveStatus.available + change));
-                    station.liveStatus.charging = Math.floor(Math.random() * (total - station.liveStatus.available + 1));
-                    station.liveStatus.offline = Math.max(0, total - station.liveStatus.available - station.liveStatus.charging);
-                    updateMarkerStatus(station);
-                });
-            }, 5000);
-        }
-        
-        function renderStations() {
-            allMarkersArray = [];
-            allStations.forEach(station => {
-                const coords = station.geometry.coordinates;
-                const latlng = [coords[1], coords[0]]; // Leaflet: [lat,lng]
-                const marker = L.marker(latlng)
-                    .bindPopup(createPopupContent(station))
-                    .addTo(map);
-                allMarkersArray.push(marker);
-            });
-        }
-        
-        function createPopupContent(station) {
-            const { name, operator, chargers } = station.properties;
-            const { available, charging, offline } = station.liveStatus || { available: 0, charging: 0, offline: 0 };
-            return `
-                <b>${name}</b><br>
-                Operator: ${operator}<br>
-                Chargers: ${chargers}<br>
-                State: ${state}<br>
-                ⚡ Available: ${available}<br>
-                🔌 Charging: ${charging}<br>
-                ❌ Offline: ${offline}
-            `;
-        }
-        
-        function updateMarkerStatus(station) {
-            [allMarkersArray, clusterMarkersArray].forEach(array => {
-                array.forEach(marker => {
-                    // Compare by unique station ID, not name
-                    if (marker.stationId === station.id) {
-                        marker.setPopupContent(createPopupContent(station));
-                    }
-                });
-            });
-        }
-
-        
-        function startStatusSimulation() {
-            setInterval(() => {
-                allStations.forEach(station => {
                     const totalChargers = station.properties?.chargers || 1;
                     const change = Math.random() > 0.7 ? Math.floor(Math.random() * 2) - 1 : 0;
                     
@@ -1767,8 +2244,18 @@
                 });
             }, 5000);
         }
-
-   
+        
+        function updateMarkerStatus(station) {
+            [allMarkersArray, clusterMarkersArray].forEach(array => {
+                array.forEach(marker => {
+                    // Compare by unique station ID, not name
+                    if (marker.stationId === station.id) {
+                        marker.setPopupContent(createPopupContent(station));
+                    }
+                });
+            });
+        }
+        
         function getStatusColor(available, charging, offline, total) {
             const availPercent = (available / total) * 100;
             if (availPercent > 50) return '#10b981'; // Green
@@ -1779,7 +2266,6 @@
         function createPopupContent(station) {
             const props = station.properties || {};
             const name = props.name || 'Unknown Station';
-            const state = props.state || 'Unknown';
             const status = station.liveStatus || { available: 0, charging: 0, offline: 0 };
             const total = props.chargers || 1;
             const statusColor = getStatusColor(status.available, status.charging, status.offline, total);
@@ -2056,7 +2542,6 @@
             });
 
             document.getElementById('locationBtn').addEventListener('click', getUserLocation);
-            document.getElementById('trafficBtn').addEventListener('click', toggleTraffic);
             document.getElementById('clearFilterBtn').addEventListener('click', clearFilter);
             document.getElementById('togglePanelBtn').addEventListener('click', () => {
                 document.getElementById('sidePanel').classList.toggle('open');
@@ -2487,5 +2972,5 @@
 
         initSDK();
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb45d27344ce41e',t:'MTc3MDY1MDU2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb9240977862203',t:'MTc3MDcwMDY1My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
