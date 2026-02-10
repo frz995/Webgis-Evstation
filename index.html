@@ -1942,38 +1942,36 @@
         }
 
         // Load EV Stations from WFS
-        async function loadEVStations() {
-            const geojsonUrl = 'data/ev_station.geojson';
-        
-            try {
-                const response = await fetch(geojsonUrl);
-        
-                if (!response.ok) {
-                    throw new Error(`Failed to load GeoJSON (${response.status})`);
-                }
-        
-                const data = await response.json();
-        
-                if (!data.features || data.features.length === 0) {
-                    throw new Error('No EV stations found in GeoJSON');
-                }
-        
-                allStations = data.features;
-        
-                console.log(`Loaded ${allStations.length} EV stations`);
-        
-                renderStations();
-                updateStats();
-                populateStateList();
-        
-                document.getElementById('loadingOverlay').classList.add('hidden');
-                showToast(`Loaded ${allStations.length} EV charging stations`);
-            } catch (error) {
-                console.error('Error loading EV stations:', error);
-                document.getElementById('loadingOverlay').classList.add('hidden');
-                showErrorToast(`Unable to load EV stations: ${error.message}`);
-            }
-        }
+        let allStations = [];
+
+async function loadEVStations() {
+    const geojsonUrl = 'data/ev.station.geojson'; // matches your folder/file
+
+    try {
+        const response = await fetch(geojsonUrl);
+
+        if (!response.ok) throw new Error(`Failed to load GeoJSON (${response.status})`);
+
+        const data = await response.json();
+
+        if (!data.features || data.features.length === 0) throw new Error('No EV stations found in GeoJSON');
+
+        allStations = data.features;
+
+        console.log(`Loaded ${allStations.length} EV stations`);
+
+        renderStations();       // plot on map
+        updateStats();          // optional stats
+        populateStateList();    // optional UI dropdown
+
+        document.getElementById('loadingOverlay').classList.add('hidden');
+        showToast(`Loaded ${allStations.length} EV charging stations`);
+    } catch (error) {
+        console.error('Error loading EV stations:', error);
+        document.getElementById('loadingOverlay').classList.add('hidden');
+        showErrorToast(`Unable to load EV stations: ${error.message}`);
+    }
+}
 
         // Render stations on map
         function renderStations(filterState = null) {
@@ -2512,5 +2510,6 @@
     </script>
 </body>
 </html>
+
 
 
