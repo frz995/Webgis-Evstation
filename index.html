@@ -1627,9 +1627,11 @@
         }
 
         // Load EV Stations from GeoServer
-        let allStations = [];
-        let allMarkersArray = [];
-        let stateData = {};
+       let allStations = [];
+       let allMarkersArray = [];
+       let stateData = {};
+       let clusterMarkersArray = [];
+       let markerClusterGroup; // inisialisasi di map setup
        async function loadEVStations() {
             try {
                 const geoserverUrl = 'data/ev_station.geojson';
@@ -1719,35 +1721,24 @@
         }
         
         function renderStations() {
-            allMarkersArray = [];
-            allStations.forEach(station => {
-                const coords = station.geometry.coordinates;
-                const latlng = [coords[1], coords[0]]; // Leaflet: [lat,lng]
-                const marker = L.marker(latlng)
-                    .bindPopup(createPopupContent(station))
-                    .addTo(map);
-                allMarkersArray.push(marker);
-            });
-        }
-        
-        function createPopupContent(station) {
-            const { name, operator, chargers } = station.properties;
-            const { available, charging, offline } = station.liveStatus || { available: 0, charging: 0, offline: 0 };
-            return `
-                <b>${name}</b><br>
-                Operator: ${operator}<br>
-                Chargers: ${chargers}<br>
-                ⚡ Available: ${available}<br>
-                🔌 Charging: ${charging}<br>
-                ❌ Offline: ${offline}
-            `;
-        }
+              allMarkersArray = [];
+              clusterMarkersArray = [];
+              markerClusterGroup = L.markerClusterGroup(); // pastikan pake Leaflet.markercluster
+          
+              allStations.forEach(station => {
+                  const coords = station.geometry.coordinates;
+                  const latlng = [coords[1], coords[0]]; // [lat,lng]
+                  const marker = L.marker(latlng)
+                      .bindPopup(createPopupContent(station));
+          
+                  markerClusterGroup.addLayer(marker);
+                  allMarkersArray.push(marker);
+                  clusterMarkersArray.push(marker);
+              });
+          
+              map.addLayer(markerClusterGroup);
+          }
 
-        let allStations = [];
-        let allMarkersArray = [];
-        let clusterMarkersArray = [];
-        let markerClusterGroup; // inisialisasi di map setup
-        let stateData = {};
         function updateMarkerStatus(station) {
             allMarkersArray.forEach(marker => {
                 const content = marker.getPopup()?.getContent();
@@ -1775,11 +1766,13 @@
         }
         
         function updateMarkerStatus(station) {
-            allMarkersArray.forEach(marker => {
-                const content = marker.getPopup()?.getContent();
-                if (content && content.includes(station.properties?.name)) {
-                    marker.setPopupContent(createPopupContent(station));
-                }
+            [allMarkersArray, clusterMarkersArray].forEach(markerArray => {
+                markerArray.forEach(marker => {
+                    const content = marker.getPopup()?.getContent();
+                    if (content && content.includes(station.properties?.name)) {
+                        marker.setPopupContent(createPopupContent(station));
+                    }
+                });
             });
         }
         
@@ -1790,73 +1783,77 @@
             return '#ef4444'; // Red
         }
         
-        function createPopupContent(station) {
-            const props = station.properties || {};
-            const name = props.name || 'Unknown Station';
-            const state = props.state || 'Unknown';
-            const status = station.liveStatus || { available: 0, charging: 0, offline: 0 };
-            const total = props.chargers || 1;
-            const statusColor = getStatusColor(status.available, status.charging, status.offline, total);
-            
-            return `
-                <div class="popup-content">
-                    <div class="popup-header">
-                        <div class="popup-icon">
-                            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor"/>
-                            </svg>
-                        </div>
-                        <div class="popup-title">${name}</div>
-                    </div>
-                    <div class="popup-live-status" style="padding: 12px; background: linear-gradient(135deg, rgba(${statusColor === '#10b981' ? '16,185,129' : statusColor === '#f59e0b' ? '245,158,11' : '239,68,68'}, 0.1) 0%, rgba(${statusColor === '#10b981' ? '16,185,129' : statusColor === '#f59e0b' ? '245,158,11' : '239,68,68'}, 0.05) 100%); border-radius: 12px; border: 1.5px solid ${statusColor}40; margin-bottom: 10px;">
-                        <div style="font-weight: 700; font-size: 0.9rem; color: var(--gray-800); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                            <span style="width: 8px; height: 8px; border-radius: 50%; background: ${statusColor}; animation: pulse 2s ease-in-out infinite;"></span>
-                            Live Status
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 0.8rem;">
-                            <div style="text-align: center; padding: 8px; background: rgba(16,185,129,0.1); border-radius: 8px; border: 1px solid rgba(16,185,129,0.2);">
-                                <div style="font-weight: 900; color: #10b981; font-size: 1.1rem;">${status.available}</div>
-                                <div style="color: var(--gray-600); font-weight: 600; margin-top: 2px;">Available</div>
-                            </div>
-                            <div style="text-align: center; padding: 8px; background: rgba(59,130,246,0.1); border-radius: 8px; border: 1px solid rgba(59,130,246,0.2);">
-                                <div style="font-weight: 900; color: #3b82f6; font-size: 1.1rem;">${status.charging}</div>
-                                <div style="color: var(--gray-600); font-weight: 600; margin-top: 2px;">Charging</div>
-                            </div>
-                            <div style="text-align: center; padding: 8px; background: rgba(239,68,68,0.1); border-radius: 8px; border: 1px solid rgba(239,68,68,0.2);">
-                                <div style="font-weight: 900; color: #ef4444; font-size: 1.1rem;">${status.offline}</div>
-                                <div style="color: var(--gray-600); font-weight: 600; margin-top: 2px;">Offline</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="popup-info">
-                        <div class="popup-info-item">
-                            <svg class="popup-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                            </svg>
-                            <span class="popup-info-text">${props.operator || 'N/A'}</span>
-                        </div>
-                        <div class="popup-info-item">
-                            <svg class="popup-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                            </svg>
-                            <span class="popup-info-text">${props.state}</span>
-                        </div>
-                        <div class="popup-info-item">
-                            <svg class="popup-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
-                            </svg>
-                            <span class="popup-info-text">${total} Total Chargers</span>
-                        </div>
-                    </div>
-                    <button class="popup-directions-btn" onclick="getDirections(${station.geometry.coordinates[1]}, ${station.geometry.coordinates[0]}, '${name.replace(/'/g, "\\'")}')">
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
-                        </svg>
-                        Get Directions
-                    </button>
+       function createPopupContent(station) {
+           const props = station.properties || {};
+           const name = props.name || 'Unknown Station';
+           const state = props.state || 'Unknown';
+           const operator = props.operator || 'N/A';
+           const chargers = props.chargers || 1;
+           const status = station.liveStatus || { available: 0, charging: 0, offline: 0 };
+           const statusColor = getStatusColor(status.available, status.charging, status.offline, chargers);
+
+    return `
+        <div class="popup-content">
+            <div class="popup-header">
+                <div class="popup-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor"/>
+                    </svg>
                 </div>
-            `;
-        }
+                <div class="popup-title">${name}</div>
+            </div>
+
+            <div class="popup-live-status" style="padding: 12px; background: linear-gradient(135deg, rgba(${statusColor === '#10b981' ? '16,185,129' : statusColor === '#f59e0b' ? '245,158,11' : '239,68,68'}, 0.1) 0%, rgba(${statusColor === '#10b981' ? '16,185,129' : statusColor === '#f59e0b' ? '245,158,11' : '239,68,68'}, 0.05) 100%); border-radius: 12px; border: 1.5px solid ${statusColor}40; margin-bottom: 10px;">
+                <div style="font-weight: 700; font-size: 0.9rem; color: var(--gray-800); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: ${statusColor}; animation: pulse 2s ease-in-out infinite;"></span>
+                    Live Status
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 0.8rem;">
+                    <div style="text-align: center; padding: 8px; background: rgba(16,185,129,0.1); border-radius: 8px; border: 1px solid rgba(16,185,129,0.2);">
+                        <div style="font-weight: 900; color: #10b981; font-size: 1.1rem;">${status.available}</div>
+                        <div style="color: var(--gray-600); font-weight: 600; margin-top: 2px;">Available</div>
+                    </div>
+                    <div style="text-align: center; padding: 8px; background: rgba(59,130,246,0.1); border-radius: 8px; border: 1px solid rgba(59,130,246,0.2);">
+                        <div style="font-weight: 900; color: #3b82f6; font-size: 1.1rem;">${status.charging}</div>
+                        <div style="color: var(--gray-600); font-weight: 600; margin-top: 2px;">Charging</div>
+                    </div>
+                    <div style="text-align: center; padding: 8px; background: rgba(239,68,68,0.1); border-radius: 8px; border: 1px solid rgba(239,68,68,0.2);">
+                        <div style="font-weight: 900; color: #ef4444; font-size: 1.1rem;">${status.offline}</div>
+                        <div style="color: var(--gray-600); font-weight: 600; margin-top: 2px;">Offline</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="popup-info">
+                <div class="popup-info-item">
+                    <svg class="popup-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span class="popup-info-text">${operator}</span>
+                </div>
+                <div class="popup-info-item">
+                    <svg class="popup-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    </svg>
+                    <span class="popup-info-text">${state}</span>
+                </div>
+                <div class="popup-info-item">
+                    <svg class="popup-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
+                    </svg>
+                    <span class="popup-info-text">${chargers} Total Chargers</span>
+                </div>
+            </div>
+
+            <button class="popup-directions-btn" onclick="getDirections(${station.geometry.coordinates[1]}, ${station.geometry.coordinates[0]}, '${name.replace(/'/g, "\\'")}')">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
+                </svg>
+                Get Directions
+            </button>
+        </div>
+    `;
+}
 
         function renderStations(filterState = null) {
             // Remove all layers first
