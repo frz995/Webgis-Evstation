@@ -1788,6 +1788,7 @@
         function createPopupContent(station) {
             const props = station.properties || {};
             const name = props.name || 'Unknown Station';
+            const state = props.state || 'Unknown';
             const status = station.liveStatus || { available: 0, charging: 0, offline: 0 };
             const total = props.chargers || 1;
             const statusColor = getStatusColor(status.available, status.charging, status.offline, total);
