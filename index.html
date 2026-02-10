@@ -667,14 +667,14 @@
         }
 
         .legend {
-            position: absolute;
-            bottom: 30px;
+            position: fixed;
+            bottom: 20px;
             right: 20px;
             background: linear-gradient(180deg, rgba(250, 250, 248, 0.98) 0%, rgba(245, 243, 240, 0.96) 100%);
             padding: 14px 16px;
             border-radius: 14px;
             box-shadow: 0 12px 24px -4px rgba(26, 20, 16, 0.18);
-            z-index: 1000;
+            z-index: 400;
             border: 1px solid rgba(212, 175, 55, 0.12);
             backdrop-filter: blur(12px);
         }
@@ -1198,6 +1198,45 @@
             border-radius: 4px;
             border-color: var(--gray-400);
             padding: 2px 8px;
+        }
+
+        .leaflet-control-layers {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .leaflet-control-layers-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: var(--white);
+            box-shadow: var(--shadow-lg);
+        }
+
+        body.dark-mode .leaflet-control-layers-toggle {
+            background: var(--gray-700);
+        }
+
+        .leaflet-control-layers-expanded {
+            border-radius: 12px;
+            background: var(--white);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(229, 231, 235, 0.6);
+        }
+
+        body.dark-mode .leaflet-control-layers-expanded {
+            background: var(--gray-100);
+            border-color: rgba(100, 100, 100, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .leaflet-control-layers {
+                position: absolute !important;
+                top: 100px !important;
+                left: auto !important;
+                right: 12px !important;
+            }
         }
 
         .leaflet-marker-cluster {
@@ -2547,6 +2586,11 @@
             document.getElementById('togglePanelBtn').addEventListener('click', () => {
                 document.getElementById('sidePanel').classList.toggle('open');
             });
+            
+            // Close panel when clicking on map
+            map.on('click', () => {
+                document.getElementById('sidePanel').classList.remove('open');
+            });
             document.getElementById('routingClose').addEventListener('click', closeRouting);
             document.getElementById('startNavBtn').addEventListener('click', openGoogleMaps);
 
@@ -2973,5 +3017,5 @@
 
         initSDK();
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb92d7df49e5348',t:'MTc3MDcwMTA0MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb93b9930f726f2',t:'MTc3MDcwMTYxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
