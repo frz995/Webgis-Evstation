@@ -1,0 +1,2444 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EV Station Finder Malaysia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-heatmap@1.0.0/dist/leaflet-heatmap.css">
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow: hidden;
+        }
+
+        body {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --teal-primary: #00D9FF;
+            --teal-light: #4DE9FF;
+            --teal-dark: #00A8CC;
+            --purple-primary: #7C3AED;
+            --purple-light: #A78BFA;
+            --purple-dark: #6D28D9;
+            --primary: #00D9FF;
+            --secondary: #7C3AED;
+            --white: #FFFFFF;
+            --gray-50: #F8FAFC;
+            --gray-100: #F1F5F9;
+            --gray-200: #E2E8F0;
+            --gray-400: #94A3B8;
+            --gray-500: #64748B;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1E293B;
+            --gray-900: #0F172A;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode {
+            --white: #1a1a1a;
+            --gray-50: #2d2d2d;
+            --gray-100: #3a3a3a;
+            --gray-200: #4a4a4a;
+            --gray-700: #e0e0e0;
+            --gray-800: #f0f0f0;
+            --gray-900: #ffffff;
+        }
+
+        .app-container {
+            height: 100%;
+            width: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 250, 251, 0.98) 100%);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 16px;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+            backdrop-filter: blur(12px);
+        }
+
+        body.dark-mode .header {
+            background: linear-gradient(180deg, rgba(45, 45, 45, 0.95) 0%, rgba(58, 58, 58, 0.98) 100%);
+            border-bottom-color: rgba(100, 100, 100, 0.3);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #00D9FF 0%, #7C3AED 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 217, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 217, 255, 0.3);
+        }
+
+        .logo-icon svg {
+            width: 26px;
+            height: 26px;
+            fill: var(--white);
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 400;
+            background: linear-gradient(135deg, #00D9FF 0%, #7C3AED 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .header-spacer {
+            flex: 1;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 0 1 280px;
+            min-width: 150px;
+        }
+
+        .search-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            width: 20px;
+            height: 20px;
+            color: var(--gray-600);
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 48px;
+            border: 1.5px solid var(--gray-200);
+            border-radius: 8px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 250, 251, 0.95) 100%);
+            color: var(--gray-900);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+
+        body.dark-mode .search-input {
+            background: linear-gradient(180deg, rgba(60, 60, 60, 0.95) 0%, rgba(50, 50, 50, 0.95) 100%);
+            color: var(--gray-100);
+            border-color: var(--gray-400);
+        }
+
+        .search-input::placeholder {
+            color: var(--gray-400);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), var(--shadow-md);
+        }
+
+        .search-results {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 12px;
+            box-shadow: var(--shadow-xl);
+            max-height: 320px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+            animation: slideDown 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(229, 231, 235, 0.6);
+            backdrop-filter: blur(12px);
+        }
+
+        body.dark-mode .search-results {
+            background: rgba(45, 45, 45, 0.98);
+            border-color: rgba(100, 100, 100, 0.3);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 14px 18px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(229, 231, 235, 0.4);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.dark-mode .search-result-item {
+            border-bottom-color: rgba(100, 100, 100, 0.3);
+        }
+
+        .search-result-item:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%);
+            padding-left: 22px;
+        }
+
+        .search-result-name {
+            font-weight: 700;
+            color: var(--gray-900);
+            font-size: 0.95rem;
+        }
+
+        .search-result-operator {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            margin-top: 4px;
+        }
+
+        .dark-mode-toggle {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            border: 1px solid var(--gray-200);
+            background: var(--gray-50);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dark-mode-toggle:hover {
+            background: var(--gray-100);
+            transform: scale(1.05);
+        }
+
+        .dark-mode-toggle svg {
+            width: 20px;
+            height: 20px;
+            color: var(--gray-600);
+        }
+
+        .location-btn, .filter-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #00D9FF 0%, #7C3AED 100%);
+            border: 1px solid rgba(0, 217, 255, 0.4);
+            border-radius: 8px;
+            color: var(--white);
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .location-btn:hover, .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(53, 89, 232, 0.45);
+        }
+
+        .location-btn svg, .filter-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+            flex-direction: row-reverse;
+        }
+
+        #map {
+            flex: 1;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .side-panel {
+            width: 320px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(249, 250, 251, 0.96) 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(229, 231, 235, 0.6);
+            border-radius: 16px;
+            position: absolute;
+            left: 20px;
+            top: 80px;
+            max-height: calc(100% - 140px);
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+        }
+
+        body.dark-mode .side-panel {
+            background: linear-gradient(180deg, rgba(45, 45, 45, 0.98) 0%, rgba(58, 58, 58, 0.96) 100%);
+            border-color: rgba(100, 100, 100, 0.3);
+        }
+
+        .panel-header {
+            padding: 20px 20px 16px;
+            background: linear-gradient(180deg, transparent 0%, rgba(59, 130, 246, 0.04) 100%);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.08);
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 50%, #1F2937 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+        }
+
+        body.dark-mode .panel-title {
+            background: linear-gradient(135deg, #7DD3FC 0%, #38BDF8 50%, #E0E7FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .panel-subtitle {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 16px 16px 14px 16px;
+            background: transparent;
+            flex-shrink: 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+            padding: 18px 14px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1.5px solid rgba(0, 217, 255, 0.2);
+            backdrop-filter: blur(8px);
+            position: relative;
+            overflow: hidden;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body.dark-mode .stat-card {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.08) 0%, rgba(124, 58, 237, 0.08) 100%);
+            border-color: rgba(0, 217, 255, 0.15);
+        }
+
+        .stat-card:hover {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.2) 0%, rgba(124, 58, 237, 0.15) 100%);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 217, 255, 0.2);
+            border-color: rgba(0, 217, 255, 0.35);
+        }
+
+        .stat-value {
+            font-size: 2.4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00D9FF 0%, #7C3AED 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -2px;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .filter-section {
+            padding: 14px 16px;
+            border-top: 1px solid rgba(229, 231, 235, 0.4);
+            background: linear-gradient(180deg, transparent 0%, rgba(124, 58, 237, 0.02) 100%);
+        }
+
+        body.dark-mode .filter-section {
+            border-top-color: rgba(100, 100, 100, 0.3);
+        }
+
+        .filter-title {
+            font-size: 0.75rem;
+            font-weight: 900;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 10px;
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-toggle {
+            padding: 8px 14px;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+            border: 1.5px solid rgba(0, 217, 255, 0.2);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--gray-700);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .filter-toggle:hover {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.2) 0%, rgba(124, 58, 237, 0.15) 100%);
+            transform: translateY(-2px);
+            border-color: rgba(0, 217, 255, 0.3);
+        }
+
+        .filter-toggle.active {
+            background: linear-gradient(135deg, #00D9FF 0%, #7C3AED 100%);
+            border-color: rgba(0, 217, 255, 0.5);
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);
+        }
+
+        .state-list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            background: transparent;
+        }
+
+        .state-list-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .state-list-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 217, 255, 0.25);
+            border-radius: 3px;
+        }
+
+        .state-list-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 217, 255, 0.4);
+        }
+
+        .state-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 6px;
+            border: 1.5px solid transparent;
+            font-size: 0.9rem;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.08) 0%, rgba(124, 58, 237, 0.08) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.dark-mode .state-item {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.06) 0%, rgba(124, 58, 237, 0.06) 100%);
+        }
+
+        .state-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, #00D9FF, #7C3AED);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .state-item:hover {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.15) 0%, rgba(124, 58, 237, 0.12) 100%);
+            transform: translateX(4px);
+            border-color: rgba(0, 217, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 217, 255, 0.12);
+        }
+
+        .state-item:hover::before {
+            opacity: 1;
+        }
+
+        .state-item.active {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.15) 0%, rgba(124, 58, 237, 0.12) 100%);
+            border-color: rgba(0, 217, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 217, 255, 0.12);
+        }
+
+        .state-item.active::before {
+            opacity: 1;
+        }
+
+        .state-name {
+            font-weight: 800;
+            color: var(--gray-900);
+            font-size: 0.9rem;
+        }
+
+        .state-count {
+            background: linear-gradient(135deg, #00D9FF 0%, #7C3AED 100%);
+            color: var(--white);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 900;
+            min-width: 32px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);
+            letter-spacing: -0.3px;
+        }
+
+        .nearest-stations {
+            padding: 14px 16px;
+            border-top: 1px solid rgba(229, 231, 235, 0.4);
+            background: linear-gradient(180deg, transparent 0%, rgba(0, 217, 255, 0.02) 100%);
+        }
+
+        body.dark-mode .nearest-stations {
+            border-top-color: rgba(100, 100, 100, 0.3);
+        }
+
+        .nearest-title {
+            font-size: 0.75rem;
+            font-weight: 900;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 10px;
+        }
+
+        .nearest-item {
+            padding: 10px;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.08) 0%, rgba(124, 58, 237, 0.08) 100%);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 217, 255, 0.15);
+            font-size: 0.85rem;
+        }
+
+        .nearest-item:hover {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.15) 0%, rgba(124, 58, 237, 0.12) 100%);
+            transform: translateX(4px);
+            border-color: rgba(0, 217, 255, 0.3);
+        }
+
+        .nearest-name {
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 2px;
+        }
+
+        body.dark-mode .nearest-name {
+            color: var(--gray-100);
+        }
+
+        .nearest-distance {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .clear-filter-btn {
+            width: 90%;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, #7C3AED 0%, #A78BFA 50%, #00D9FF 100%);
+            border: 1px solid rgba(0, 217, 255, 0.4);
+            border-radius: 12px;
+            color: var(--white);
+            font-weight: 800;
+            cursor: pointer;
+            margin: 12px auto;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.9rem;
+            box-shadow: 0 8px 20px rgba(0, 217, 255, 0.3);
+            letter-spacing: 0.3px;
+            position: relative;
+            overflow: hidden;
+            min-height: 48px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clear-filter-btn.visible {
+            display: flex;
+        }
+
+        .clear-filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0, 217, 255, 0.4);
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+            background: linear-gradient(180deg, rgba(250, 250, 248, 0.98) 0%, rgba(245, 243, 240, 0.96) 100%);
+            padding: 14px 16px;
+            border-radius: 14px;
+            box-shadow: 0 12px 24px -4px rgba(26, 20, 16, 0.18);
+            z-index: 1000;
+            border: 1px solid rgba(212, 175, 55, 0.12);
+            backdrop-filter: blur(12px);
+        }
+
+        body.dark-mode .legend {
+            background: linear-gradient(180deg, rgba(45, 45, 45, 0.98) 0%, rgba(58, 58, 58, 0.96) 100%);
+            border-color: rgba(100, 100, 100, 0.3);
+        }
+
+        .legend-title {
+            font-weight: 800;
+            color: var(--gray-800);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            letter-spacing: -0.3px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .legend-marker {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 217, 255, 0.1);
+            flex-shrink: 0;
+            border: 1.5px solid var(--white);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            position: relative;
+        }
+
+        .legend-marker svg {
+            width: 10px;
+            height: 10px;
+            color: var(--primary);
+            stroke-width: 2;
+        }
+
+        .legend-text {
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            font-weight: 600;
+        }
+
+        body.dark-mode .legend-text {
+            color: var(--gray-700);
+        }
+
+        .routing-panel {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            background: linear-gradient(180deg, var(--white) 0%, var(--gray-50) 100%);
+            padding: 18px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            width: 320px;
+            display: none;
+            animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 217, 255, 0.15);
+            backdrop-filter: blur(12px);
+        }
+
+        body.dark-mode .routing-panel {
+            background: linear-gradient(180deg, rgba(45, 45, 45, 0.98) 0%, rgba(58, 58, 58, 0.96) 100%);
+            border-color: rgba(100, 100, 100, 0.3);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .routing-panel.active {
+            display: block;
+        }
+
+        .routing-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .routing-title {
+            font-weight: 800;
+            color: var(--gray-800);
+            font-size: 1.05rem;
+            letter-spacing: -0.3px;
+        }
+
+        body.dark-mode .routing-title {
+            color: var(--gray-100);
+        }
+
+        .routing-close {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: none;
+            background: var(--gray-100);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+
+        body.dark-mode .routing-close {
+            background: var(--gray-700);
+        }
+
+        .routing-close:hover {
+            background: var(--gray-200);
+            transform: scale(1.05);
+        }
+
+        .routing-close svg {
+            width: 14px;
+            height: 14px;
+            color: var(--gray-600);
+        }
+
+        .routing-destination {
+            padding: 12px 14px;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.08) 0%, rgba(124, 58, 237, 0.08) 100%);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(0, 217, 255, 0.12);
+        }
+
+        .routing-destination-label {
+            font-size: 0.72rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 800;
+            margin-bottom: 2px;
+        }
+
+        .routing-destination-name {
+            font-weight: 700;
+            color: var(--gray-800);
+            font-size: 0.95rem;
+            line-height: 1.3;
+        }
+
+        body.dark-mode .routing-destination-name {
+            color: var(--gray-100);
+        }
+
+        .routing-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .routing-stat {
+            text-align: center;
+            padding: 12px 6px;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.08) 0%, rgba(124, 58, 237, 0.08) 100%);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 217, 255, 0.12);
+        }
+
+        .routing-stat-value {
+            font-size: 1.1rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00D9FF 0%, #7C3AED 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.3px;
+            line-height: 1.2;
+        }
+
+        .routing-stat-label {
+            font-size: 0.65rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            margin-top: 4px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .routing-battery {
+            padding: 12px 14px;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.08) 0%, rgba(124, 58, 237, 0.08) 100%);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(0, 217, 255, 0.12);
+        }
+
+        .routing-battery-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .routing-battery-icon {
+            width: 18px;
+            height: 18px;
+            color: var(--primary);
+        }
+
+        .routing-battery-title {
+            font-weight: 700;
+            color: var(--gray-700);
+            font-size: 0.85rem;
+            letter-spacing: -0.2px;
+        }
+
+        body.dark-mode .routing-battery-title {
+            color: var(--gray-700);
+        }
+
+        .routing-battery-bar {
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 6px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .routing-battery-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 4px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 8px rgba(0, 217, 255, 0.3);
+        }
+
+        .routing-battery-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--gray-600);
+            font-weight: 600;
+        }
+
+        .start-navigation-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, var(--secondary) 100%);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 10px;
+            color: #000000;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .start-navigation-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .start-navigation-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 16px;
+            box-shadow: var(--shadow-xl);
+            padding: 0;
+            overflow: hidden;
+            border: 1px solid rgba(0, 217, 255, 0.15);
+            background: linear-gradient(180deg, var(--white) 0%, var(--gray-50) 100%);
+            backdrop-filter: blur(12px);
+        }
+
+        .leaflet-popup-content {
+            margin: 0;
+            min-width: 240px;
+        }
+
+        .popup-content {
+            padding: 12px;
+        }
+
+        .popup-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .popup-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 6px 16px rgba(0, 217, 255, 0.12);
+            border: 2px solid rgba(0, 217, 255, 0.2);
+            backdrop-filter: blur(8px);
+        }
+
+        .popup-icon svg {
+            width: 20px;
+            height: 20px;
+            color: var(--primary);
+            stroke-width: 2;
+        }
+
+        .popup-title {
+            font-weight: 800;
+            color: var(--gray-800);
+            font-size: 0.95rem;
+            line-height: 1.3;
+            letter-spacing: -0.2px;
+        }
+
+        body.dark-mode .popup-title {
+            color: var(--gray-100);
+        }
+
+        .popup-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .popup-info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .popup-info-icon {
+            width: 16px;
+            height: 16px;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .popup-info-text {
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        body.dark-mode .popup-info-text {
+            color: var(--gray-400);
+        }
+
+        .popup-directions-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #00D9FF 0%, #7C3AED 100%);
+            border: 1px solid rgba(0, 217, 255, 0.4);
+            border-radius: 10px;
+            color: var(--white);
+            font-weight: 800;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px rgba(0, 217, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.2px;
+        }
+
+        .popup-directions-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0, 217, 255, 0.4);
+        }
+
+        .popup-directions-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .toggle-panel-btn {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            background: var(--white);
+            border: none;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        body.dark-mode .toggle-panel-btn {
+            background: var(--gray-700);
+        }
+
+        .toggle-panel-btn:hover {
+            background: var(--gray-50);
+        }
+
+        .toggle-panel-btn svg {
+            width: 24px;
+            height: 24px;
+            color: var(--gray-700);
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            transition: opacity 0.3s;
+        }
+
+        body.dark-mode .loading-overlay {
+            background: rgba(45, 45, 45, 0.95);
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 56px;
+            height: 56px;
+            border: 4px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            font-weight: 600;
+            color: var(--gray-600);
+            font-size: 1rem;
+        }
+
+        .leaflet-control-zoom {
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .leaflet-control-zoom a {
+            background: var(--white);
+            color: var(--gray-700);
+            width: 36px;
+            height: 36px;
+            line-height: 36px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        body.dark-mode .leaflet-control-zoom a {
+            background: var(--gray-700);
+            color: var(--gray-100);
+        }
+
+        .leaflet-control-zoom a:hover {
+            background: var(--gray-100);
+            color: var(--gray-900);
+        }
+
+        .leaflet-control-scale-line {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 4px;
+            border-color: var(--gray-400);
+            padding: 2px 8px;
+        }
+
+        .leaflet-marker-cluster {
+            background: linear-gradient(135deg, #00D9FF 0%, #7C3AED 100%) !important;
+            border: 2px solid rgba(255, 255, 255, 0.8) !important;
+            box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3) !important;
+        }
+
+        .leaflet-marker-cluster-small { background: linear-gradient(135deg, #4DE9FF 0%, #A78BFA 100%) !important; }
+        .leaflet-marker-cluster-medium { background: linear-gradient(135deg, #00D9FF 0%, #7C3AED 100%) !important; }
+        .leaflet-marker-cluster-large { background: linear-gradient(135deg, #00A8CC 0%, #6D28D9 100%) !important; }
+
+        .leaflet-marker-cluster-small div { background: linear-gradient(135deg, #4DE9FF 0%, #A78BFA 100%) !important; }
+        .leaflet-marker-cluster-medium div { background: linear-gradient(135deg, #00D9FF 0%, #7C3AED 100%) !important; }
+        .leaflet-marker-cluster-large div { background: linear-gradient(135deg, #00A8CC 0%, #6D28D9 100%) !important; }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 currentColor;
+            }
+            50% {
+                box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
+            }
+        }
+
+        @keyframes locationPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 0 12px rgba(16, 185, 129, 0);
+                transform: scale(1.05);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+                transform: scale(1);
+            }
+        }
+
+        .user-location-animated {
+            animation: locationPulse 2s infinite;
+        }
+
+        .traffic-status-banner {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            z-index: 999;
+            font-size: 0.9rem;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .traffic-status-banner.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 16px;
+                flex-wrap: nowrap;
+            }
+
+            .logo-text {
+                display: none;
+            }
+
+            .search-container {
+                order: 3;
+                flex-basis: 100%;
+                max-width: none;
+                position: fixed;
+                top: 70px;
+                left: 16px;
+                right: 16px;
+                z-index: 999;
+                width: calc(100% - 32px);
+            }
+
+            .filter-btn span {
+                display: none;
+            }
+
+            .location-btn span {
+                display: none;
+            }
+
+            .location-btn, .filter-btn {
+                padding: 12px;
+            }
+
+            .side-panel {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                left: auto;
+                top: auto;
+                width: 300px;
+                max-height: 60vh;
+                transform: translateY(120%);
+            }
+
+            .side-panel.open {
+                transform: translateY(0);
+            }
+
+            .toggle-panel-btn {
+                display: flex;
+            }
+
+            .legend {
+                bottom: 20px;
+                left: 10px;
+                padding: 14px 16px;
+            }
+
+            .routing-panel {
+                right: 20px;
+                left: 20px;
+                max-width: none;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="app-container"><!-- Loading Overlay -->
+   <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">
+     Loading EV Stations...
+    </div>
+   </div><!-- Header -->
+   <header class="header">
+    <div class="logo-section">
+     <div class="logo-icon">
+      <svg viewbox="0 0 24 24" fill="currentColor">
+       <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+      </svg>
+     </div><span class="logo-text" id="mapTitle">EV Station Finder</span>
+    </div>
+    <div class="header-spacer"></div>
+    <div class="header-controls">
+     <div class="search-container">
+      <div class="search-wrapper">
+       <svg class="search-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+       </svg><input type="text" class="search-input" id="searchInput" placeholder="Search EV stations...">
+      </div>
+      <div class="search-results" id="searchResults"></div>
+     </div><button class="location-btn" id="locationBtn">
+      <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3" /><path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
+      </svg><span>My Location</span> </button> <button class="location-btn" id="trafficBtn" title="Toggle live traffic">
+      <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v6H6z" /><path d="M6 15h12v6H6z" /><circle cx="12" cy="9" r="1.5" fill="currentColor" /><circle cx="12" cy="21" r="1.5" fill="currentColor" />
+      </svg><span>Traffic</span> </button> <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+      <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg></button>
+    </div>
+   </header><!-- Main Content -->
+   <div class="main-content"><!-- Map -->
+    <div id="map"></div><!-- Toggle Panel Button (Mobile) --> <button class="toggle-panel-btn" id="togglePanelBtn">
+     <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18" />
+     </svg></button> <!-- Side Panel -->
+    <aside class="side-panel" id="sidePanel">
+     <div class="panel-header">
+      <h2 class="panel-title">EV Stations</h2>
+      <p class="panel-subtitle">Filter &amp; explore charging stations</p>
+     </div>
+     <div class="stats-grid">
+      <div class="stat-card">
+       <div class="stat-value" id="totalStations">
+        0
+       </div>
+       <div class="stat-label">
+        Total Stations
+       </div>
+      </div>
+      <div class="stat-card">
+       <div class="stat-value" id="totalStates">
+        0
+       </div>
+       <div class="stat-label">
+        States
+       </div>
+      </div>
+     </div><!-- Visualization Filters -->
+     <div class="filter-section">
+      <div class="filter-title">
+       Visualization
+      </div>
+      <div class="filter-options"><button class="filter-toggle active" id="viewClustered" data-view="clustered">Clustered</button> <button class="filter-toggle" id="viewIndividual" data-view="individual">Individual</button>
+      </div>
+     </div><!-- Nearest Stations -->
+     <div class="nearest-stations">
+      <div class="nearest-title">
+       Nearest to You
+      </div>
+      <div id="nearestList"></div>
+     </div><!-- States List -->
+     <div class="state-list-container">
+      <div style="padding: 0 6px; margin-bottom: 10px;">
+       <div class="state-list-header">
+        States by Stations
+       </div>
+      </div>
+      <div id="stateList"></div>
+     </div><button class="clear-filter-btn" id="clearFilterBtn">Clear Filter</button>
+    </aside><!-- Legend -->
+    <div class="legend">
+     <div class="legend-title">
+      Legend
+     </div>
+     <div class="legend-item">
+      <div class="legend-marker" style="background: linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%); border: 2px solid white; box-shadow: 0 4px 12px rgba(53, 89, 232, 0.3);">
+       <svg viewbox="0 0 24 24" fill="white" style="width: 14px; height: 14px;">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+       </svg>
+      </div><span class="legend-text">EV Station</span>
+     </div>
+     <div class="legend-item">
+      <div class="legend-marker" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border: 2px solid white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+       <svg viewbox="0 0 24 24" fill="white" style="width: 14px; height: 14px;">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+       </svg>
+      </div><span class="legend-text">Filtered State</span>
+     </div>
+     <div class="legend-item">
+      <div class="legend-marker" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border: 2px solid white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+       <div style="width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+        <div style="width: 4px; height: 4px; background: white; border-radius: 50%;"></div>
+       </div>
+      </div><span class="legend-text">Your Location</span>
+     </div>
+    </div><!-- Routing Panel -->
+    <div class="routing-panel" id="routingPanel">
+     <div class="routing-header"><span class="routing-title">Route Details</span> <button class="routing-close" id="routingClose">
+       <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12" />
+       </svg></button>
+     </div>
+     <div class="routing-destination">
+      <div class="routing-destination-label">
+       Destination
+      </div>
+      <div class="routing-destination-name" id="routingDestination">
+       -
+      </div>
+     </div>
+     <div class="routing-stats">
+      <div class="routing-stat">
+       <div class="routing-stat-value" id="routingDistance">
+        -
+       </div>
+       <div class="routing-stat-label">
+        Distance
+       </div>
+      </div>
+      <div class="routing-stat">
+       <div class="routing-stat-value" id="routingTime">
+        -
+       </div>
+       <div class="routing-stat-label">
+        ETA
+       </div>
+      </div>
+      <div class="routing-stat">
+       <div class="routing-stat-value" id="routingSpeed">
+        -
+       </div>
+       <div class="routing-stat-label">
+        Avg Speed
+       </div>
+      </div>
+     </div>
+     <div class="routing-battery">
+      <div class="routing-battery-header">
+       <svg class="routing-battery-icon" viewbox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z" />
+       </svg><span class="routing-battery-title">Battery Estimate</span>
+      </div>
+      <div class="routing-battery-bar">
+       <div class="routing-battery-fill" id="batteryFill" style="width: 100%"></div>
+      </div>
+      <div class="routing-battery-text"><span id="batteryUsed">0 kWh used</span> <span id="batteryRemaining">100% remaining</span>
+      </div>
+     </div><button class="start-navigation-btn" id="startNavBtn">
+      <svg viewbox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
+      </svg> Open in Google Maps </button>
+    </div>
+   </div>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.0/dist/leaflet.markercluster.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+  <script src="https://unpkg.com/heatmap.js@2.0.5/heatmap.js"></script>
+  <script src="https://unpkg.com/leaflet-heatmap@1.0.0/leaflet-heatmap.js"></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder@1.13.0/Control.Geocoder.js"></script>
+  <script>
+        // Configuration
+        const defaultConfig = {
+            map_title: 'Malaysia EV Charging Stations',
+            search_placeholder: 'Search EV stations...'
+        };
+
+        let config = { ...defaultConfig };
+        let map, markerClusterGroup, heatmapLayer, userMarker, routingControl;
+        let allStations = [];
+        let stateData = {};
+        let userLocation = null;
+        let selectedStation = null;
+        let currentView = 'clustered';
+        let allMarkersArray = [];
+        let trafficLayer = null;
+        let trafficVisible = false;
+        let trafficFlowSegments = [];
+        const TOMTOM_API_KEY = '2TfIeGSReRGNw2hLCgY5cOIp9zj3DYtK';
+
+        // Initialize Element SDK
+        async function initSDK() {
+            if (window.elementSdk) {
+                await window.elementSdk.init({
+                    defaultConfig,
+                    onConfigChange: async (newConfig) => {
+                        config = { ...defaultConfig, ...newConfig };
+                        applyConfig();
+                    },
+                    mapToCapabilities: (cfg) => ({
+                        recolorables: [],
+                        borderables: [],
+                        fontEditable: undefined,
+                        fontSizeable: undefined
+                    }),
+                    mapToEditPanelValues: (cfg) => new Map([
+                        ['map_title', cfg.map_title || defaultConfig.map_title],
+                        ['search_placeholder', cfg.search_placeholder || defaultConfig.search_placeholder]
+                    ])
+                });
+                config = { ...defaultConfig, ...window.elementSdk.config };
+            }
+            applyConfig();
+            initMap();
+        }
+
+        function applyConfig() {
+            document.getElementById('mapTitle').textContent = config.map_title || defaultConfig.map_title;
+            document.getElementById('searchInput').placeholder = config.search_placeholder || defaultConfig.search_placeholder;
+        }
+
+        // Initialize Map
+        function initMap() {
+            const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
+                maxZoom: 19
+            });
+
+            const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CARTO',
+                maxZoom: 19
+            });
+
+            const cartoDark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CARTO',
+                maxZoom: 19
+            });
+
+            const esriLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '&copy; Esri',
+                maxZoom: 19
+            });
+
+            const initialLayer = document.body.classList.contains('dark-mode') ? cartoDark : cartoLight;
+
+            map = L.map('map', {
+                center: [4.2105, 101.9758],
+                zoom: 7,
+                layers: [initialLayer],
+                zoomControl: false
+            });
+
+            const baseLayers = {
+                'OpenStreetMap': osmLayer,
+                'Carto Light': cartoLight,
+                'Carto Dark': cartoDark,
+                'ESRI Imagery': esriLayer
+            };
+
+            L.control.layers(baseLayers, null, { position: 'topright', collapsed: true }).addTo(map);
+
+            // Initialize marker cluster group
+            markerClusterGroup = L.markerClusterGroup({
+                maxClusterRadius: 60,
+                iconCreateFunction: createClusterIcon
+            });
+
+            // Load EV stations
+            loadEVStations();
+            setupEventListeners();
+        }
+
+        function createClusterIcon(cluster) {
+            const count = cluster.getChildCount();
+            let size, color;
+            
+            if (count < 10) {
+                size = 'small';
+                color = '#4DE9FF';
+            } else if (count < 50) {
+                size = 'medium';
+                color = '#00D9FF';
+            } else {
+                size = 'large';
+                color = '#00A8CC';
+            }
+            
+            return L.divIcon({
+                html: `<div style="background: linear-gradient(135deg, ${color}, #7C3AED); width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 12px; border: 3px solid white; box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);">${count}</div>`,
+                className: `marker-cluster marker-cluster-${size}`,
+                iconSize: size === 'small' ? [40, 40] : size === 'medium' ? [50, 50] : [60, 60],
+                iconAnchor: [size === 'small' ? 20 : size === 'medium' ? 25 : 30, size === 'small' ? 20 : size === 'medium' ? 25 : 30]
+            });
+        }
+
+        // Load EV Stations from GeoServer
+        let allStations = [];
+
+      async function loadEVStations() {
+          try {
+              const geoserverUrl = 'data/ev_station.geojson';
+              
+              const response = await fetch(geoserverUrl);
+              if (!response.ok) throw new Error(`GeoServer error: ${response.status}`);
+              
+              const data = await response.json();
+              if (!data.features || data.features.length === 0) {
+                  showErrorToast('No EV stations found in GeoServer');
+                  document.getElementById('loadingOverlay').classList.add('hidden');
+                  return;
+              }
+      
+              allStations = data.features.map((feature, idx) => {
+                  const props = feature.properties || {};
+                  const coords = feature.geometry?.coordinates || [101.9758, 4.2105];
+                  return {
+                      properties: {
+                          name: props.name || props.station_name || `Station ${idx+1}`,
+                          operator: props.operator || props.provider || 'N/A',
+                          state: props.state || props.district || 'Unknown',
+                          chargers: props.chargers || props.charger_count || 1,
+                          ...props
+                      },
+                      geometry: { coordinates: coords },
+                      id: idx
+                  };
+              });
+      
+              // optional: processStations(); // hanya jika ada function
+              renderStations(); 
+              updateStats();
+              populateStateList();
+              updateNearestStations();
+      
+              document.getElementById('loadingOverlay').classList.add('hidden');
+              showToast(`✅ Loaded ${allStations.length} EV charging stations!`);
+          } catch (error) {
+              console.error('Error loading EV stations:', error);
+              document.getElementById('loadingOverlay').classList.add('hidden');
+              showErrorToast(`Unable to load from GeoServer: ${error.message}`);
+          }
+      }
+
+        function processStations() {
+            stateData = {};
+            allStations.forEach(station => {
+                const state = station.properties?.state || 'Unknown';
+                if (!stateData[state]) {
+                    stateData[state] = [];
+                }
+                
+                // Add simulated live status data
+                const totalChargers = station.properties?.chargers || 1;
+                station.liveStatus = {
+                    available: Math.floor(Math.random() * (totalChargers + 1)),
+                    charging: Math.floor(Math.random() * (totalChargers + 1)),
+                    offline: Math.max(0, totalChargers - Math.floor(Math.random() * totalChargers))
+                };
+                station.liveStatus.available = Math.max(0, totalChargers - station.liveStatus.charging - station.liveStatus.offline);
+                
+                stateData[state].push(station);
+            });
+            
+            // Simulate status updates every 5 seconds
+            startStatusSimulation();
+        }
+        
+        function startStatusSimulation() {
+            setInterval(() => {
+                allStations.forEach(station => {
+                    const totalChargers = station.properties?.chargers || 1;
+                    const change = Math.random() > 0.7 ? Math.floor(Math.random() * 2) - 1 : 0;
+                    
+                    station.liveStatus.available = Math.max(0, Math.min(totalChargers, station.liveStatus.available + change));
+                    station.liveStatus.charging = Math.floor(Math.random() * (totalChargers - station.liveStatus.available + 1));
+                    station.liveStatus.offline = Math.max(0, totalChargers - station.liveStatus.available - station.liveStatus.charging);
+                    
+                    // Update marker popup if it exists
+                    updateMarkerStatus(station);
+                });
+            }, 5000);
+        }
+        
+        function updateMarkerStatus(station) {
+            allMarkersArray.forEach(marker => {
+                const content = marker.getPopup()?.getContent();
+                if (content && content.includes(station.properties?.name)) {
+                    marker.setPopupContent(createPopupContent(station));
+                }
+            });
+        }
+        
+        function getStatusColor(available, charging, offline, total) {
+            const availPercent = (available / total) * 100;
+            if (availPercent > 50) return '#10b981'; // Green
+            if (availPercent > 25) return '#f59e0b'; // Orange
+            return '#ef4444'; // Red
+        }
+        
+        function createPopupContent(station) {
+            const props = station.properties || {};
+            const name = props.name || 'Unknown Station';
+            const status = station.liveStatus || { available: 0, charging: 0, offline: 0 };
+            const total = props.chargers || 1;
+            const statusColor = getStatusColor(status.available, status.charging, status.offline, total);
+            
+            return `
+                <div class="popup-content">
+                    <div class="popup-header">
+                        <div class="popup-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="popup-title">${name}</div>
+                    </div>
+                    <div class="popup-live-status" style="padding: 12px; background: linear-gradient(135deg, rgba(${statusColor === '#10b981' ? '16,185,129' : statusColor === '#f59e0b' ? '245,158,11' : '239,68,68'}, 0.1) 0%, rgba(${statusColor === '#10b981' ? '16,185,129' : statusColor === '#f59e0b' ? '245,158,11' : '239,68,68'}, 0.05) 100%); border-radius: 12px; border: 1.5px solid ${statusColor}40; margin-bottom: 10px;">
+                        <div style="font-weight: 700; font-size: 0.9rem; color: var(--gray-800); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: ${statusColor}; animation: pulse 2s ease-in-out infinite;"></span>
+                            Live Status
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 0.8rem;">
+                            <div style="text-align: center; padding: 8px; background: rgba(16,185,129,0.1); border-radius: 8px; border: 1px solid rgba(16,185,129,0.2);">
+                                <div style="font-weight: 900; color: #10b981; font-size: 1.1rem;">${status.available}</div>
+                                <div style="color: var(--gray-600); font-weight: 600; margin-top: 2px;">Available</div>
+                            </div>
+                            <div style="text-align: center; padding: 8px; background: rgba(59,130,246,0.1); border-radius: 8px; border: 1px solid rgba(59,130,246,0.2);">
+                                <div style="font-weight: 900; color: #3b82f6; font-size: 1.1rem;">${status.charging}</div>
+                                <div style="color: var(--gray-600); font-weight: 600; margin-top: 2px;">Charging</div>
+                            </div>
+                            <div style="text-align: center; padding: 8px; background: rgba(239,68,68,0.1); border-radius: 8px; border: 1px solid rgba(239,68,68,0.2);">
+                                <div style="font-weight: 900; color: #ef4444; font-size: 1.1rem;">${status.offline}</div>
+                                <div style="color: var(--gray-600); font-weight: 600; margin-top: 2px;">Offline</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="popup-info">
+                        <div class="popup-info-item">
+                            <svg class="popup-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                            <span class="popup-info-text">${props.operator || 'N/A'}</span>
+                        </div>
+                        <div class="popup-info-item">
+                            <svg class="popup-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            </svg>
+                            <span class="popup-info-text">${props.state}</span>
+                        </div>
+                        <div class="popup-info-item">
+                            <svg class="popup-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
+                            </svg>
+                            <span class="popup-info-text">${total} Total Chargers</span>
+                        </div>
+                    </div>
+                    <button class="popup-directions-btn" onclick="getDirections(${station.geometry.coordinates[1]}, ${station.geometry.coordinates[0]}, '${name.replace(/'/g, "\\'")}')">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
+                        </svg>
+                        Get Directions
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderStations(filterState = null) {
+            // Remove all layers first
+            markerClusterGroup.clearLayers();
+            allMarkersArray.forEach(marker => {
+                if (map.hasLayer(marker)) {
+                    map.removeLayer(marker);
+                }
+            });
+            allMarkersArray = [];
+            
+            if (map.hasLayer(markerClusterGroup)) {
+                map.removeLayer(markerClusterGroup);
+            }
+            
+            const stationsToRender = filterState 
+                ? allStations.filter(s => s.properties?.state === filterState)
+                : allStations;
+
+            stationsToRender.forEach(station => {
+                const coords = station.geometry?.coordinates;
+                if (!coords) return;
+
+                const props = station.properties || {};
+                const lat = coords[1];
+                const lng = coords[0];
+                const name = props.name || 'Unknown Station';
+
+                // Create marker with green color when state is filtered
+                const markerColor = filterState ? '#10b981' : '#3559E8';
+                const markerGradient = filterState 
+                    ? 'linear-gradient(135deg, #10b981 0%, #34d399 100%)'
+                    : 'linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%)';
+                const shadowColor = filterState 
+                    ? 'rgba(16, 185, 129, 0.3)'
+                    : 'rgba(53, 89, 232, 0.3)';
+
+                const icon = L.divIcon({
+                    html: `<div style="width: 28px; height: 28px; background: ${markerGradient}; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 4px 12px ${shadowColor};"><svg viewBox="0 0 24 24" fill="white" style="width: 14px; height: 14px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>`,
+                    className: 'custom-marker-container',
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 40],
+                    popupAnchor: [0, -40]
+                });
+
+                const marker = L.marker([lat, lng], { icon });
+                
+                const popupContent = createPopupContent(station);
+
+                marker.bindPopup(popupContent);
+                markerClusterGroup.addLayer(marker);
+                allMarkersArray.push(marker);
+            });
+
+            if (currentView === 'clustered') {
+                map.addLayer(markerClusterGroup);
+            } else if (currentView === 'individual') {
+                // Add all markers individually without clustering
+                allMarkersArray.forEach(marker => {
+                    map.addLayer(marker);
+                });
+            }
+
+            if (filterState && stationsToRender.length > 0) {
+                const bounds = L.latLngBounds(stationsToRender.map(s => [
+                    s.geometry.coordinates[1],
+                    s.geometry.coordinates[0]
+                ]));
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+        }
+
+        function updateStats() {
+            const totalStations = allStations.length;
+            const totalStates = Object.keys(stateData).length;
+            document.getElementById('totalStations').textContent = totalStations;
+            document.getElementById('totalStates').textContent = totalStates;
+        }
+
+        function populateStateList() {
+            const stateList = document.getElementById('stateList');
+            stateList.innerHTML = '';
+            
+            const sortedStates = Object.entries(stateData)
+                .sort((a, b) => b[1].length - a[1].length);
+            
+            sortedStates.forEach(([state, stations]) => {
+                const item = document.createElement('div');
+                item.className = 'state-item';
+                item.dataset.state = state;
+                item.innerHTML = `
+                    <span class="state-name">${state}</span>
+                    <span class="state-count">${stations.length}</span>
+                `;
+                item.addEventListener('click', () => filterByState(state));
+                stateList.appendChild(item);
+            });
+        }
+
+        function updateNearestStations() {
+            const nearestList = document.getElementById('nearestList');
+            nearestList.innerHTML = '';
+
+            if (!userLocation) {
+                nearestList.innerHTML = '<div style="padding: 10px; color: var(--gray-500); font-size: 0.85rem; text-align: center;">Enable location to see nearest stations</div>';
+                return;
+            }
+
+            const withDistance = allStations.map(s => ({
+                ...s,
+                distance: getDistance(userLocation.lat, userLocation.lng, s.geometry.coordinates[1], s.geometry.coordinates[0])
+            })).sort((a, b) => a.distance - b.distance).slice(0, 3);
+
+            withDistance.forEach(station => {
+                const item = document.createElement('div');
+                item.className = 'nearest-item';
+                const props = station.properties;
+                item.innerHTML = `
+                    <div class="nearest-name">${props.name}</div>
+                    <div class="nearest-distance">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 12px; height: 12px;">
+                            <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        </svg>
+                        ${station.distance.toFixed(1)} km
+                    </div>
+                `;
+                item.addEventListener('click', () => {
+                    getDirections(station.geometry.coordinates[1], station.geometry.coordinates[0], props.name);
+                });
+                nearestList.appendChild(item);
+            });
+        }
+
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function filterByState(state) {
+            document.querySelectorAll('.state-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.state === state);
+            });
+            document.getElementById('clearFilterBtn').classList.add('visible');
+            renderStations(state);
+        }
+
+        function clearFilter() {
+            document.querySelectorAll('.state-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.getElementById('clearFilterBtn').classList.remove('visible');
+            renderStations();
+            map.setView([4.2105, 101.9758], 7);
+        }
+
+        function setupEventListeners() {
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                
+                if (query.length < 2) {
+                    searchResults.classList.remove('active');
+                    return;
+                }
+                
+                const matches = allStations.filter(station => {
+                    const name = (station.properties?.name || '').toLowerCase();
+                    const operator = (station.properties?.operator || '').toLowerCase();
+                    return name.includes(query) || operator.includes(query);
+                }).slice(0, 10);
+                
+                if (matches.length === 0) {
+                    searchResults.innerHTML = '<div class="search-no-results">No stations found</div>';
+                } else {
+                    searchResults.innerHTML = matches.map(station => {
+                        const props = station.properties || {};
+                        return `
+                            <div class="search-result-item" data-lat="${station.geometry.coordinates[1]}" data-lng="${station.geometry.coordinates[0]}">
+                                <div class="search-result-name">${props.name || 'Unknown'}</div>
+                                <div class="search-result-operator">${props.operator || 'N/A'}</div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                        item.addEventListener('click', () => {
+                            const lat = parseFloat(item.dataset.lat);
+                            const lng = parseFloat(item.dataset.lng);
+                            map.setView([lat, lng], 16);
+                            searchResults.classList.remove('active');
+                            searchInput.value = '';
+                        });
+                    });
+                }
+                
+                searchResults.classList.add('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.search-container')) {
+                    searchResults.classList.remove('active');
+                }
+            });
+
+            document.getElementById('locationBtn').addEventListener('click', getUserLocation);
+            document.getElementById('trafficBtn').addEventListener('click', toggleTraffic);
+            document.getElementById('clearFilterBtn').addEventListener('click', clearFilter);
+            document.getElementById('togglePanelBtn').addEventListener('click', () => {
+                document.getElementById('sidePanel').classList.toggle('open');
+            });
+            document.getElementById('routingClose').addEventListener('click', closeRouting);
+            document.getElementById('startNavBtn').addEventListener('click', openGoogleMaps);
+
+            // View toggle
+            document.getElementById('viewClustered').addEventListener('click', () => {
+                currentView = 'clustered';
+                document.querySelectorAll('[id^="view"]').forEach(btn => btn.classList.remove('active'));
+                document.getElementById('viewClustered').classList.add('active');
+                renderStations();
+            });
+
+            document.getElementById('viewIndividual').addEventListener('click', () => {
+                currentView = 'individual';
+                document.querySelectorAll('[id^="view"]').forEach(btn => btn.classList.remove('active'));
+                document.getElementById('viewIndividual').classList.add('active');
+                renderStations();
+            });
+
+            // Dark mode
+            document.getElementById('darkModeToggle').addEventListener('click', () => {
+                const isDarkMode = !document.body.classList.contains('dark-mode');
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', isDarkMode);
+                
+                const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; CARTO',
+                    maxZoom: 19
+                });
+                
+                const esriNova = L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: '&copy; Esri',
+                    maxZoom: 19
+                });
+                
+                const currentLayers = map._layers;
+                let layerToRemove = null;
+                
+                for (let id in currentLayers) {
+                    const layer = currentLayers[id];
+                    if (layer._url && (layer._url.includes('basemaps.cartocdn.com') || layer._url.includes('arcgisonline.com') || layer._url.includes('services.arcgisonline.com'))) {
+                        layerToRemove = layer;
+                        break;
+                    }
+                }
+                
+                if (layerToRemove) {
+                    map.removeLayer(layerToRemove);
+                }
+                
+                const newLayer = isDarkMode ? esriNova : cartoLight;
+                map.addLayer(newLayer);
+                map.moveLayer(newLayer, 'bottom');
+            });
+
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+        }
+
+        function getUserLocation() {
+            if (!navigator.geolocation) {
+                showToast('Geolocation not supported');
+                return;
+            }
+            
+            const btn = document.getElementById('locationBtn');
+            btn.disabled = true;
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    if (userMarker) {
+                        map.removeLayer(userMarker);
+                    }
+                    
+                    const userIcon = L.divIcon({
+                        html: `<div class="user-location-animated" style="width: 20px; height: 20px; background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); display: flex; align-items: center; justify-content: center;"><div style="width: 5px; height: 5px; background: white; border-radius: 50%;"></div></div>`,
+                        className: 'user-marker-container',
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    });
+                    
+                    userMarker = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon })
+                        .addTo(map)
+                        .bindPopup('<div style="padding: 8px; font-weight: 600;">Your Location</div>');
+                    
+                    map.setView([userLocation.lat, userLocation.lng], 14);
+                    updateNearestStations();
+                    btn.disabled = false;
+                },
+                () => {
+                    showToast('Unable to get location');
+                    btn.disabled = false;
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        function getDirections(lat, lng, name) {
+            if (!userLocation) {
+                showToast('Please enable your location first');
+                document.getElementById('locationBtn').click();
+                return;
+            }
+            
+            selectedStation = { lat, lng, name };
+            
+            if (routingControl) {
+                map.removeControl(routingControl);
+            }
+            
+            routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(userLocation.lat, userLocation.lng),
+                    L.latLng(lat, lng)
+                ],
+                router: L.Routing.osrmv1({
+                    serviceUrl: 'https://router.project-osrm.org/route/v1'
+                }),
+                lineOptions: {
+                    styles: [
+                        { color: '#7C3AED', opacity: 0.8, weight: 6 },
+                        { color: '#00D9FF', opacity: 1, weight: 4 }
+                    ]
+                },
+                show: false,
+                addWaypoints: false,
+                fitSelectedRoutes: true,
+                createMarker: () => null
+            }).addTo(map);
+            
+            routingControl.on('routesfound', (e) => {
+                const route = e.routes[0];
+                const distance = (route.summary.totalDistance / 1000).toFixed(1);
+                const time = Math.round(route.summary.totalTime / 60);
+                const avgSpeed = (route.summary.totalDistance / route.summary.totalTime * 3.6).toFixed(0);
+                
+                const batteryCapacity = 60;
+                const consumptionRate = 15;
+                const batteryUsed = (distance * consumptionRate / 100).toFixed(1);
+                const batteryPercent = Math.max(0, 100 - (batteryUsed / batteryCapacity * 100)).toFixed(0);
+                
+                document.getElementById('routingDestination').textContent = name;
+                document.getElementById('routingDistance').textContent = `${distance} km`;
+                document.getElementById('routingTime').textContent = formatTime(time);
+                document.getElementById('routingSpeed').textContent = `${avgSpeed} km/h`;
+                document.getElementById('batteryFill').style.width = `${batteryPercent}%`;
+                document.getElementById('batteryUsed').textContent = `${batteryUsed} kWh used`;
+                document.getElementById('batteryRemaining').textContent = `${batteryPercent}% remaining`;
+                
+                const batteryFill = document.getElementById('batteryFill');
+                if (batteryPercent < 20) {
+                    batteryFill.style.background = 'linear-gradient(90deg, #ef4444 0%, #f87171 100%)';
+                } else if (batteryPercent < 50) {
+                    batteryFill.style.background = 'linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)';
+                } else {
+                    batteryFill.style.background = 'linear-gradient(90deg, #10b981 0%, #34d399 100%)';
+                }
+                
+                document.getElementById('routingPanel').classList.add('active');
+            });
+            
+            map.closePopup();
+        }
+
+        function formatTime(minutes) {
+            if (minutes < 60) {
+                return `${minutes} min`;
+            }
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours}h ${mins}m`;
+        }
+
+        function closeRouting() {
+            document.getElementById('routingPanel').classList.remove('active');
+            if (routingControl) {
+                map.removeControl(routingControl);
+                routingControl = null;
+            }
+            selectedStation = null;
+        }
+
+        function openGoogleMaps() {
+            if (!selectedStation || !userLocation) return;
+            const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${selectedStation.lat},${selectedStation.lng}&travelmode=driving`;
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        function toggleTraffic() {
+            const trafficBtn = document.getElementById('trafficBtn');
+            
+            if (trafficVisible) {
+                clearTrafficLayer();
+                trafficVisible = false;
+                trafficBtn.classList.remove('active');
+                showToast('🔍 Traffic layer hidden');
+            } else {
+                trafficVisible = true;
+                trafficBtn.classList.add('active');
+                loadTomTomTraffic();
+            }
+        }
+        
+        async function loadTomTomTraffic() {
+            try {
+                showToast('🔄 Loading real-time traffic from TomTom...');
+                clearTrafficLayer();
+                
+                // Get current map bounds for TomTom API
+                const bounds = map.getBounds();
+                const sw = bounds.getSouthWest();
+                const ne = bounds.getNorthEast();
+                
+                // TomTom Traffic Flow API with proper bbox format: minLon,minLat,maxLon,maxLat
+                const bbox = `${sw.lng},${sw.lat},${ne.lng},${ne.lat}`;
+                const trafficUrl = `https://api.tomtom.com/traffic/services/4/flowSegmentData/json?bbox=${bbox}&key=${TOMTOM_API_KEY}`;
+                
+                const response = await fetch(trafficUrl);
+                if (!response.ok) {
+                    throw new Error(`TomTom API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.flowSegmentData || data.flowSegmentData.length === 0) {
+                    showToast('ℹ️ No traffic data available for this area');
+                    return;
+                }
+                
+                let segmentsLoaded = 0;
+                
+                data.flowSegmentData.forEach(segment => {
+                    try {
+                        const points = segment.geometry?.coordinates || [];
+                        if (points.length < 2) return;
+                        
+                        // Convert GeoJSON coordinates to Leaflet format [lat, lng]
+                        const coords = points.map(point => [point[1], point[0]]);
+                        
+                        // Determine color and style based on traffic flow
+                        const speedRatio = segment.currentSpeed / segment.freeFlowSpeed;
+                        let color, width, pattern;
+                        
+                        if (speedRatio > 0.8) {
+                            color = '#10b981';
+                            width = 3;
+                            pattern = 'Free Flow';
+                        } else if (speedRatio > 0.5) {
+                            color = '#f59e0b';
+                            width = 4;
+                            pattern = 'Moderate';
+                        } else if (speedRatio > 0.25) {
+                            color = '#ef4444';
+                            width = 5;
+                            pattern = 'Heavy';
+                        } else {
+                            color = '#991b1b';
+                            width = 6;
+                            pattern = 'Congested';
+                        }
+                        
+                        const polyline = L.polyline(coords, {
+                            color: color,
+                            weight: width,
+                            opacity: 0.75,
+                            lineCap: 'round',
+                            lineJoin: 'round',
+                            interactive: true
+                        }).addTo(map);
+                        
+                        polyline.on('mouseover', function() {
+                            this.setStyle({
+                                weight: width + 2,
+                                opacity: 0.95
+                            });
+                        });
+                        
+                        polyline.on('mouseout', function() {
+                            this.setStyle({
+                                weight: width,
+                                opacity: 0.75
+                            });
+                        });
+                        
+                        const emoji = pattern === 'Free Flow' ? '🟢' : 
+                                     pattern === 'Moderate' ? '🟡' :
+                                     pattern === 'Heavy' ? '🔴' : '🔴🔴';
+                        
+                        const congestion = ((1 - speedRatio) * 100).toFixed(0);
+                        
+                        polyline.bindPopup(`
+                            <div style="padding: 12px; font-weight: 600; min-width: 280px;">
+                                <div style="font-size: 0.95rem; color: ${color}; margin-bottom: 10px; font-weight: 700;">${emoji} ${pattern}</div>
+                                <div style="font-weight: 700; color: #333; margin-bottom: 10px;">Road Segment</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-size: 0.85rem; margin-bottom: 10px;">
+                                    <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px;">
+                                        <div style="color: #666; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px;">Current</div>
+                                        <div style="color: ${color}; font-weight: 900; font-size: 1.1rem;">${segment.currentSpeed}</div>
+                                        <div style="font-size: 0.7rem; color: #999;">km/h</div>
+                                    </div>
+                                    <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px;">
+                                        <div style="color: #666; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px;">Free Flow</div>
+                                        <div style="color: #10b981; font-weight: 900; font-size: 1.1rem;">${segment.freeFlowSpeed}</div>
+                                        <div style="font-size: 0.7rem; color: #999;">km/h</div>
+                                    </div>
+                                    <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px;">
+                                        <div style="color: #666; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px;">Congestion</div>
+                                        <div style="color: ${color}; font-weight: 900; font-size: 1.1rem;">${congestion}%</div>
+                                        <div style="font-size: 0.7rem; color: #999;">level</div>
+                                    </div>
+                                </div>
+                                <div style="background: linear-gradient(90deg, #e5e7eb 0%, ${color}40 ${speedRatio * 100}%, #e5e7eb 100%); padding: 8px; border-radius: 8px; margin-bottom: 8px;">
+                                    <div style="width: 100%; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden;">
+                                        <div style="width: ${speedRatio * 100}%; height: 100%; background: ${color}; border-radius: 4px;"></div>
+                                    </div>
+                                </div>
+                                <div style="font-size: 0.75rem; color: #999; text-align: center; padding-top: 8px; border-top: 1px solid #ddd;">
+                                    📍 Malaysia | 🔄 TomTom Real-Time | Updated now
+                                </div>
+                            </div>
+                        `);
+                        
+                        trafficFlowSegments.push(polyline);
+                        segmentsLoaded++;
+                    } catch (e) {
+                        console.error('Error processing traffic segment:', e);
+                    }
+                });
+                
+                if (segmentsLoaded > 0) {
+                    showToast(`✅ Loaded ${segmentsLoaded} traffic segments from TomTom!`);
+                } else {
+                    showErrorToast('Unable to load traffic data');
+                    trafficVisible = false;
+                    document.getElementById('trafficBtn').classList.remove('active');
+                }
+                
+            } catch (error) {
+                console.error('Traffic loading error:', error);
+                showErrorToast(`TomTom Traffic: ${error.message || 'Unable to load traffic data'}`);
+                trafficVisible = false;
+                document.getElementById('trafficBtn').classList.remove('active');
+            }
+        }
+        
+        function clearTrafficLayer() {
+            trafficFlowSegments.forEach(segment => {
+                if (map.hasLayer(segment)) {
+                    map.removeLayer(segment);
+                }
+            });
+            trafficFlowSegments = [];
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #1f2937;
+                color: white;
+                padding: 14px 24px;
+                border-radius: 12px;
+                font-weight: 500;
+                z-index: 3000;
+                animation: fadeInUp 0.3s ease;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function showErrorToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #dc2626;
+                color: white;
+                padding: 14px 24px;
+                border-radius: 12px;
+                font-weight: 600;
+                z-index: 3000;
+                animation: fadeInUp 0.3s ease;
+                box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+                max-width: 90%;
+                text-align: center;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        initSDK();
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb45d27344ce41e',t:'MTc3MDY1MDU2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
