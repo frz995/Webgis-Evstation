@@ -1147,16 +1147,22 @@
             font-size: 11px;
             color: #666;
         }
+        /* Update this block in your <style> tag */
         .equipment-badge {
-            display: inline-block;
-            padding: 4px 6px;
-            border-radius: 8px;
+            display: inline-flex; /* Changed from inline-block to inline-flex for better centering */
+            align-items: center;
+            justify-content: center;
+            padding: 2px 4px; /* Reduced padding */
+            border-radius: 6px;
             background: linear-gradient(135deg, #e0eeff 0%, #cce0ff 100%);
             color: #2a52be;
             font-weight: 800;
-            font-size: 11px;
+            font-size: 10px; /* Slightly smaller for a cleaner look */
             border: 1px solid #99ccff;
-        }
+            min-width: 10px; /* Ensures AC and DC are similar widths */
+            height: 20px;
+            white-space: nowrap; /* Prevents text wrapping */
+}
     </style>
   <script src="/_sdk/element_sdk.js"></script>
   <style>@view-transition { navigation: auto; }</style>
@@ -1423,15 +1429,7 @@
      </div>
      <div>
       <div class="range-labels"><span>PLUG TYPE</span></div>
-      <div class="chip-grid">
-       <div class="chip plug-chip" data-type="Type 2">Type 2</div>
-       <div class="chip plug-chip" data-type="CCS Type 2">CCS Type 2</div>
-       <div class="chip plug-chip" data-type="CHAdeMO">CHAdeMO</div>
-       <div class="chip plug-chip" data-type="Type 1">Type 1</div>
-       <div class="chip plug-chip" data-type="CCS Type 1">CCS Type 1</div>
-       <div class="chip plug-chip" data-type="GB/T">GB/T</div>
-       <div class="chip plug-chip" data-type="SCAME">SCAME</div>
-       <div class="chip plug-chip" data-type="Tesla">Tesla</div>
+      <div class="chip-grid" id="dynamicPlugFilters"></div>
       </div>
      </div>
     </div>
@@ -1447,6 +1445,7 @@
         let config = { ...defaultConfig };
         let map, markerClusterGroup, userMarker;
         let allStations = [];
+        let selectedPlugTypes = new Set();
         let stateData = {};
         let userLocation = null;
         let selectedStation = null;
@@ -1463,23 +1462,44 @@
         let filterCable = false;
         let filterMinPower = 0;
         let filterMaxPower = 400;
-        let selectedPlugTypes = new Set();
-
+       
         function normalizeConnectionType(c) {
-            let t = (c?.ConnectionType?.Title) || (c?.ConnectionType?.FormalName) || (c?.ConnectionType?.Description) || '';
-            const level = (c?.Level?.Title || '').toLowerCase();
-            const current = (c?.CurrentType?.Title || '').toLowerCase();
-            if (!t) {
-                if (level.includes('type 2') || level.includes('mennekes')) t = 'Type 2';
-                else if (level.includes('type 1') || level.includes('yazaki')) t = 'Type 1';
-                else if (current.includes('dc')) {
-                    t = 'DC';
-                } else if (current.includes('ac')) {
-                    t = 'AC';
-                }
-            }
-            return t ? t : 'Unknown';
+        // 1. Check for ID (Most reliable - works for both raw API and processed objects)
+        const id = c?.ConnectionTypeID || c?.ConnectionType?.ID || c?.id;
+        const idMap = {
+            33: 'CCS (Type 2)',
+            2: 'CHAdeMO',
+            25: 'Type 2 (Socket)',
+            1036: 'Type 2 (Tethered)',
+            1: 'Type 1 (J1772)',
+            30: 'Tesla (Model S/X)',
+            27: 'Tesla Supercharger',
+            32: 'CCS (Type 1)',
+            3: 'BS1363 3-Pin'
+        };
+        if (idMap[id]) return idMap[id];
+
+        // 2. If already processed, use the existing type
+        if (c?.type && c.type !== 'Unknown') return c.type;
+
+        // 3. Smart Keyword Fallback (Checks Level, Current, and Description)
+        let t = (c?.ConnectionType?.Title) || (c?.ConnectionType?.FormalName) || '';
+        if (!t || t.toLowerCase() === 'unknown') {
+            const level = (c?.Level?.Title || c?.level || '').toLowerCase();
+            const current = (c?.CurrentType?.Title || c?.current || '').toLowerCase();
+            const desc = (c?.ConnectionType?.Description || '').toLowerCase();
+            const combined = `${level} ${current} ${desc}`;
+
+            if (combined.includes('ccs') || combined.includes('combo')) return 'CCS';
+            if (combined.includes('chademo')) return 'CHAdeMO';
+            if (combined.includes('type 2') || combined.includes('mennekes')) return 'Type 2';
+            if (combined.includes('type 1') || combined.includes('yazaki')) return 'Type 1';
+            if (combined.includes('tesla')) return 'Tesla';
+            if (current.includes('dc')) return 'DC Fast';
+            if (current.includes('ac')) return 'AC';
         }
+        return t ? t : 'Unknown';
+    }
 
         function aggregateConnections(conns) {
             if (!Array.isArray(conns) || conns.length === 0) return '-';
@@ -1531,11 +1551,11 @@
                 const type = deriveFullType(c);
                 const icon = getIconSvg(getConnectorIconName(type));
                 const qty = (typeof c.quantity === 'number' && c.quantity > 0) ? c.quantity : 1;
-                const power = (typeof c.power === 'number' && c.power > 0) ? `${c.power} kW` : '';
-                const current = c.current || '';
+                const power = (typeof c.power === 'number' && c.power > 0) ? `${c.power} kW` : '-';
+                const current = (c.current && c.current.trim() !== '') ? c.current : (c.level || '');
                 const level = c.level || '';
                 const ampsVolt = [c.amps ? `${c.amps}A` : '', c.voltage ? `${c.voltage}V` : ''].filter(Boolean).join(' ');
-                const op = isOperational ? 'Operational' : 'Status unknown';
+                const op = (c.status && c.status.trim() !== '') ? c.status : (isOperational ? 'Operational' : '-');
                 const idText = c.id ? String(c.id) : '';
                 return `
                 <div class="equipment-item">
@@ -1544,11 +1564,46 @@
                         <div class="equipment-sub">${qty} × • ${op}</div>
                         <div class="equipment-title">${type}</div>
                         <div class="equipment-sub">${power}</div>
-                        <div class="equipment-sub">${current || level}</div>
-                        <div class="equipment-sub">${[ampsVolt, idText].filter(Boolean).join(' ')}</div>
+                        <div class="equipment-sub">${current || level || '-'}</div>
+                        <div class="equipment-sub">${[ampsVolt, idText].filter(Boolean).join(' ') || '-'}</div>
                     </div>
                 </div>`;
             }).join('');
+        }
+
+        function generatePlugFilters() {
+            const grid = document.getElementById('dynamicPlugFilters');
+            if (!grid) return;
+            
+            grid.innerHTML = ''; // Clear old ones
+            const uniqueTypes = new Set();
+
+            // 1. Scan data for all available plug types
+            allStations.forEach(s => {
+                (s.properties.connections || []).forEach(c => {
+                    if (c.type && c.type !== 'Unknown') uniqueTypes.add(c.type);
+                });
+            });
+
+            // 2. Create the buttons
+            Array.from(uniqueTypes).sort().forEach(type => {
+                const chip = document.createElement('div');
+                chip.className = 'chip' + (selectedPlugTypes.has(type) ? ' active' : '');
+                chip.textContent = type;
+
+                chip.onclick = () => {
+                    chip.classList.toggle('active');
+                    if (chip.classList.contains('active')) {
+                        selectedPlugTypes.add(type);
+                    } else {
+                        selectedPlugTypes.delete(type);
+                    }
+                    // Trigger the map refresh
+                    const activeCard = document.querySelector('.state-summary-card.active');
+                    renderStations(activeCard ? activeCard.querySelector('.state-summary-name').textContent : null);
+                };
+                grid.appendChild(chip);
+            });
         }
 
         function normalizeStateName(raw, lat, lon, addressInfo) {
@@ -1619,38 +1674,70 @@
             return raw && raw.toLowerCase() !== 'unknown' ? raw : 'Unknown';
         }
 
+       /**
+        * 1. Initialize the element SDK
+        * This waits for the SDK and any configuration changes before starting the map.
+        */
         async function initSDK() {
+            // Wait for Element SDK to initialize
             if (window.elementSdk) {
                 await window.elementSdk.init({
                     defaultConfig,
                     onConfigChange: async (newConfig) => {
                         config = { ...defaultConfig, ...newConfig };
+                        // Refresh markers if configuration (like cluster settings) changes
+                        renderStations(); 
                     }
                 });
             }
+            
+            // Start map setup only after SDK is ready
             initMap();
         }
 
+        /**
+        * 2. Initialize the Leaflet Map
+        * Sets up the map layers and then triggers data loading.
+        */
         function initMap() {
+            // Initialize the Leaflet map object
             map = L.map('map', {
-                center: [4.2105, 101.9758], 
+                center: [4.2105, 101.9758], // Malaysia center coordinates
                 zoom: 7, 
                 zoomControl: false
             });
 
+            // Add the base tile layer
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
                 maxZoom: 19
             }).addTo(map);
 
+            // Setup marker clustering
             markerClusterGroup = L.markerClusterGroup({
                 maxClusterRadius: 60,
                 iconCreateFunction: createClusterIcon
             });
 
-            loadEVStations();
-            setupEventListeners();
-        }
+            /**
+            * 3. Load Data and Refresh UI
+            * We use .then() to ensure this code runs ONLY after data is fully downloaded.
+            */
+            loadEVStations().then(() => {
+                // --- CRITICAL STEPS TO UPDATE COUNTERS FROM 0 ---
+                processStations();    // Groups stations by state for the cards
+                updateStats();        // Updates the HTML for Total Stations and States
+                // ------------------------------------------------
 
+                // Setup UI features
+                generatePlugFilters(); // Generates Type 2, CCS, etc. buttons
+                setupEventListeners(); // Attaches click listeners to map buttons
+                
+                // Final Step: Draw markers on the map
+                renderStations();
+            }).catch(error => {
+                console.error("Failed to load EV stations:", error);
+            });
+        }
         function createClusterIcon(cluster) {
             const count = cluster.getChildCount();
             const sz = count < 10 ? 40 : (count > 50 ? 60 : 50);
@@ -1673,14 +1760,14 @@
         async function loadEVStations() {
             try {
                 showToast('⚡ Loading Malaysian stations...');
-                const apiUrl = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=MY&maxresults=10000&compact=true&key=c10f1691-d3a4-4408-bf34-ff9a3b3e69bd';
+                const apiUrl = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=MY&maxresults=10000&compact=false&verbose=true&key=c10f1691-d3a4-4408-bf34-ff9a3b3e69bd';
                 const response = await fetch(apiUrl);
                 const data = await response.json();
 
                 allStations = data.map((station, idx) => ({
                     properties: {
-                        name: station.AddressInfo?.Title || 'Unknown Station',
-                        operator: station.OperatorInfo?.Title || 'N/A',
+                        name: station.AddressInfo?.Title ?? '-',
+                        operator: station.OperatorInfo?.Title ?? '-',
                         operatorSite: station.OperatorInfo?.WebsiteURL || '',
                         operatorEmail: station.OperatorInfo?.ContactEmail || '',
                         state: normalizeStateName(
@@ -1689,28 +1776,29 @@
                             station.AddressInfo?.Longitude,
                             station.AddressInfo
                         ),
-                        chargers: station.NumberOfPoints || 1,
-                        addressLine1: station.AddressInfo?.AddressLine1 || '',
-                        town: station.AddressInfo?.Town || '',
-                        postcode: station.AddressInfo?.Postcode || '',
-                        usage: station.UsageType?.Title || 'Unknown',
-                        usageCost: station.UsageCost || '',
-                        access: station.AddressInfo?.AccessComments || '',
-                        statusTitle: station.StatusType?.Title || '',
-                        isOperational: !!station.StatusType?.IsOperational,
+                        chargers: station.NumberOfPoints ?? 1,
+                        addressLine1: station.AddressInfo?.AddressLine1 ?? '',
+                        town: station.AddressInfo?.Town ?? '',
+                        postcode: station.AddressInfo?.Postcode ?? '',
+                        usage: station.UsageType?.Title ?? '-',
+                        usageCost: station.UsageCost ?? '',
+                        access: station.AddressInfo?.AccessComments ?? '',
+                        statusTitle: station.StatusType?.Title ?? '-',
+                        isOperational: station.StatusType?.IsOperational ?? false,
                         connections: (station.Connections || []).map(c => ({
                             type: normalizeConnectionType(c),
-                            power: typeof c.PowerKW === 'number' ? c.PowerKW : null,
-                            level: c.Level?.Title || '',
-                            current: c.CurrentType?.Title || '',
-                            amps: typeof c.Amps === 'number' ? c.Amps : null,
-                            voltage: typeof c.Voltage === 'number' ? c.Voltage : null,
-                            quantity: typeof c.Quantity === 'number' ? c.Quantity : 1,
-                            id: c.ID || null
+                            power: c?.PowerKW ?? null,
+                            level: c?.Level?.Title ?? '',
+                            current: c?.CurrentType?.Title ?? '',
+                            amps: c?.Amps ?? null,
+                            voltage: c?.Voltage ?? null,
+                            quantity: c?.Quantity ?? 1,
+                            status: c?.StatusType?.Title ?? '-',
+                            id: c?.ID ?? null
                         }))
                     },
                     geometry: { 
-                        coordinates: [station.AddressInfo?.Longitude || 0, station.AddressInfo?.Latitude || 0]
+                        coordinates: [station.AddressInfo?.Longitude ?? 0, station.AddressInfo?.Latitude ?? 0]
                     },
                     id: idx
                 })).filter(s => s.geometry.coordinates[0] !== 0);
@@ -1727,11 +1815,39 @@
         }
 
         function processStations() {
-            stateData = {};
+            stateCounts = {};
             allStations.forEach(station => {
-                const state = station.properties.state;
-                if (!stateData[state]) stateData[state] = [];
-                stateData[state].push(station);
+                const state = station.properties.state || 'Other';
+                stateCounts[state] = (stateCounts[state] || 0) + 1;
+            });
+
+            const summaryGrid = document.getElementById('stateSummary'); // Matching the HTML ID
+            if (!summaryGrid) return;
+
+            summaryGrid.innerHTML = ''; // Clear the "Loading" state
+
+            // Create cards for each state in Malaysia
+            Object.keys(stateCounts).sort().forEach(stateName => {
+                const count = stateCounts[stateName];
+                const card = document.createElement('div');
+                card.className = 'state-summary-card';
+                card.innerHTML = `
+                    <div class="state-summary-name">${stateName}</div>
+                    <div class="state-summary-count">${count}</div>
+                `;
+                
+                card.onclick = () => {
+                    const isActive = card.classList.contains('active');
+                    document.querySelectorAll('.state-summary-card').forEach(c => c.classList.remove('active'));
+                    
+                    if (!isActive) {
+                        card.classList.add('active');
+                        renderStations(stateName); // Call render with the specific state
+                    } else {
+                        renderStations(null); // Clear filter if clicked again
+                    }
+                };
+                summaryGrid.appendChild(card);
             });
         }
 
@@ -1744,19 +1860,21 @@
         }
 
         function renderStations(filterState = null) {
+            // 1. Clear Existing Markers
             if (map.hasLayer(markerClusterGroup)) markerClusterGroup.clearLayers();
             allMarkersArray.forEach(m => map.removeLayer(m));
             allMarkersArray = [];
 
-            // Updated Legend Logic
+            // 2. Legend & Card UI Logic
             const mapLegend = document.getElementById('mapLegend');
             const defaultLegendItem = document.getElementById('defaultLegendItem');
             const filteredLegendItem = document.getElementById('filteredLegendItem');
             const filteredLegendText = document.getElementById('filteredLegendText');
 
+            // Update the Summary Cards and Legend based on selected state
             if (filterState) {
                 mapLegend.classList.add('highlighted');
-                defaultLegendItem.style.display = 'none'; // Hide "All" when filtered
+                defaultLegendItem.style.display = 'none';
                 filteredLegendItem.style.display = 'flex';
                 filteredLegendText.textContent = 'Filtered: ' + filterState;
             } else {
@@ -1765,36 +1883,26 @@
                 filteredLegendItem.style.display = 'none';
             }
 
-            let stationsToRender = filterState ? allStations.filter(s => s.properties.state === filterState) : allStations;
-            if (filterAvailable) {
-                stationsToRender = stationsToRender.filter(s => s.properties.isOperational || (s.properties.statusTitle || '').toLowerCase().includes('operational'));
-            }
-            if (filterCable) {
-                stationsToRender = stationsToRender.filter(s => (s.properties.connections || []).some(c => {
-                    const t = (c.type || '').toLowerCase();
-                    if (t.includes('socket')) return false;
-                    if (t.includes('tethered')) return true;
-                    if (t.includes('cable')) return true;
-                    return ['ccs','chademo','tesla','gb/t','scame','type 2','type 1','mennekes'].some(k => t.includes(k));
-                }));
-            }
+            // 3. APPLY FILTERS (State + Plug Type + Power)
+            let stationsToRender = filterState ? 
+                allStations.filter(s => s.properties.state === filterState) : 
+                allStations;
+
+            // Plug Type Filter (Multi-select)
             if (selectedPlugTypes.size > 0) {
-                stationsToRender = stationsToRender.filter(s => (s.properties.connections || []).some(c => {
-                    const ct = (c.type || '').toLowerCase();
-                    for (const t of selectedPlugTypes) { if (ct.includes(t.toLowerCase())) return true; }
-                    return false;
-                }));
-            }
-            if (filterMinPower > 0 || filterMaxPower < 400) {
-                stationsToRender = stationsToRender.filter(s => (s.properties.connections || []).some(c => {
-                    const p = c.power ?? 0;
-                    return p >= filterMinPower && p <= filterMaxPower;
-                }));
+                stationsToRender = stationsToRender.filter(s => 
+                    (s.properties.connections || []).some(c => {
+                        const type = (c.type || '').toLowerCase();
+                        return Array.from(selectedPlugTypes).some(filter => 
+                            type.includes(filter.toLowerCase())
+                        );
+                    })
+                );
             }
 
+            // 4. RENDERING MARKERS
             stationsToRender.forEach(station => {
                 const coords = station.geometry.coordinates;
-                // Markers change color to #15B392 when filtered
                 const icon = L.divIcon({
                     html: `<div style="width: 28px; height: 28px; background: ${filterState ? '#15B392' : '#3559E8'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 0 8px rgba(0,0,0,0.2);"><svg viewBox="0 0 24 24" fill="white" style="width: 14px; height: 14px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>`,
                     className: 'ev-marker',
@@ -1807,42 +1915,127 @@
                 
                 if (currentView === 'clustered') markerClusterGroup.addLayer(marker);
                 else marker.addTo(map);
-                
                 allMarkersArray.push(marker);
             });
 
             if (currentView === 'clustered') map.addLayer(markerClusterGroup);
-            if (filterState && stationsToRender.length > 0) {
-                const bounds = L.latLngBounds(stationsToRender.map(s => [s.geometry.coordinates[1], s.geometry.coordinates[0]]));
-                map.fitBounds(bounds, { padding: [50, 50] });
-            }
+            updateNearestList(stationsToRender);
         }
 
         function showStationPopup(station) {
-            document.getElementById('detailStationName').textContent = station.properties.name;
-            const opBlock = document.getElementById('detailOperator');
-            const site = station.properties.operatorSite;
-            const email = station.properties.operatorEmail;
-            const opTitle = station.properties.operator;
-            opBlock.innerHTML = [opTitle, site ? `<a href="${site}" target="_blank">${site}</a>` : '', email || ''].filter(Boolean).join(' • ');
-            document.getElementById('detailState').textContent = station.properties.state;
-            document.getElementById('detailChargers').textContent = station.properties.chargers + ' units';
-            const loc = [station.properties.addressLine1, station.properties.town, station.properties.postcode].filter(Boolean).join(', ');
-            document.getElementById('detailLocation').textContent = loc || '-';
-            const eq = aggregateConnections(station.properties.connections || []);
-            document.getElementById('detailEquipment').textContent = eq || '-';
-            const usageText = station.properties.usage + (station.properties.usageCost ? ` • ${station.properties.usageCost}` : '');
-            document.getElementById('detailUsage').textContent = usageText || '-';
-            document.getElementById('detailAccess').textContent = station.properties.access || '-';
-            renderEquipmentDetails(station.properties.connections || [], station.properties.isOperational);
-            selectedStation = { lat: station.geometry.coordinates[1], lng: station.geometry.coordinates[0], name: station.properties.name };
+            // 1. Save selected station for navigation
+            selectedStation = {
+                lat: station.geometry.coordinates[1],
+                lng: station.geometry.coordinates[0],
+                name: station.properties.name
+            };
+
+            const props = station.properties;
+
+            // --- SMART ADDRESS LOGIC ---
+            // If the main address is missing, we combine other fields the data has
+            const fallbackAddress = [props.addressLine1, props.town, props.postcode]
+                .filter(item => item && item.trim() !== "" && item !== '-')
+                .join(", ");
+
+            const finalAddress = (props.address && props.address !== '-') ? 
+                                props.address : 
+                                (fallbackAddress || 'Location details not provided');
+
+            // 2. Fill the Text Details using your existing IDs
+            document.getElementById('detailStationName').textContent = props.name || 'EV Station';
+            document.getElementById('detailOperator').textContent = props.operator || 'Unknown Operator';
+            document.getElementById('detailLocation').textContent = finalAddress; // Updated logic
+            document.getElementById('detailState').textContent = props.state || '-';
+            document.getElementById('detailUsage').textContent = props.usage || 'Public';
+            document.getElementById('detailAccess').textContent = props.access || 'Open 24/7';
+            
+            // 3. Update Charger Count and list
+            const connections = props.connections || [];
+            document.getElementById('detailChargers').textContent = `${connections.length} Chargers Available`;
+
+            const equipmentList = document.getElementById('detailEquipmentList');
+            equipmentList.innerHTML = ''; 
+
+            connections.forEach(conn => {
+                const item = document.createElement('div');
+                item.className = 'equipment-item';
+                
+                const isDC = (conn.power > 40);
+                const badgeText = isDC ? 'DC FAST' : 'AC';
+
+                item.innerHTML = `
+                        <div class="equipment-icon">
+                        <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                    </div>
+                    <div class="equipment-meta">
+                        <div class="equipment-title">${conn.type || 'Charger'}</div>
+                        <div class="equipment-sub">${conn.power ? conn.power + ' kW' : 'N/A'} • ${conn.status || 'Available'}</div>
+                    </div>
+                    <div class="equipment-badge" style="${isDC ? 'background: #FF5722; color: white; border: none;' : ''}">
+                        ${badgeText}
+                    </div>
+                `;
+                equipmentList.appendChild(item);
+            });
+
+            // 4. Open the Panel (Slide from Right)
             document.getElementById('stationDetailPanel').classList.add('active');
-            map.setView([selectedStation.lat, selectedStation.lng], 16);
         }
 
+        function updateUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    userLocation = {
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude
+                    };
+
+                    // Zoom the map to user location
+                    map.setView([userLocation.lat, userLocation.lng], 10);
+
+                    // Add/Update the blue user marker
+                    if (window.userMarker) {
+                        window.userMarker.setLatLng([userLocation.lat, userLocation.lng]);
+                    } else {
+                        const userIcon = L.divIcon({
+                            html: '<div style="width: 20px; height: 20px; background: #3559E8; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.3);"></div>',
+                            className: 'user-location-marker',
+                            iconSize: [20, 20],
+                            iconAnchor: [10, 10]
+                        });
+                        window.userMarker = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon }).addTo(map);
+                    }
+
+                    // Update the "Nearest Stations" sidebar list
+                    updateNearestStations();
+                    
+                }, (err) => {
+                    alert("Please enable location permissions.");
+                }, { enableHighAccuracy: true });
+            }
+        }
+
+        // Connect the button to the function
+        document.getElementById('locationBtn').onclick = () => {
+            startFastGPS();
+            // Initial street-level zoom
+            if (userLocation) map.setView([userLocation.lat, userLocation.lng], 15);
+        };
         function updateStats() {
-            document.getElementById('totalStations').textContent = allStations.length;
-            document.getElementById('totalStates').textContent = MALAYSIA_STATES.length;
+            const totalStationsEl = document.getElementById('totalStations');
+            const totalStatesEl = document.getElementById('totalStates');
+            
+            if (totalStationsEl) {
+                totalStationsEl.textContent = allStations.length;
+            }
+            
+            if (totalStatesEl) {
+                const uniqueStates = new Set(allStations.map(s => s.properties.state).filter(Boolean));
+                totalStatesEl.textContent = uniqueStates.size;
+            }
         }
 
         function populateStateList() {
