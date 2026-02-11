@@ -48,13 +48,68 @@
             left: 0;
             right: 0;
             height: 70px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            background: #ffffff;
             border-bottom: 1px solid #e0e0e0;
             display: flex;
             align-items: center;
             padding: 0 20px;
             z-index: 1000;
             gap: 15px;
+        }
+
+        .dark-mode {
+            background: #050816;
+            color: #e5e7eb;
+        }
+
+        .dark-mode .header {
+            background: #050816;
+            border-bottom-color: #111827;
+        }
+
+        .dark-mode #mapTitle {
+            color: #f9fafb;
+        }
+
+        .dark-mode .side-panel,
+        .dark-mode .filter-panel,
+        .dark-mode .station-detail-panel,
+        .dark-mode .routing-panel,
+        .dark-mode .map-legend,
+        .dark-mode .turn-instruction-bar,
+        .dark-mode .nav-hud {
+            background: #0b1120;
+            color: #e5e7eb;
+            border-color: #1f2937;
+        }
+
+        .dark-mode .stat-card {
+            background: #020617;
+            border-color: #1f2937;
+        }
+
+        .dark-mode .state-summary-card,
+        .dark-mode .nearest-item {
+            background: #020617;
+            border-color: #1f2937;
+        }
+
+        .dark-mode .state-summary-name,
+        .dark-mode .state-summary-count,
+        .dark-mode .nearest-name,
+        .dark-mode .nearest-distance,
+        .dark-mode .detail-value {
+            color: #e5e7eb;
+        }
+
+        .dark-mode .detail-label {
+            color: #9ca3af;
+        }
+
+        .dark-mode .btn {
+            background: #111827;
+            color: #e5e7eb;
+            border-color: #374151;
         }
 
         .nav-mode #map {
@@ -267,16 +322,16 @@
         }
 
         .state-summary-card {
-            background: linear-gradient(135deg, #e6f0ff 0%, #cce5ff 100%);
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1.5px solid #99ccff;
+            background: #ffffff;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid #d0d0d0;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .state-summary-card:active {
@@ -286,19 +341,19 @@
         }
 
         .state-summary-card.active {
-            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
+            background: #eff5ff;
             border-color: #2a52be;
             box-shadow: 0 4px 12px rgba(0, 127, 255, 0.3);
         }
 
         .state-summary-name {
             font-weight: 600;
-            font-size: 13px;
-            color: #333;
+            font-size: 12px;
+            color: #111827;
         }
 
         .state-summary-card.active .state-summary-name {
-            color: white;
+            color: #111827;
         }
 
         .state-summary-count {
@@ -331,12 +386,12 @@
         }
 
         .nearest-item {
-            padding: 12px;
-            background: #f9f9f9;
-            border-radius: 8px;
+            padding: 10px 12px;
+            background: #ffffff;
+            border-radius: 10px;
             margin-bottom: 8px;
             cursor: pointer;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #d0d0d0;
             transition: all 0.2s;
         }
 
@@ -347,13 +402,14 @@
 
         .nearest-name {
             font-weight: 600;
-            margin-bottom: 4px;
-            color: #333;
+            margin-bottom: 2px;
+            font-size: 12px;
+            color: #111827;
         }
 
         .nearest-distance {
-            font-size: 12px;
-            color: #666;
+            font-size: 11px;
+            color: #6b7280;
             display: flex;
             align-items: center;
             gap: 4px;
@@ -664,6 +720,30 @@
             overflow-y: auto;
             transition: all 0.3s ease;
         }
+        .panel-toggle {
+            position: fixed;
+            bottom: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 1100;
+        }
+        .panel-toggle-filters {
+            right: 20px;
+            bottom: 135px;
+            display: flex;
+        }
+        .panel-toggle-side {
+            left: 20px;
+        }
         .filter-panel {
             position: fixed;
             right: 20px;
@@ -678,6 +758,11 @@
             max-height: 70vh;
             overflow-y: auto;
             overflow-x: hidden;
+            display: none;
+        }
+
+        .filter-panel.mobile-open {
+            display: block;
         }
 
         .legend-title {
@@ -941,29 +1026,40 @@
             }
 
             .side-panel {
-                left: 8px;
+                left: 6px;
                 top: 70px;
-                width: 260px;
-                max-height: calc(100vh - 90px);
+                width: 210px;
+                max-height: calc(100vh - 150px);
+                padding: 8px 10px;
+                overflow-y: auto;
+                transform: translateX(-110%);
+                transition: transform 0.25s ease-out;
+            }
+
+            .side-panel.mobile-open {
+                transform: translateX(0);
             }
 
             .routing-panel {
-                width: 94%;
-                max-width: 360px;
-                bottom: 12px;
-                right: 3%;
-                left: 3%;
+                width: 92%;
+                max-width: 320px;
+                bottom: 8px;
+                right: 4%;
+                left: 4%;
+                max-height: 42vh;
+                overflow-y: auto;
             }
 
             .station-detail-panel {
-                width: 95%;
-                max-width: 360px;
-                right: 2.5%;
-                left: 2.5%;
+                width: 94%;
+                max-width: 340px;
+                right: 3%;
+                left: 3%;
                 top: auto;
-                bottom: 70px;
-                max-height: 70vh;
+                bottom: 72px;
+                max-height: 60vh;
                 transform: translateY(120%);
+                overflow-y: auto;
             }
 
             .station-detail-panel.active {
@@ -971,19 +1067,43 @@
             }
 
             .map-legend {
-                width: 90%;
-                max-width: 280px;
-                bottom: 100px;
-                right: 5%;
+                width: auto;
+                min-width: 140px;
+                max-width: 180px;
+                bottom: 80px;
+                right: 10px;
                 left: auto;
+                padding: 8px 10px;
+            }
+
+            .legend-title {
+                font-size: 10px;
+                margin-bottom: 6px;
+            }
+
+            .legend-item {
+                gap: 4px;
+                margin-bottom: 4px;
+                font-size: 10px;
+            }
+
+            .legend-color-box {
+                width: 12px;
+                height: 12px;
             }
 
             .filter-panel {
-                width: 90%;
-                max-width: 360px;
-                bottom: 210px;
-                right: 5%;
+                width: 82%;
+                max-width: 300px;
+                bottom: 190px;
+                right: 9%;
                 left: auto;
+                padding: 8px 10px;
+                display: none;
+            }
+
+            .filter-panel.mobile-open {
+                display: block;
             }
 
             .turn-instruction-bar {
@@ -1014,6 +1134,22 @@
 
             .nav-control-btn {
                 padding: 8px 14px;
+            }
+
+            .panel-toggle {
+                display: flex;
+                top: 50%;
+                bottom: auto;
+                left: 10px;
+                transform: translateY(-50%);
+            }
+
+            .panel-toggle-side {
+                top: 45%;
+            }
+
+            .panel-toggle-filters {
+                top: 55%;
             }
         }
 
@@ -1534,7 +1670,7 @@
        </div>
       </div>
      </div>
-     <div class="station-detail-divider"></div><button class="station-detail-action" onclick="startDirectionsFromDetail()"> 🧭 Get Directions </button>
+     <div class="station-detail-divider"></div><button class="station-detail-action" onclick="startDirectionsFromDetail()"> ➜ Get Directions </button>
     </div>
    </div>
    <div id="equipmentIconsTemplate" style="display:none;">
@@ -1547,7 +1683,7 @@
     <svg data-icon="scame" viewBox="0 0 32 32"><rect x="8" y="10" width="16" height="12" rx="2" fill="#ddd"/><circle cx="12" cy="16" r="2"/><circle cx="20" cy="16" r="2"/></svg>
     <svg data-icon="unknown" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="#ddd"/><text x="16" y="20" text-anchor="middle" font-size="12">?</text></svg>
    </div>
-   <div id="mapLegend" class="map-legend">
+  <div id="mapLegend" class="map-legend">
     <div class="legend-title">
       Legend
     </div>
@@ -1558,6 +1694,8 @@
      <div class="legend-color-box" style="background: linear-gradient(135deg, #15B392 0%, #34D399 100%);"></div><span id="filteredLegendText">Filtered State</span> <span style="margin-left: auto; font-size: 10px; color: #999;">✕</span>
     </div>
    </div>
+   <button id="filtersMiniToggle" class="panel-toggle panel-toggle-filters">☰</button>
+   <button id="sidePanelMiniToggle" class="panel-toggle panel-toggle-side">⚡</button>
    <div id="filtersPanel" class="filter-panel">
     <div class="section-title">🎛️ Filters</div>
     <div class="filters-grid">
@@ -1581,7 +1719,7 @@
         };
 
         let config = { ...defaultConfig };
-        let map, markerClusterGroup, userMarker;
+        let map, markerClusterGroup, userMarker, malaysiaBounds;
         let allStations = [];
         let selectedPlugTypes = new Set();
         let stateData = {};
@@ -1596,6 +1734,8 @@
         let geolocationWatchId = null;
         let navigationDestination = null;
         let baseLayer = null;
+        let isDarkMode = false;
+        let wasDarkBeforeNav = false;
         const MALAYSIA_STATES = [
             'Johor','Kedah','Kelantan','Melaka','Negeri Sembilan','Pahang','Perak','Perlis','Pulau Pinang','Sabah','Sarawak','Selangor','Terengganu','Kuala Lumpur'
         ];
@@ -1755,9 +1895,12 @@
                     } else {
                         selectedPlugTypes.delete(type);
                     }
-                    // Trigger the map refresh
+                    // Trigger the map refresh (no zoom change, only markers)
                     const activeCard = document.querySelector('.state-summary-card.active');
-                    renderStations(activeCard ? activeCard.querySelector('.state-summary-name').textContent : null);
+                    renderStations(
+                        activeCard ? activeCard.querySelector('.state-summary-name').textContent : null,
+                        false
+                    );
                 };
                 grid.appendChild(chip);
             });
@@ -1842,8 +1985,8 @@
                     defaultConfig,
                     onConfigChange: async (newConfig) => {
                         config = { ...defaultConfig, ...newConfig };
-                        // Refresh markers if configuration (like cluster settings) changes
-                        renderStations(); 
+                        // Refresh markers if configuration (like cluster settings) changes, without changing view
+                        renderStations(null, false); 
                     }
                 });
             }
@@ -1857,17 +2000,16 @@
         * Sets up the map layers and then triggers data loading.
         */
         function initMap() {
-            // Initialize the Leaflet map object
             map = L.map('map', {
-                center: [4.2105, 101.9758], // Malaysia center coordinates
-                zoom: 7, 
                 zoomControl: false
             });
-
-            // Add the base tile layer
+        
             baseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
                 maxZoom: 19
             }).addTo(map);
+
+            malaysiaBounds = L.latLngBounds([-1.0, 96.0], [9.0, 122.0]);
+            map.fitBounds(malaysiaBounds);
 
             // Setup marker clustering
             markerClusterGroup = L.markerClusterGroup({
@@ -1890,17 +2032,30 @@
                 generatePlugFilters(); // Generates Type 2, CCS, etc. buttons
                 setupEventListeners(); // Attaches click listeners to map buttons
                 
-                // Final Step: Draw markers on the map
-                renderStations();
+                // Final Step: Draw markers on the map, keep initial Malaysia view
+                renderStations(null, false);
+
+                map.on('click', () => {
+                    if (window.innerWidth > 768) return;
+                    const sidePanel = document.getElementById('sidePanel');
+                    const filtersPanel = document.getElementById('filtersPanel');
+                    if (sidePanel) sidePanel.classList.remove('mobile-open');
+                    if (filtersPanel) filtersPanel.classList.remove('mobile-open');
+                });
             }).catch(error => {
                 console.error("Failed to load EV stations:", error);
             });
         }
         function toggleMapTheme(isDark) {
-            if (!map || !baseLayer) return;
-            map.removeLayer(baseLayer);
-            baseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
-            map.addLayer(baseLayer);
+            if (!map) return;
+            if (baseLayer) {
+                map.removeLayer(baseLayer);
+            }
+            const url = isDark
+                ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+            baseLayer = L.tileLayer(url, { maxZoom: 19 });
+            baseLayer.addTo(map);
         }
 
         function createClusterIcon(cluster) {
@@ -1969,7 +2124,7 @@
                 })).filter(s => s.geometry.coordinates[0] !== 0);
 
                 processStations();
-                renderStations();
+                renderStations(null, false);
                 updateStats();
                 populateStateList();
                 updateNearestStations();
@@ -1999,7 +2154,7 @@
             return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
         }
 
-        function renderStations(filterState = null) {
+        function renderStations(filterState = null, adjustView = true) {
             // 1. Clear Existing Markers
             if (map.hasLayer(markerClusterGroup)) markerClusterGroup.clearLayers();
             allMarkersArray.forEach(m => map.removeLayer(m));
@@ -2078,13 +2233,24 @@
             });
 
             if (currentView === 'clustered') map.addLayer(markerClusterGroup);
-            if (stationsToRender.length > 0) {
+            if (adjustView && stationsToRender.length > 0) {
                 const latLngs = stationsToRender.map(s => [s.geometry.coordinates[1], s.geometry.coordinates[0]]);
                 const bounds = L.latLngBounds(latLngs);
+                const center = bounds.getCenter();
+
                 if (stationsToRender.length === 1) {
-                    map.setView(bounds.getCenter(), 15);
+                    map.flyTo(center, 14, {
+                        animate: true,
+                        duration: 1.8,
+                        easeLinearity: 0.2
+                    });
                 } else {
-                    map.fitBounds(bounds, { padding: [50, 50] });
+                    const targetZoom = Math.min(map.getBoundsZoom(bounds, true), 11);
+                    map.flyTo(center, targetZoom, {
+                        animate: true,
+                        duration: 1.8,
+                        easeLinearity: 0.2
+                    });
                 }
             }
             updateNearestStations(stationsToRender);
@@ -2216,7 +2382,16 @@
                     const isActive = card.classList.contains('active');
                     document.querySelectorAll('.state-summary-card').forEach(c => c.classList.remove('active'));
                     if (isActive) {
-                        renderStations(null);
+                        renderStations(null, false);
+                        if (malaysiaBounds && map) {
+                            const center = malaysiaBounds.getCenter();
+                            const targetZoom = map.getBoundsZoom(malaysiaBounds, true);
+                            map.flyTo(center, targetZoom, {
+                                animate: true,
+                                duration: 1.8,
+                                easeLinearity: 0.2
+                            });
+                        }
                     } else {
                         card.classList.add('active');
                         renderStations(state);
@@ -2271,22 +2446,91 @@
                 const activeState = document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null;
                 renderStations(activeState);
             };
-            document.getElementById('clearStateSelection').onclick = () => { document.querySelectorAll('.state-summary-card').forEach(c => c.classList.remove('active')); renderStations(null); updateClearButtonVisibility(); };
+            document.getElementById('clearStateSelection').onclick = () => {
+                document.querySelectorAll('.state-summary-card').forEach(c => c.classList.remove('active'));
+                renderStations(null, false);
+                if (malaysiaBounds && map) {
+                    const center = malaysiaBounds.getCenter();
+                    const targetZoom = map.getBoundsZoom(malaysiaBounds, true);
+                    map.flyTo(center, targetZoom, {
+                        animate: true,
+                        duration: 1.8,
+                        easeLinearity: 0.2
+                    });
+                }
+                updateClearButtonVisibility();
+            };
             const toggleAvail = document.getElementById('toggleAvailable');
             const toggleCable = document.getElementById('toggleCable');
             const rangeMin = document.getElementById('powerMin');
             const rangeMax = document.getElementById('powerMax');
             const powerMinLabel = document.getElementById('powerMinLabel');
             const powerMaxLabel = document.getElementById('powerMaxLabel');
+
             [toggleAvail, toggleCable].forEach(btn => {
-                btn.onclick = () => { btn.classList.toggle('active'); filterAvailable = toggleAvail.classList.contains('active'); filterCable = toggleCable.classList.contains('active'); renderStations(document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null); };
+                if (!btn) return;
+                btn.onclick = () => {
+                    btn.classList.toggle('active');
+                    filterAvailable = !!(toggleAvail && toggleAvail.classList.contains('active'));
+                    filterCable = !!(toggleCable && toggleCable.classList.contains('active'));
+                    const activeStateName = document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null;
+                    renderStations(activeStateName, false);
+                };
             });
-            rangeMin.oninput = () => { filterMinPower = parseInt(rangeMin.value, 10); if (filterMinPower > filterMaxPower) { filterMinPower = filterMaxPower; rangeMin.value = String(filterMinPower); } powerMinLabel.textContent = filterMinPower + ' kW'; renderStations(document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null); };
-            rangeMax.oninput = () => { filterMaxPower = parseInt(rangeMax.value, 10); if (filterMaxPower < filterMinPower) { filterMaxPower = filterMinPower; rangeMax.value = String(filterMaxPower); } powerMaxLabel.textContent = filterMaxPower + ' kW'; renderStations(document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null); };
+
+            if (rangeMin && rangeMax && powerMinLabel && powerMaxLabel) {
+                rangeMin.oninput = () => {
+                    filterMinPower = parseInt(rangeMin.value, 10);
+                    if (filterMinPower > filterMaxPower) {
+                        filterMinPower = filterMaxPower;
+                        rangeMin.value = String(filterMinPower);
+                    }
+                    powerMinLabel.textContent = filterMinPower + ' kW';
+                    const activeStateName = document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null;
+                    renderStations(activeStateName, false);
+                };
+
+                rangeMax.oninput = () => {
+                    filterMaxPower = parseInt(rangeMax.value, 10);
+                    if (filterMaxPower < filterMinPower) {
+                        filterMaxPower = filterMinPower;
+                        rangeMax.value = String(filterMaxPower);
+                    }
+                    powerMaxLabel.textContent = filterMaxPower + ' kW';
+                    const activeStateName = document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null;
+                    renderStations(activeStateName, false);
+                };
+            }
             document.querySelectorAll('.plug-chip').forEach(ch => {
-                ch.onclick = () => { const label = ch.getAttribute('data-type'); if (ch.classList.contains('active')) { ch.classList.remove('active'); selectedPlugTypes.delete(label); } else { ch.classList.add('active'); selectedPlugTypes.add(label); } renderStations(document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null); };
+                ch.onclick = () => { const label = ch.getAttribute('data-type'); if (ch.classList.contains('active')) { ch.classList.remove('active'); selectedPlugTypes.delete(label); } else { ch.classList.add('active'); selectedPlugTypes.add(label); } renderStations(document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null, false); };
             });
-            
+
+            const filtersMiniToggle = document.getElementById('filtersMiniToggle');
+            const sidePanelMiniToggle = document.getElementById('sidePanelMiniToggle');
+            const filtersPanel = document.getElementById('filtersPanel');
+            const sidePanel = document.getElementById('sidePanel');
+
+            if (filtersMiniToggle && filtersPanel) {
+                filtersMiniToggle.onclick = () => {
+                    filtersPanel.classList.toggle('mobile-open');
+                };
+            }
+
+            if (sidePanelMiniToggle && sidePanel) {
+                sidePanelMiniToggle.onclick = () => {
+                    sidePanel.classList.toggle('mobile-open');
+                };
+            }
+
+            const nightBtn = document.getElementById('nightModeBtn');
+            if (nightBtn) {
+                nightBtn.onclick = () => {
+                    isDarkMode = !isDarkMode;
+                    document.body.classList.toggle('dark-mode', isDarkMode);
+                    toggleMapTheme(isDarkMode);
+                };
+            }
+
             document.getElementById('searchInput').oninput = (e) => {
                 const q = e.target.value.toLowerCase();
                 const res = document.getElementById('searchResults');
@@ -2431,6 +2675,9 @@
         function startNavigation() {
             if (!navigationDestination) return;
             navigationActive = true;
+            wasDarkBeforeNav = isDarkMode;
+            isDarkMode = true;
+            document.body.classList.add('dark-mode');
             document.body.classList.add('nav-mode');
             document.getElementById('routingPanel').classList.remove('active');
             document.getElementById('turnInstructionBar').classList.add('active');
@@ -2447,7 +2694,6 @@
             // Apply 3D Tilt
             document.getElementById('map').classList.add('map-tilted');
             
-            // Auto-enable Night Mode for navigation
             toggleMapTheme(true);
 
             setTimeout(() => {
@@ -2641,8 +2887,9 @@
             mapEl.classList.remove('map-tilted');
             mapEl.style.transform = ''; // Clear inline transform
             
-            // Restore Day Mode
-            toggleMapTheme(false);
+            isDarkMode = wasDarkBeforeNav;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            toggleMapTheme(isDarkMode);
 
             // Restore UI panels
             document.getElementById('sidePanel').style.display = '';
