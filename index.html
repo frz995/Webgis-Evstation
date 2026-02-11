@@ -57,6 +57,21 @@
             gap: 15px;
         }
 
+        .nav-mode #map {
+            margin-top: 0;
+            height: 100%;
+        }
+
+        .nav-mode .search-container,
+        .nav-mode .side-panel,
+        .nav-mode .map-legend,
+        .nav-mode .control-buttons {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
         #mapTitle {
             font-size: 24px;
             font-weight: 700;
@@ -488,68 +503,150 @@
 
         .turn-instruction-bar {
             position: fixed;
-            top: 90px;
+            top: 20px;
             left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
-            color: white;
-            padding: 18px 28px;
+            transform: translateX(-50%) translateY(-150%);
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            color: #1a1a1a;
+            padding: 16px 24px;
             border-radius: 16px;
-            z-index: 1002;
-            box-shadow: 0 20px 40px rgba(0, 127, 255, 0.25);
+            z-index: 3000;
+            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.18);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 300px;
             max-width: 90%;
-            width: 520px;
-            text-align: center;
-            display: none;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(12px);
-            animation: instructionSlideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes instructionSlideDown {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: none;
         }
 
         .turn-instruction-bar.active {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
         }
 
         .turn-instruction-icon {
-            font-size: 32px;
-            width: 44px;
-            height: 44px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
+            font-size: 24px;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 127, 255, 0.3);
+            flex-shrink: 0;
+        }
+
+        .turn-instruction-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .turn-instruction-distance {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 800;
+            color: #111827;
+            line-height: 1;
             margin-bottom: 2px;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             letter-spacing: -0.5px;
-            font-family: 'Segoe UI', 'Courier New', monospace;
         }
 
         .turn-instruction-text {
             font-size: 13px;
-            opacity: 0.92;
+            color: #4b5563;
             font-weight: 500;
-            letter-spacing: 0.3px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-hud {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(150%);
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            color: #111827;
+            padding: 16px 24px;
+            border-radius: 24px;
+            z-index: 3000;
+            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.18);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: none;
+        }
+
+        .nav-hud.active {
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+
+        .hud-metrics {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .hud-metric-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .hud-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6b7280;
+            font-weight: 700;
+        }
+
+        .hud-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: #111827;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-control-btn {
+            padding: 10px 20px;
+            background: #ffecec;
+            color: #d32f2f;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            margin-left: auto;
+        }
+
+        .nav-control-btn:hover {
+            background: #ffd1d1;
+            transform: translateY(-1px);
+        }
+
+        .nav-control-btn:active {
+            transform: translateY(1px);
         }
 
         .map-legend {
@@ -790,6 +887,10 @@
             border-radius: 8px;
             transition: all 0.2s;
         }
+        #clearStateSelection:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
         .view-btn.active {
             background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
@@ -812,100 +913,7 @@
             }
         }
 
-        .nav-hud {
-            position: fixed;
-            bottom: 40px;
-            right: 20px;
-            background: white;
-            color: #1a1a1a;
-            padding: 14px 16px;
-            border-radius: 18px;
-            z-index: 3002;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-            min-width: 260px;
-        }
 
-        .nav-hud.active {
-            display: flex;
-        }
-
-        .hud-metric-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            background: linear-gradient(135deg, #e0eeff 0%, #cce0ff 100%);
-            border-radius: 12px;
-            border: 1.5px solid #99ccff;
-            justify-content: center;
-        }
-
-        .hud-icon {
-            font-size: 20px;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
-            border-radius: 8px;
-            color: white;
-            flex-shrink: 0;
-        }
-
-        .hud-metric-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .hud-label {
-            font-size: 9px;
-            opacity: 0.55;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            font-weight: 700;
-            color: #666;
-            margin-bottom: 1px;
-        }
-
-        .hud-value {
-            font-size: 18px;
-            font-weight: 800;
-            letter-spacing: -0.4px;
-            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-control-buttons {
-            display: flex;
-            gap: 8px;
-            margin-top: 6px;
-        }
-
-        .nav-control-btn {
-            flex: 1;
-            padding: 9px 12px;
-            border: 1.5px solid #d0d0d0;
-            background: white;
-            color: #333;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 700;
-            transition: all 0.2s ease;
-        }
-
-        .nav-control-btn:active {
-            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
-            color: white;
-            border-color: #007FFF;
-        }
 
         @media (max-width: 768px) {
             .header {
@@ -935,25 +943,25 @@
             .side-panel {
                 left: 8px;
                 top: 70px;
-                width: 250px;
-                max-height: calc(100vh - 100px);
+                width: 260px;
+                max-height: calc(100vh - 90px);
             }
 
             .routing-panel {
-                width: 90%;
-                max-width: 320px;
-                bottom: 10px;
-                right: 5%;
-                left: 5%;
+                width: 94%;
+                max-width: 360px;
+                bottom: 12px;
+                right: 3%;
+                left: 3%;
             }
 
             .station-detail-panel {
                 width: 95%;
-                max-width: 320px;
+                max-width: 360px;
                 right: 2.5%;
                 left: 2.5%;
                 top: auto;
-                bottom: 60px;
+                bottom: 70px;
                 max-height: 70vh;
                 transform: translateY(120%);
             }
@@ -965,16 +973,47 @@
             .map-legend {
                 width: 90%;
                 max-width: 280px;
-                bottom: 90px;
+                bottom: 100px;
                 right: 5%;
                 left: auto;
             }
+
             .filter-panel {
                 width: 90%;
-                max-width: 320px;
-                bottom: 200px;
+                max-width: 360px;
+                bottom: 210px;
                 right: 5%;
                 left: auto;
+            }
+
+            .turn-instruction-bar {
+                top: 10px;
+                padding: 12px 16px;
+                gap: 12px;
+                max-width: 95%;
+            }
+
+            .turn-instruction-distance {
+                font-size: 20px;
+            }
+
+            .turn-instruction-text {
+                font-size: 12px;
+                max-width: 160px;
+            }
+
+            .nav-hud {
+                bottom: 20px;
+                padding: 12px 16px;
+                gap: 16px;
+            }
+
+            .hud-value {
+                font-size: 16px;
+            }
+
+            .nav-control-btn {
+                padding: 8px 14px;
             }
         }
 
@@ -1091,27 +1130,60 @@
         }
         .chip-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
             gap: 8px;
         }
         .chip {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 8px 10px;
-            border-radius: 10px;
-            border: 1px solid #d0d0d0;
-            background: #ffffff;
-            font-size: 11px;
-            font-weight: 700;
-            color: #333;
+            padding: 8px 4px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            background: #fff;
+            font-size: 10px;
+            font-weight: 500;
+            color: #666;
             text-align: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            aspect-ratio: 1;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .chip-icon {
+            font-size: 20px;
+            line-height: 1;
+            filter: grayscale(100%);
+            opacity: 0.5;
+            margin-bottom: 2px;
             transition: all 0.2s ease;
         }
+        .chip-label {
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            max-width: 100%;
+            opacity: 0.9;
+        }
+        .chip:hover {
+            border-color: #ccc;
+            background: #fcfcfc;
+            transform: translateY(-1px);
+        }
         .chip.active {
-            background: linear-gradient(135deg, #e0eeff 0%, #cce0ff 100%);
-            border-color: #99ccff;
-            color: #2a52be;
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
+            border-color: #2a52be;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(42, 82, 190, 0.3);
+        }
+        .chip.active .chip-icon {
+            opacity: 1;
+            filter: brightness(0) invert(1);
+            transform: scale(1.1);
         }
         .equipment-list {
             display: grid;
@@ -1162,7 +1234,83 @@
             min-width: 10px; /* Ensures AC and DC are similar widths */
             height: 20px;
             white-space: nowrap; /* Prevents text wrapping */
-}
+        }
+
+        .user-pulse-marker {
+            width: 24px;
+            height: 24px;
+            background: radial-gradient(circle at 30% 30%, #5c7cff, #3559E8);
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(53, 89, 232, 0.4);
+            position: relative;
+            z-index: 1000;
+        }
+        
+        .user-pulse-marker::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: -12px;
+            right: -12px;
+            bottom: -12px;
+            background: rgba(53, 89, 232, 0.2);
+            border-radius: 50%;
+            z-index: -1;
+            animation: softPulse 2s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+        }
+
+        .user-pulse-marker::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+
+        @keyframes softPulse {
+            0% { transform: scale(0.5); opacity: 0.8; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 0;
+            }
+        }
+        .user-nav-marker {
+            transition: transform 0.3s linear; /* Smooth rotation */
+            transform-origin: center center;
+        }
+
+        /* 3D Navigation Mode */
+        #map.map-tilted {
+            /* We handle the transform in JS to include dynamic rotation */
+            transition: transform 1s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform-origin: center center;
+            border-radius: 0; /* Ensure no clipping issues if styled */
+        }
+        
+        /* Disable the pane transform override */
+        /* .map-tilted .leaflet-map-pane { ... } removed */
+
+        /* Smooth marker movement for real-time feel */
+        .smooth-marker-move {
+            transition: transform 1s linear !important;
+        }
+
+        .route-line {
+            filter: drop-shadow(0 0 10px rgba(0, 127, 255, 0.5));
+        }
     </style>
   <script src="/_sdk/element_sdk.js"></script>
   <style>@view-transition { navigation: auto; }</style>
@@ -1224,8 +1372,8 @@
     </div>
     <div class="panel-section">
      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-      <div class="section-title">🗺️ States</div>
-      <button id="clearStateSelection" class="view-btn" style="display: none; padding: 6px 12px;">Clear</button>
+       <div class="section-title">🗺️ States</div>
+       <button id="clearStateSelection" class="view-btn" style="display: none; padding: 6px 12px; color: #dc2626; font-weight: 700; background: rgba(220, 38, 38, 0.08);">Clear</button>
      </div>
      <div style="display: flex; gap: 6px; margin-bottom: 12px; background: white; padding: 4px; border-radius: 12px; border: 1px solid #d0d0d0;"><button id="viewClustered" class="view-btn active" style="flex: 1; padding: 6px 12px;">Clustered</button> <button id="viewIndividual" class="view-btn" style="flex: 1; padding: 6px 12px;">Individual</button>
      </div>
@@ -1263,26 +1411,29 @@
     </div>
    </div>
    <div id="turnInstructionBar" class="turn-instruction-bar">
-    <div class="turn-instruction-distance" id="turnDistanceText">
-     -- km
+    <div class="turn-instruction-icon">
+     ➤
     </div>
-    <div class="turn-instruction-text" id="turnInstructionText">
-     Navigation active
+    <div class="turn-instruction-content">
+     <div class="turn-instruction-distance" id="turnDistanceText">
+      -- km
+     </div>
+     <div class="turn-instruction-text" id="turnInstructionText">
+      Navigation active
+     </div>
     </div>
    </div>
    <div id="navHUD" class="nav-hud">
-    <div class="hud-metric-row">
-     <div class="hud-metric-content">
+    <div class="hud-metrics">
+     <div class="hud-metric-item">
       <div class="hud-label">
        Distance
       </div>
       <div class="hud-value" id="hudDistance">
-       -- km
+       --
       </div>
      </div>
-    </div>
-    <div class="hud-metric-row">
-     <div class="hud-metric-content">
+     <div class="hud-metric-item">
       <div class="hud-label">
        ETA
       </div>
@@ -1290,19 +1441,15 @@
        --:--
       </div>
      </div>
-    </div>
-    <div class="hud-metric-row">
-     <div class="hud-metric-content">
+     <div class="hud-metric-item">
       <div class="hud-label">
        Speed
       </div>
       <div class="hud-value" id="hudSpeed">
-       -- km/h
+       --
       </div>
      </div>
-    </div>
-    <div class="nav-control-buttons"><button class="nav-control-btn" onclick="endNavigation()">End Nav</button>
-    </div>
+    </div><button class="nav-control-btn" onclick="endNavigation()">End Navigation</button>
    </div>
    <div id="stationDetailPanel" class="station-detail-panel">
     <div class="station-detail-header">
@@ -1407,25 +1554,16 @@
     <div class="legend-item" id="defaultLegendItem">
      <div class="legend-color-box" style="background: linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%);"></div><span>All EV Stations</span>
     </div>
-    <div class="legend-item" id="filteredLegendItem" style="display: none;">
-     <div class="legend-color-box" style="background: linear-gradient(135deg, #15B392 0%, #34D399 100%);"></div><span id="filteredLegendText">Filtered State</span>
+    <div class="legend-item" id="filteredLegendItem" style="display: none; cursor: pointer;" title="Click to clear filter" onclick="document.getElementById('clearStateSelection').click()">
+     <div class="legend-color-box" style="background: linear-gradient(135deg, #15B392 0%, #34D399 100%);"></div><span id="filteredLegendText">Filtered State</span> <span style="margin-left: auto; font-size: 10px; color: #999;">✕</span>
     </div>
    </div>
    <div id="filtersPanel" class="filter-panel">
     <div class="section-title">🎛️ Filters</div>
     <div class="filters-grid">
      <div class="filter-toggle-row">
-      <button id="toggleApp" class="filter-toggle" disabled>App</button>
-      <button id="toggleAvailable" class="filter-toggle">Available</button>
-      <button id="toggleCable" class="filter-toggle">Cable</button>
-      <button id="toggleAutocharge" class="filter-toggle" disabled>Autocharge</button>
-     </div>
-     <div>
-      <div class="range-labels"><span>POWER from <span id="powerMinLabel">0 kW</span> to <span id="powerMaxLabel">400 kW</span></span></div>
-      <div class="power-range-row">
-       <input id="powerMin" type="range" min="0" max="400" value="0">
-       <input id="powerMax" type="range" min="0" max="400" value="400">
-      </div>
+      <button id="toggleAvailable" class="filter-toggle"><span style="filter: grayscale(100%); margin-right: 4px;">✅</span>Available</button>
+      <button id="toggleCable" class="filter-toggle"><span style="filter: grayscale(100%); margin-right: 4px;">🔌</span>With cable</button>
      </div>
      <div>
       <div class="range-labels"><span>PLUG TYPE</span></div>
@@ -1453,8 +1591,11 @@
         let allMarkersArray = [];
         let routePolyline = null;
         let navigationActive = false;
+        let currentRouteSteps = [];
+        let currentStepIndex = 0;
         let geolocationWatchId = null;
         let navigationDestination = null;
+        let baseLayer = null;
         const MALAYSIA_STATES = [
             'Johor','Kedah','Kelantan','Melaka','Negeri Sembilan','Pahang','Perak','Perlis','Pulau Pinang','Sabah','Sarawak','Selangor','Terengganu','Kuala Lumpur'
         ];
@@ -1586,10 +1727,26 @@
             });
 
             // 2. Create the buttons
+            const plugEmojis = {
+                'CCS (Type 2)': '⚡',
+                'CCS (Type 1)': '⚡',
+                'CHAdeMO': '🔋',
+                'Tesla (Model S/X)': '🔋',
+                'Tesla Supercharger': '⚡',
+                'Type 2 (Socket)': '🔌',
+                'Type 2 (Tethered)': '🔌',
+                'Type 1 (J1772)': '🔌',
+                'BS1363 3-Pin': '🏠',
+                'Unknown': '❓'
+            };
+
             Array.from(uniqueTypes).sort().forEach(type => {
                 const chip = document.createElement('div');
                 chip.className = 'chip' + (selectedPlugTypes.has(type) ? ' active' : '');
-                chip.textContent = type;
+                
+                // Add gray emoji
+                const emoji = plugEmojis[type] || '🔌';
+                chip.innerHTML = `<div class="chip-icon">${emoji}</div><div class="chip-label">${type}</div>`;
 
                 chip.onclick = () => {
                     chip.classList.toggle('active');
@@ -1708,7 +1865,7 @@
             });
 
             // Add the base tile layer
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            baseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
                 maxZoom: 19
             }).addTo(map);
 
@@ -1725,6 +1882,7 @@
             loadEVStations().then(() => {
                 // --- CRITICAL STEPS TO UPDATE COUNTERS FROM 0 ---
                 processStations();    // Groups stations by state for the cards
+                populateStateList();  // Ensure state list is rendered
                 updateStats();        // Updates the HTML for Total Stations and States
                 // ------------------------------------------------
 
@@ -1738,6 +1896,13 @@
                 console.error("Failed to load EV stations:", error);
             });
         }
+        function toggleMapTheme(isDark) {
+            if (!map || !baseLayer) return;
+            map.removeLayer(baseLayer);
+            baseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+            map.addLayer(baseLayer);
+        }
+
         function createClusterIcon(cluster) {
             const count = cluster.getChildCount();
             const sz = count < 10 ? 40 : (count > 50 ? 60 : 50);
@@ -1815,40 +1980,15 @@
         }
 
         function processStations() {
-            stateCounts = {};
+            stateData = {};
             allStations.forEach(station => {
                 const state = station.properties.state || 'Other';
-                stateCounts[state] = (stateCounts[state] || 0) + 1;
+                if (!stateData[state]) stateData[state] = [];
+                stateData[state].push(station);
             });
-
-            const summaryGrid = document.getElementById('stateSummary'); // Matching the HTML ID
-            if (!summaryGrid) return;
-
-            summaryGrid.innerHTML = ''; // Clear the "Loading" state
-
-            // Create cards for each state in Malaysia
-            Object.keys(stateCounts).sort().forEach(stateName => {
-                const count = stateCounts[stateName];
-                const card = document.createElement('div');
-                card.className = 'state-summary-card';
-                card.innerHTML = `
-                    <div class="state-summary-name">${stateName}</div>
-                    <div class="state-summary-count">${count}</div>
-                `;
-                
-                card.onclick = () => {
-                    const isActive = card.classList.contains('active');
-                    document.querySelectorAll('.state-summary-card').forEach(c => c.classList.remove('active'));
-                    
-                    if (!isActive) {
-                        card.classList.add('active');
-                        renderStations(stateName); // Call render with the specific state
-                    } else {
-                        renderStations(null); // Clear filter if clicked again
-                    }
-                };
-                summaryGrid.appendChild(card);
-            });
+            
+            // We defer rendering to populateStateList() to ensure consistent ordering
+            // and use of the global stateData we just populated.
         }
 
         function getDistance(lat1, lon1, lat2, lon2) {
@@ -1888,6 +2028,25 @@
                 allStations.filter(s => s.properties.state === filterState) : 
                 allStations;
 
+            // Filter: Available (Operational)
+            if (filterAvailable) {
+                stationsToRender = stationsToRender.filter(s => s.properties.isOperational);
+            }
+
+            // Filter: With Cable (Tethered)
+            if (filterCable) {
+                stationsToRender = stationsToRender.filter(s => 
+                    (s.properties.connections || []).some(c => {
+                        const t = (c.type || '').toLowerCase();
+                        // CCS, CHAdeMO, Tesla are always tethered. Type 2 can be tethered.
+                        return t.includes('tethered') || 
+                               t.includes('ccs') || 
+                               t.includes('chademo') || 
+                               t.includes('tesla');
+                    })
+                );
+            }
+
             // Plug Type Filter (Multi-select)
             if (selectedPlugTypes.size > 0) {
                 stationsToRender = stationsToRender.filter(s => 
@@ -1919,7 +2078,17 @@
             });
 
             if (currentView === 'clustered') map.addLayer(markerClusterGroup);
-            updateNearestList(stationsToRender);
+            if (stationsToRender.length > 0) {
+                const latLngs = stationsToRender.map(s => [s.geometry.coordinates[1], s.geometry.coordinates[0]]);
+                const bounds = L.latLngBounds(latLngs);
+                if (stationsToRender.length === 1) {
+                    map.setView(bounds.getCenter(), 15);
+                } else {
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                }
+            }
+            updateNearestStations(stationsToRender);
+            updateClearButtonVisibility();
         }
 
         function showStationPopup(station) {
@@ -2001,8 +2170,8 @@
                         window.userMarker.setLatLng([userLocation.lat, userLocation.lng]);
                     } else {
                         const userIcon = L.divIcon({
-                            html: '<div style="width: 20px; height: 20px; background: #3559E8; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.3);"></div>',
-                            className: 'user-location-marker',
+                            html: '<div class="user-pulse-marker"></div>',
+                            className: '',
                             iconSize: [20, 20],
                             iconAnchor: [10, 10]
                         });
@@ -2018,12 +2187,8 @@
             }
         }
 
-        // Connect the button to the function
-        document.getElementById('locationBtn').onclick = () => {
-            startFastGPS();
-            // Initial street-level zoom
-            if (userLocation) map.setView([userLocation.lat, userLocation.lng], 15);
-        };
+        // Connect the button to the function - REMOVED (Handled in setupEventListeners)
+        // document.getElementById('locationBtn').onclick = ...
         function updateStats() {
             const totalStationsEl = document.getElementById('totalStations');
             const totalStatesEl = document.getElementById('totalStates');
@@ -2070,13 +2235,13 @@
             btn.style.display = active ? 'inline-block' : 'none';
         }
 
-        function updateNearestStations() {
+        function updateNearestStations(sourceStations = allStations) {
             const list = document.getElementById('nearestList');
             if (!userLocation) {
                 list.innerHTML = '<div style="padding: 10px; color: #999; font-size: 12px; text-align: center;">Enable location to see nearest</div>';
                 return;
             }
-            const nearest = allStations
+            const nearest = sourceStations
                 .map(s => ({ ...s, dist: getDistance(userLocation.lat, userLocation.lng, s.geometry.coordinates[1], s.geometry.coordinates[0]) }))
                 .sort((a, b) => a.dist - b.dist).slice(0, 3);
             
@@ -2092,8 +2257,20 @@
             document.getElementById('routingClose').onclick = () => document.getElementById('routingPanel').classList.remove('active');
             document.getElementById('routingClose2').onclick = () => document.getElementById('routingPanel').classList.remove('active');
             document.getElementById('startNavBtn').onclick = startNavigation;
-            document.getElementById('viewClustered').onclick = () => { currentView = 'clustered'; document.getElementById('viewClustered').classList.add('active'); document.getElementById('viewIndividual').classList.remove('active'); renderStations(); };
-            document.getElementById('viewIndividual').onclick = () => { currentView = 'individual'; document.getElementById('viewIndividual').classList.add('active'); document.getElementById('viewClustered').classList.remove('active'); renderStations(); };
+            document.getElementById('viewClustered').onclick = () => {
+                currentView = 'clustered';
+                document.getElementById('viewClustered').classList.add('active');
+                document.getElementById('viewIndividual').classList.remove('active');
+                const activeState = document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null;
+                renderStations(activeState);
+            };
+            document.getElementById('viewIndividual').onclick = () => {
+                currentView = 'individual';
+                document.getElementById('viewIndividual').classList.add('active');
+                document.getElementById('viewClustered').classList.remove('active');
+                const activeState = document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null;
+                renderStations(activeState);
+            };
             document.getElementById('clearStateSelection').onclick = () => { document.querySelectorAll('.state-summary-card').forEach(c => c.classList.remove('active')); renderStations(null); updateClearButtonVisibility(); };
             const toggleAvail = document.getElementById('toggleAvailable');
             const toggleCable = document.getElementById('toggleCable');
@@ -2120,43 +2297,333 @@
             };
         }
 
-        function getUserLocation() {
-            navigator.geolocation.getCurrentPosition((pos) => {
-                userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                if (userMarker) map.removeLayer(userMarker);
-                userMarker = L.circleMarker([userLocation.lat, userLocation.lng], { color: '#10b981', fillOpacity: 1, radius: 8 }).addTo(map);
-                map.setView([userLocation.lat, userLocation.lng], 13);
-                updateNearestStations();
+        function onLocationFound(lat, lng, sourceLabel) {
+            userLocation = { lat, lng };
+            
+            if (userMarker) {
+                userMarker.setLatLng([lat, lng]);
+            } else {
+                const userIcon = L.divIcon({
+                    html: '<div class="user-pulse-marker"></div>',
+                    className: '',
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+                userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(map);
+            }
+            
+            map.flyTo([lat, lng], 16, {
+                animate: true,
+                duration: 1.5
             });
+            
+            updateNearestStations();
+            showToast(`✅ Location found ${sourceLabel}`);
+        }
+
+        function getIpLocation() {
+            showToast('🌍 Trying IP-based location...');
+            fetch('https://ipapi.co/json/')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.latitude && data.longitude) {
+                        onLocationFound(data.latitude, data.longitude, '(IP-based)');
+                    } else {
+                        throw new Error('Invalid IP data');
+                    }
+                })
+                .catch(err => {
+                    console.error("IP Location failed:", err);
+                    showToast('❌ All location methods failed');
+                });
+        }
+
+        function getUserLocation() {
+            showToast('📍 Locating...');
+            if (!navigator.geolocation) {
+                getIpLocation();
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => onLocationFound(pos.coords.latitude, pos.coords.longitude, ''),
+                (err) => {
+                    console.error("GPS error:", err);
+                    // If high accuracy fails, try low accuracy
+                    showToast('⚠️ GPS weak, trying low accuracy...');
+                    
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => onLocationFound(pos.coords.latitude, pos.coords.longitude, '(Low Accuracy)'),
+                        (err2) => {
+                            console.error("Low accuracy GPS error:", err2);
+                            // If both GPS methods fail, fall back to IP
+                            getIpLocation();
+                        },
+                        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+                    );
+                }, 
+                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+            );
         }
 
         async function getDirections(lat, lng, name) {
             if (!userLocation) return showToast('📍 Enable location first');
             document.getElementById('routingDestination').textContent = name;
             document.getElementById('routingPanel').classList.add('active');
+            document.getElementById('routingDistance').textContent = 'Calculating...';
+            document.getElementById('routingTime').textContent = '--:--';
+
             if (routePolyline) map.removeLayer(routePolyline);
-            routePolyline = L.polyline([[userLocation.lat, userLocation.lng], [lat, lng]], { color: '#007FFF', weight: 6 }).addTo(map);
-            map.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
+
+            // 1. Try OSRM Routing API
+            try {
+                showToast('🚗 Calculating route...');
+                const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${userLocation.lng},${userLocation.lat};${lng},${lat}?overview=full&geometries=geojson&steps=true`);
+                const data = await response.json();
+
+                if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+                    const route = data.routes[0];
+                    currentRouteSteps = route.legs[0].steps;
+                    currentStepIndex = 0;
+                    
+                    // Decode geometry (GeoJSON is [lng, lat], Leaflet needs [lat, lng])
+                    const coordinates = route.geometry.coordinates.map(c => [c[1], c[0]]);
+                    
+                    routePolyline = L.polyline(coordinates, { 
+                        color: '#007FFF', 
+                        weight: 8,
+                        opacity: 0.85,
+                        lineCap: 'round',
+                        lineJoin: 'round',
+                        className: 'route-line'
+                    }).addTo(map);
+                    
+                    // Update stats
+                    const distKm = (route.distance / 1000).toFixed(1);
+                    const durMin = Math.round(route.duration / 60);
+                    const hrs = Math.floor(durMin / 60);
+                    const mins = durMin % 60;
+                    
+                    document.getElementById('routingDistance').textContent = `${distKm} km`;
+                    document.getElementById('routingTime').textContent = hrs > 0 ? `${hrs}h ${mins}m` : `${mins} min`;
+                    
+                    map.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
+                } else {
+                    throw new Error('No route found');
+                }
+            } catch (err) {
+                console.error("Routing failed:", err);
+                showToast('⚠️ Road routing failed, showing straight line');
+                
+                // Fallback to straight line
+                routePolyline = L.polyline([[userLocation.lat, userLocation.lng], [lat, lng]], { color: '#007FFF', weight: 6, dashArray: '10, 10' }).addTo(map);
+                
+                // Calculate straight line distance
+                const dist = getDistance(userLocation.lat, userLocation.lng, lat, lng);
+                document.getElementById('routingDistance').textContent = `${dist.toFixed(1)} km (Linear)`;
+                document.getElementById('routingTime').textContent = '--';
+                
+                map.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
+            }
+
             navigationDestination = { lat, lng, name };
         }
 
         function startNavigation() {
             if (!navigationDestination) return;
             navigationActive = true;
+            document.body.classList.add('nav-mode');
             document.getElementById('routingPanel').classList.remove('active');
             document.getElementById('turnInstructionBar').classList.add('active');
             document.getElementById('navHUD').classList.add('active');
+
+            // Hide UI panels during navigation
+            document.getElementById('sidePanel').style.display = 'none';
+            document.getElementById('filtersPanel').style.display = 'none';
+            document.getElementById('mapLegend').style.display = 'none';
+            document.querySelector('.control-buttons').style.display = 'none';
+            document.querySelector('.search-container').style.display = 'none';
+            document.querySelector('.header').style.display = 'none';
+
+            // Apply 3D Tilt
+            document.getElementById('map').classList.add('map-tilted');
+            
+            // Auto-enable Night Mode for navigation
+            toggleMapTheme(true);
+
+            setTimeout(() => {
+                if (map) map.invalidateSize();
+            }, 350);
+
+            // Switch to nav marker (blue navigation arrow)
+            if (userMarker) {
+                const navIconSvg = `
+                <div class="user-nav-marker" style="width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; overflow: visible;">
+                    <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 8px 12px rgba(0,0,0,0.35));">
+                        <defs>
+                            <linearGradient id="navArrowGrad" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stop-color="#60a5fa"/>
+                                <stop offset="100%" stop-color="#1d4ed8"/>
+                            </linearGradient>
+                        </defs>
+                        <polygon points="32 6 10 58 32 48 54 58" fill="url(#navArrowGrad)"/>
+                    </svg>
+                </div>
+                `;
+
+                const navIcon = L.divIcon({
+                    html: navIconSvg,
+                    className: 'smooth-marker-move',
+                    iconSize: [64, 64],
+                    iconAnchor: [32, 44]
+                });
+                userMarker.setIcon(navIcon);
+                userMarker.setZIndexOffset(2000);
+            }
+
             beginTracking();
         }
 
+        function getTurnIcon(modifier) {
+            const svgBase = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width: 28px; height: 28px;">';
+            
+            if (modifier === 'arrive') {
+                return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 28px; height: 28px;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>';
+            }
+            
+            if (modifier === 'uturn') {
+                return `${svgBase}<path d="M7 19v-6a4 4 0 0 1 4-4h0a4 4 0 0 1 4 4v2m-4-2l4-4-4-4"/></svg>`;
+            }
+
+            let rotation = 0;
+            if (modifier.includes('slight left')) rotation = -45;
+            else if (modifier.includes('sharp left')) rotation = -135;
+            else if (modifier.includes('left')) rotation = -90;
+            else if (modifier.includes('slight right')) rotation = 45;
+            else if (modifier.includes('sharp right')) rotation = 135;
+            else if (modifier.includes('right')) rotation = 90;
+            
+            return `${svgBase}<path d="M12 19V5M5 12l7-7 7 7" transform="rotate(${rotation} 12 12)"/></svg>`;
+        }
+
+        function updateTurnInstruction(lat, lng) {
+            if (!currentRouteSteps || currentRouteSteps.length === 0) return;
+
+            // If we are at the last step
+            if (currentStepIndex >= currentRouteSteps.length - 1) {
+                 document.querySelector('.turn-instruction-icon').innerHTML = getTurnIcon('arrive');
+                 document.getElementById('turnInstructionText').textContent = 'Arriving at destination';
+                 const dist = getDistance(lat, lng, navigationDestination.lat, navigationDestination.lng);
+                 document.getElementById('turnDistanceText').textContent = (dist < 1) ? (dist * 1000).toFixed(0) + ' m' : dist.toFixed(1) + ' km';
+                 return;
+            }
+
+            const nextStep = currentRouteSteps[currentStepIndex + 1];
+            const maneuverLoc = nextStep.maneuver.location; // [lng, lat]
+            const distToManeuver = getDistance(lat, lng, maneuverLoc[1], maneuverLoc[0]);
+
+            // Check if we reached the maneuver (< 30m)
+            if (distToManeuver < 0.03) {
+                currentStepIndex++;
+                updateTurnInstruction(lat, lng); // Recurse
+                return;
+            }
+
+            // Update UI
+            const modifier = nextStep.maneuver.modifier;
+            const type = nextStep.maneuver.type;
+            const icon = getTurnIcon(modifier || 'straight');
+            
+            let text = '';
+            if (type === 'turn') {
+                text = `Turn ${modifier} onto ${nextStep.name || 'road'}`;
+            } else if (type === 'new name') {
+                text = `Continue onto ${nextStep.name || 'road'}`;
+            } else if (type === 'depart') {
+                text = `Head ${modifier || ''} on ${nextStep.name || 'road'}`;
+            } else if (type === 'arrive') {
+                text = `Arrive at ${nextStep.name || 'destination'}`;
+            } else {
+                text = `${type} ${modifier || ''} onto ${nextStep.name || 'road'}`;
+            }
+            
+            // Clean up text
+            text = text.replace(/undefined/g, '').trim();
+            text = text.charAt(0).toUpperCase() + text.slice(1);
+               
+            document.querySelector('.turn-instruction-icon').innerHTML = icon;
+            document.getElementById('turnInstructionText').textContent = text;
+            
+            // Update distance in the turn bar specifically (independent of HUD total distance)
+            document.getElementById('turnDistanceText').textContent = (distToManeuver < 1) ? 
+                (distToManeuver * 1000).toFixed(0) + ' m' : 
+                distToManeuver.toFixed(1) + ' km';
+        }
+
         function beginTracking() {
+            // Initial smooth zoom to driving level
+            if (userLocation) {
+                 // Slightly offset center to show more road ahead in 3D mode
+                 // But since we can't easily offset center in pixels without plugin, we stick to center
+                 map.flyTo([userLocation.lat, userLocation.lng], 19, {
+                    animate: true,
+                    duration: 1.5
+                });
+            }
+
             geolocationWatchId = navigator.geolocation.watchPosition((pos) => {
                 if (!navigationActive) return;
-                userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                userLocation = { lat, lng };
+                
+                // Update marker
+                if (userMarker) {
+                    userMarker.setLatLng([lat, lng]);
+                    
+                    // Rotate Map & Marker (Heading Up Mode)
+                    const heading = (pos.coords.heading !== null && !isNaN(pos.coords.heading)) ? pos.coords.heading : 0;
+                    
+                    // 1. Rotate Map Pane (Opposite to heading)
+                    const mapEl = document.getElementById('map');
+                    if (mapEl.classList.contains('map-tilted')) {
+                         // Apply perspective + tilt + rotation
+                         mapEl.style.transform = `perspective(600px) rotateX(45deg) scale(1.5) rotateZ(-${heading}deg)`;
+                    }
+
+                    // 2. Rotate Marker (Match heading to stay "Up" relative to screen)
+                    const markerElement = userMarker.getElement();
+                    if (markerElement) {
+                        const navMarker = markerElement.querySelector('.user-nav-marker');
+                        if (navMarker) {
+                            navMarker.style.transform = `rotate(${heading}deg)`;
+                        }
+                    }
+                }
+
+                // Calculate distance
                 const dist = getDistance(userLocation.lat, userLocation.lng, navigationDestination.lat, navigationDestination.lng);
-                document.getElementById('hudDistance').textContent = dist.toFixed(1) + ' km';
-                document.getElementById('turnDistanceText').textContent = dist.toFixed(1) + ' km';
-                map.setView([userLocation.lat, userLocation.lng], 17);
+                
+                // Update HUD
+                const distText = dist < 1 ? `${(dist * 1000).toFixed(0)} m` : `${dist.toFixed(1)} km`;
+                document.getElementById('hudDistance').textContent = distText;
+                
+                // Update Turn Instructions
+                updateTurnInstruction(lat, lng);
+
+                // Speed
+                if (pos.coords.speed !== null) {
+                    document.getElementById('hudSpeed').textContent = `${(pos.coords.speed * 3.6).toFixed(0)} km/h`;
+                }
+
+                // Smooth map follow
+                map.panTo([lat, lng], { animate: true, duration: 1.0 });
+            }, (err) => {
+                console.warn("GPS tracking error:", err);
+            }, {
+                enableHighAccuracy: true,
+                maximumAge: 1000,
+                timeout: 5000
             });
         }
 
@@ -2167,6 +2634,45 @@
             if (geolocationWatchId) navigator.geolocation.clearWatch(geolocationWatchId);
             document.getElementById('turnInstructionBar').classList.remove('active');
             document.getElementById('navHUD').classList.remove('active');
+            document.body.classList.remove('nav-mode');
+
+            // Remove 3D Tilt and Rotation
+            const mapEl = document.getElementById('map');
+            mapEl.classList.remove('map-tilted');
+            mapEl.style.transform = ''; // Clear inline transform
+            
+            // Restore Day Mode
+            toggleMapTheme(false);
+
+            // Restore UI panels
+            document.getElementById('sidePanel').style.display = '';
+            document.getElementById('filtersPanel').style.display = '';
+            document.getElementById('mapLegend').style.display = '';
+            document.querySelector('.control-buttons').style.display = '';
+            document.querySelector('.search-container').style.display = '';
+            document.querySelector('.header').style.display = '';
+            
+            // Restore default marker
+            if (userMarker) {
+                const defaultIcon = L.divIcon({
+                    html: '<div class="user-pulse-marker"></div>',
+                    className: '',
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+                userMarker.setIcon(defaultIcon);
+            }
+
+            // Remove route polyline from map
+            if (routePolyline) {
+                map.removeLayer(routePolyline);
+                routePolyline = null;
+            }
+
+            // Restore map view to destination area or user location
+            if (userLocation) {
+                 map.flyTo([userLocation.lat, userLocation.lng], 15);
+            }
         }
 
         initSDK();
