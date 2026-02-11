@@ -302,6 +302,19 @@
             background: white;
         }
 
+        .ev-marker.highlighted svg {
+            filter: drop-shadow(0 0 8px rgba(255, 193, 7, 0.8));
+        }
+
+        .map-legend.highlighted {
+            border: 2px solid #15B392;
+            box-shadow: 0 4px 16px rgba(21, 179, 146, 0.2);
+        }
+
+        .map-legend.highlighted .legend-title {
+            color: #15B392;
+        }
+
         .nearest-item {
             padding: 12px;
             background: #f9f9f9;
@@ -491,7 +504,6 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(12px);
             animation: instructionSlideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            right: 50%;
         }
 
         @keyframes instructionSlideDown {
@@ -553,6 +565,22 @@
             border: 1px solid #e0e0e0;
             max-height: 70vh;
             overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        .filter-panel {
+            position: fixed;
+            right: 20px;
+            bottom: 140px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1002;
+            width: 300px;
+            border: 1px solid #e0e0e0;
+            max-height: 70vh;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .legend-title {
@@ -574,6 +602,7 @@
             margin-bottom: 10px;
             font-size: 12px;
             color: #666;
+            transition: opacity 0.3s ease;
         }
 
         .legend-item:last-child {
@@ -783,54 +812,6 @@
             }
         }
 
-        @keyframes routeGlow {
-            0%, 100% {
-                filter: drop-shadow(0 0 2px rgba(53, 89, 232, 0.3));
-            }
-            50% {
-                filter: drop-shadow(0 0 8px rgba(53, 89, 232, 0.6));
-            }
-        }
-
-        @keyframes locationPulse {
-            0% {
-                r: 0;
-                opacity: 1;
-            }
-            100% {
-                r: 30;
-                opacity: 0;
-            }
-        }
-
-        .location-pulse-circle {
-            animation: locationPulse 2s ease-out infinite;
-        }
-
-        @keyframes markerPulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 15px rgba(16, 185, 129, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-            }
-        }
-
-        .user-location-marker {
-            animation: markerPulse 2s infinite;
-        }
-
-        .animated-vehicle-marker {
-            animation: vehiclePulse 2s infinite;
-        }
-
-        .animated-route-line {
-            animation: routeGlow 2s ease-in-out infinite;
-        }
-
         .nav-hud {
             position: fixed;
             bottom: 40px;
@@ -846,28 +827,10 @@
             flex-direction: column;
             gap: 10px;
             min-width: 260px;
-            animation: hudSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes hudSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(16px) translateX(16px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) translateX(0) scale(1);
-            }
         }
 
         .nav-hud.active {
             display: flex;
-        }
-
-        .hud-metric {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
         }
 
         .hud-metric-row {
@@ -878,14 +841,7 @@
             background: linear-gradient(135deg, #e0eeff 0%, #cce0ff 100%);
             border-radius: 12px;
             border: 1.5px solid #99ccff;
-            transition: all 0.25s ease;
             justify-content: center;
-        }
-
-        .hud-metric-row:hover {
-            background: linear-gradient(135deg, #cce0ff 0%, #99ccff 100%);
-            border-color: #5b7eef;
-            transform: translateY(-1px);
         }
 
         .hud-icon {
@@ -924,14 +880,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1;
-        }
-
-        .hud-divider {
-            height: 1px;
-            background: linear-gradient(90deg, rgba(0, 127, 255, 0.1) 0%, transparent 100%);
-            margin: 6px 0 4px 0;
         }
 
         .nav-control-buttons {
@@ -951,24 +899,14 @@
             font-size: 11px;
             font-weight: 700;
             transition: all 0.2s ease;
-            letter-spacing: 0.4px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
         }
 
         .nav-control-btn:active {
             background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
             color: white;
             border-color: #007FFF;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 127, 255, 0.2);
         }
 
-        /* Mobile Optimizations */
         @media (max-width: 768px) {
             .header {
                 height: 60px;
@@ -981,17 +919,7 @@
             }
 
             .search-container {
-                width: 140px;
-                height: 36px;
-            }
-
-            #searchInput {
-                font-size: 12px;
-                padding: 0 10px;
-            }
-
-            .control-buttons {
-                gap: 4px;
+                display: none;
             }
 
             .btn {
@@ -1009,60 +937,6 @@
                 top: 70px;
                 width: 250px;
                 max-height: calc(100vh - 100px);
-                border-radius: 12px;
-            }
-
-            .panel-section {
-                padding: 12px;
-            }
-
-            .section-title {
-                font-size: 11px;
-                margin-bottom: 8px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-                margin-bottom: 10px;
-            }
-
-            .stat-card {
-                padding: 8px;
-                border-radius: 8px;
-            }
-
-            .stat-value {
-                font-size: 16px;
-            }
-
-            .stat-label {
-                font-size: 10px;
-            }
-
-            .state-summary-card {
-                padding: 8px 10px;
-                font-size: 12px;
-            }
-
-            .state-summary-count {
-                font-size: 12px;
-                padding: 2px 6px;
-                min-width: 30px;
-            }
-
-            .nearest-item {
-                padding: 10px;
-                margin-bottom: 6px;
-            }
-
-            .nearest-name {
-                font-size: 13px;
-                margin-bottom: 3px;
-            }
-
-            .nearest-distance {
-                font-size: 11px;
             }
 
             .routing-panel {
@@ -1071,140 +945,6 @@
                 bottom: 10px;
                 right: 5%;
                 left: 5%;
-            }
-
-            .routing-header {
-                padding: 12px;
-            }
-
-            .routing-destination {
-                font-size: 14px;
-            }
-
-            .routing-content {
-                padding: 12px;
-            }
-
-            .routing-stat {
-                font-size: 13px;
-                margin-bottom: 10px;
-            }
-
-            .nav-buttons {
-                grid-template-columns: 1fr 1fr;
-                gap: 6px;
-                margin-top: 12px;
-            }
-
-            .nav-button {
-                padding: 8px;
-                font-size: 12px;
-            }
-
-            .turn-instruction-bar {
-                width: 90%;
-                max-width: 320px;
-                left: 5%;
-                right: 5%;
-                padding: 12px 16px;
-                top: 70px;
-            }
-
-            .turn-instruction-icon {
-                font-size: 24px;
-                margin-bottom: 6px;
-            }
-
-            .turn-instruction-distance {
-                font-size: 20px;
-                margin-bottom: 2px;
-            }
-
-            .turn-instruction-text {
-                font-size: 12px;
-            }
-
-            @media (max-width: 480px) {
-                .turn-instruction-bar {
-                    width: 92%;
-                    max-width: 100%;
-                    left: 4%;
-                    right: 4%;
-                    padding: 10px 14px;
-                    top: 66px;
-                    gap: 8px;
-                }
-
-                .turn-instruction-icon {
-                    font-size: 20px;
-                    width: 36px;
-                    height: 36px;
-                    margin-bottom: 4px;
-                }
-
-                .turn-instruction-distance {
-                    font-size: 18px;
-                    margin-bottom: 1px;
-                    letter-spacing: -0.3px;
-                }
-
-                .turn-instruction-text {
-                    font-size: 11px;
-                    opacity: 0.9;
-                    max-width: 90%;
-                    word-break: break-word;
-                    line-height: 1.3;
-                }
-
-                .nav-hud {
-                    bottom: 12px;
-                    right: 8px;
-                    left: 8px;
-                    width: calc(100% - 16px);
-                    padding: 12px 14px;
-                    min-width: unset;
-                    gap: 10px;
-                    border-radius: 14px;
-                    max-height: 90vh;
-                    overflow-y: auto;
-                }
-
-                .hud-metric-row {
-                    padding: 8px 10px;
-                    border-radius: 10px;
-                    gap: 8px;
-                }
-
-                .hud-icon {
-                    width: 24px;
-                    height: 24px;
-                    font-size: 14px;
-                    border-radius: 6px;
-                    flex-shrink: 0;
-                }
-
-                .hud-label {
-                    font-size: 8px;
-                    letter-spacing: 0.5px;
-                }
-
-                .hud-value {
-                    font-size: 16px;
-                    font-weight: 800;
-                    letter-spacing: -0.3px;
-                }
-
-                .nav-control-buttons {
-                    gap: 6px;
-                    margin-top: 8px;
-                }
-
-                .nav-control-btn {
-                    padding: 7px 10px;
-                    font-size: 10px;
-                    border-radius: 8px;
-                    letter-spacing: 0.3px;
-                }
             }
 
             .station-detail-panel {
@@ -1222,567 +962,200 @@
                 transform: translateY(0);
             }
 
-            .station-detail-header {
-                padding: 14px 12px;
-            }
-
-            .station-detail-title {
-                font-size: 14px;
-            }
-
-            .station-detail-close {
-                width: 28px;
-                height: 28px;
-                font-size: 16px;
-            }
-
-            .station-detail-body {
-                padding: 12px;
-            }
-
-            .detail-item {
-                gap: 10px;
-                margin-bottom: 12px;
-            }
-
-            .detail-icon {
-                width: 36px;
-                height: 36px;
-                border-radius: 8px;
-            }
-
-            .detail-label {
-                font-size: 10px;
-            }
-
-            .detail-value {
-                font-size: 13px;
-            }
-
-            .station-detail-divider {
-                margin: 12px 0;
-            }
-
-            .station-detail-action {
-                padding: 10px;
-                font-size: 13px;
-            }
-
-            .nav-hud {
-                bottom: 20px;
-                right: 10px;
-                left: 10px;
-                width: auto;
-                padding: 12px 16px;
-                min-width: unset;
-            }
-
-            .hud-label {
-                font-size: 10px;
-            }
-
-            .hud-value {
-                font-size: 20px;
-            }
-
-            .hud-divider {
-                margin: 6px 0;
-            }
-
-            .nav-control-btn {
-                padding: 6px 10px;
-                font-size: 11px;
-            }
-
             .map-legend {
                 width: 90%;
                 max-width: 280px;
                 bottom: 90px;
                 right: 5%;
                 left: auto;
-                padding: 12px;
             }
-
-            .legend-title {
-                font-size: 12px;
-                margin-bottom: 8px;
-            }
-
-            .legend-item {
-                gap: 8px;
-                margin-bottom: 8px;
-                font-size: 11px;
-            }
-
-            .legend-color-box {
-                width: 16px;
-                height: 16px;
-            }
-
-            .battery-section {
-                margin: 12px 0;
-            }
-
-            .battery-header {
-                font-size: 12px;
-                margin-bottom: 6px;
-            }
-
-            .battery-bar {
-                height: 6px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header {
-                height: 56px;
-                padding: 0 8px;
-                gap: 4px;
-            }
-
-            #mapTitle {
-                font-size: 14px;
-            }
-
-            .search-container {
-                display: none;
-            }
-
-            .btn {
-                padding: 5px 8px;
-                font-size: 11px;
-            }
-
-            .btn span {
-                display: none;
-            }
-
-            .btn svg {
-                width: 14px;
-                height: 14px;
-            }
-
-            #map {
-                margin-top: 56px;
-                height: calc(100% - 56px);
-            }
-
-            .side-panel {
-                left: 4px;
-                top: 64px;
-                width: calc(100% - 8px);
-                max-width: 100%;
-                max-height: calc(100vh - 95px);
-                border-radius: 10px;
-                display: none;
-                z-index: 1500;
-            }
-
-            .side-panel.mobile-open {
-                display: flex;
-            }
-
-            .panel-section {
-                padding: 10px;
-            }
-
-            .section-title {
-                font-size: 10px;
-                margin-bottom: 6px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 6px;
-                margin-bottom: 8px;
-            }
-
-            .stat-card {
-                padding: 6px;
-            }
-
-            .stat-value {
-                font-size: 14px;
-            }
-
-            .stat-label {
-                font-size: 9px;
-            }
-
-            .state-summary-card {
-                padding: 6px 8px;
-                font-size: 11px;
-                margin-bottom: 4px;
-            }
-
-            .state-summary-count {
-                font-size: 11px;
-                padding: 2px 4px;
-                min-width: 26px;
-            }
-
-            .nearest-item {
-                padding: 8px;
-                margin-bottom: 4px;
-            }
-
-            .nearest-name {
-                font-size: 12px;
-            }
-
-            .nearest-distance {
-                font-size: 10px;
-            }
-
-            .routing-panel {
-                width: 96%;
-                max-width: 100%;
-                bottom: 5px;
-                right: 2%;
-                left: 2%;
-                max-height: 60vh;
-                border-radius: 12px;
-            }
-
-            .routing-header {
-                padding: 10px;
-            }
-
-            .routing-destination {
-                font-size: 13px;
-            }
-
-            .routing-content {
-                padding: 10px;
-                font-size: 12px;
-            }
-
-            .routing-stat {
-                font-size: 12px;
-                margin-bottom: 8px;
-            }
-
-            .nav-buttons {
-                gap: 4px;
-                margin-top: 10px;
-            }
-
-            .nav-button {
-                padding: 6px;
-                font-size: 11px;
-            }
-
-            .turn-instruction-bar {
+            .filter-panel {
                 width: 90%;
                 max-width: 320px;
-                left: 50% !important;
-                right: auto !important;
-                transform: translateX(-50%) !important;
-                padding: 12px 16px;
-                top: 70px;
+                bottom: 200px;
+                right: 5%;
+                left: auto;
             }
+        }
 
-            .turn-instruction-icon {
-                font-size: 20px;
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast-message {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 10000;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
-
-            .turn-instruction-distance {
-                font-size: 18px;
-            }
-
-            .turn-instruction-text {
-                font-size: 11px;
-            }
-
-            .station-detail-panel {
-                width: 98%;
-                left: 1%;
-                right: 1%;
-                bottom: 45px;
-                top: auto;
-                max-height: 70vh;
-                transform: translateY(120%);
-                border-radius: 12px;
-            }
-
-            .station-detail-panel.active {
+            to {
+                opacity: 1;
                 transform: translateY(0);
             }
-
-            .station-detail-header {
-                padding: 12px 10px;
-            }
-
-            .station-detail-title {
-                font-size: 13px;
-            }
-
-            .station-detail-close {
-                width: 26px;
-                height: 26px;
-                font-size: 14px;
-            }
-
-            .station-detail-body {
-                padding: 10px;
-                max-height: 60vh;
-                overflow-y: auto;
-            }
-
-            .detail-item {
-                gap: 8px;
-                margin-bottom: 10px;
-            }
-
-            .detail-icon {
-                width: 32px;
-                height: 32px;
-            }
-
-            .detail-label {
-                font-size: 9px;
-            }
-
-            .detail-value {
-                font-size: 12px;
-            }
-
-            .station-detail-action {
-                padding: 8px;
-                font-size: 12px;
-            }
-
-            .nav-hud {
-                bottom: 12px;
-                right: 10px;
-                left: 10px;
-                width: auto;
-                padding: 16px;
-                min-width: unset;
-                gap: 14px;
-            }
-
-            .hud-label {
-                font-size: 10px;
-            }
-
-            .hud-value {
-                font-size: 24px;
-            }
-
-            .hud-divider {
-                margin: 6px 0;
-            }
-
-            .nav-control-btn {
-                padding: 10px 8px;
-                font-size: 11px;
-            }
-
-            .map-legend {
-                display: none;
-            }
-
-            .battery-section {
-                margin: 10px 0;
-            }
-
-            .battery-header {
-                font-size: 11px;
-            }
-
-            .battery-bar {
-                height: 5px;
-            }
         }
-
-        body.night-mode .header {
-            background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
-            border-bottom-color: #333;
+        .filters-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
         }
-
-        body.night-mode #map {
-            background: #1a1a1a;
+        .filter-toggle-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 8px;
         }
-
-        body.night-mode .side-panel,
-        body.night-mode .routing-panel,
-        body.night-mode .map-legend {
-            background: #2a2a2a;
-            border-color: #444;
+        .filter-toggle {
+            padding: 8px 10px;
+            border: 1px solid #d0d0d0;
+            border-radius: 20px;
+            background: white;
+            font-size: 12px;
+            font-weight: 700;
+            color: #333;
+            transition: all 0.2s ease;
         }
-
-        body.night-mode .btn {
-            background: #1f1f1f;
-            color: #e0e0e0;
-            border-color: #444;
+        .filter-toggle.active {
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
+            color: white;
+            border-color: #2a52be;
         }
-
-        body.night-mode .btn:active {
-            background: #333;
-            border-color: #666;
+        .power-range-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
         }
-
-        .mobile-panel-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            z-index: 1400;
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 12px;
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
+            border-radius: 8px;
+            outline: none;
         }
-
-        .mobile-panel-overlay.active {
-            opacity: 1;
-            pointer-events: all;
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 2px solid #2a52be;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
         }
-
-        #mobileMenuBtn {
-            display: none !important;
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 2px solid #2a52be;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
         }
-
-        @media (max-width: 480px) {
-            #mobileMenuBtn {
-                display: flex !important;
-                order: -1;
-            }
-
-            #mapTitle {
-                flex: 1;
-                margin-right: auto;
-            }
-
-            .side-panel {
-                transform: translateX(-120%);
-                transition: transform 0.3s ease;
-                z-index: 1500;
-                top: 56px;
-                max-height: calc(100vh - 56px);
-                left: 0;
-                border-radius: 0;
-                width: 280px;
-            }
-
-            .side-panel.mobile-open {
-                transform: translateX(0);
-            }
-
-            .turn-instruction-bar {
-                gap: 6px;
-            }
-
-            .turn-instruction-distance {
-                font-size: 18px;
-                margin-bottom: 1px;
-                letter-spacing: -0.3px;
-            }
-
-            .turn-instruction-text {
-                font-size: 11px;
-                opacity: 0.92;
-                max-width: 280px;
-                word-break: break-word;
-                line-height: 1.3;
-                hyphens: auto;
-            }
-
-            .turn-instruction-icon {
-                font-size: 20px;
-                width: 32px;
-                height: 32px;
-                border-radius: 8px;
-            }
-
-            @media (max-width: 380px) {
-                .turn-instruction-bar {
-                    width: 88%;
-                    left: 6%;
-                    right: 6%;
-                    padding: 10px 12px;
-                    top: 64px;
-                }
-
-                .turn-instruction-distance {
-                    font-size: 16px;
-                }
-
-                .turn-instruction-text {
-                    font-size: 10px;
-                    max-width: 240px;
-                    line-height: 1.2;
-                }
-
-                .turn-instruction-icon {
-                    font-size: 18px;
-                    width: 28px;
-                    height: 28px;
-                    margin-bottom: 2px;
-                }
-
-                .nav-hud {
-                    bottom: 8px;
-                    right: 6px;
-                    left: 6px;
-                    width: calc(100% - 12px);
-                    padding: 12px 12px;
-                    min-width: unset;
-                    gap: 8px;
-                    border-radius: 12px;
-                }
-
-                .hud-metric-row {
-                    padding: 8px 10px;
-                    gap: 8px;
-                    border-radius: 10px;
-                }
-
-                .hud-icon {
-                    width: 22px;
-                    height: 22px;
-                    font-size: 12px;
-                    border-radius: 5px;
-                }
-
-                .hud-label {
-                    font-size: 7px;
-                    letter-spacing: 0.4px;
-                }
-
-                .hud-value {
-                    font-size: 14px;
-                    font-weight: 700;
-                    letter-spacing: -0.3px;
-                }
-
-                .nav-control-buttons {
-                    gap: 6px;
-                    margin-top: 6px;
-                }
-
-                .nav-control-btn {
-                    padding: 6px 8px;
-                    font-size: 9px;
-                    border-radius: 6px;
-                    letter-spacing: 0.2px;
-                }
-
-                .routing-panel {
-                    width: 94%;
-                    left: 3%;
-                    right: 3%;
-                    max-width: 100%;
-                }
-
-                .station-detail-panel {
-                    width: 96%;
-                    left: 2%;
-                    right: 2%;
-                }
-            }
+        input[type="range"]::-webkit-slider-runnable-track {
+            height: 12px;
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
+            border-radius: 8px;
+        }
+        input[type="range"]::-moz-range-track {
+            height: 12px;
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
+            border-radius: 8px;
+        }
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 700;
+            color: #666;
+        }
+        .chip-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+        }
+        .chip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid #d0d0d0;
+            background: #ffffff;
+            font-size: 11px;
+            font-weight: 700;
+            color: #333;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        .chip.active {
+            background: linear-gradient(135deg, #e0eeff 0%, #cce0ff 100%);
+            border-color: #99ccff;
+            color: #2a52be;
+        }
+        .equipment-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .equipment-item {
+            display: grid;
+            grid-template-columns: 40px 1fr auto;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 8px 10px;
+        }
+        .equipment-icon svg {
+            width: 32px;
+            height: 32px;
+        }
+        .equipment-meta {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2px;
+        }
+        .equipment-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: #1a1a1a;
+        }
+        .equipment-sub {
+            font-size: 11px;
+            color: #666;
+        }
+        .equipment-badge {
+            display: inline-block;
+            padding: 4px 6px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #e0eeff 0%, #cce0ff 100%);
+            color: #2a52be;
+            font-weight: 800;
+            font-size: 11px;
+            border: 1px solid #99ccff;
         }
     </style>
   <script src="/_sdk/element_sdk.js"></script>
@@ -1793,10 +1166,7 @@
  <body>
   <div id="root" style="height: 100%; width: 100%;">
    <div id="map"></div>
-   <div class="header"><button id="mobileMenuBtn" class="btn" style="display: none;">
-     <svg fill="currentColor" viewbox="0 0 24 24">
-      <path d="M3 12h18M3 6h18M3 18h18" />
-     </svg></button>
+   <div class="header">
     <div id="mapTitle">
      ⚡ EV Station Finder
     </div>
@@ -1806,15 +1176,14 @@
     <div class="control-buttons"><button id="nightModeBtn" class="btn">
       <svg fill="currentColor" viewbox="0 0 24 24">
        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-      </svg><span id="nightModeLabel">Night</span> </button> <button id="locationBtn" class="btn">
+      </svg></button> <button id="locationBtn" class="btn">
       <svg fill="currentColor" viewbox="0 0 24 24">
        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
-      </svg> Locate </button>
+      </svg></button>
     </div>
    </div>
-   <div id="mobilePanelOverlay" class="mobile-panel-overlay"></div>
    <div id="sidePanel" class="side-panel">
-    <div class="panel-section" style="padding: 16px; border-bottom: 1px solid #f0f0f0;">
+    <div class="panel-section">
      <div style="margin-bottom: 4px;">
       <div style="font-size: 18px; font-weight: 900; color: #1a1a1a;">
        ⚡ EV Stations
@@ -1824,19 +1193,9 @@
       Filter &amp; explore charging stations
      </div>
     </div>
-    <div class="panel-section" style="padding: 12px; border-bottom: 1px solid #f0f0f0;">
+    <div class="panel-section">
      <div class="section-title">
-      🗺️ States
-     </div><button id="clearFilterBtn" class="btn" style="font-size: 11px; padding: 4px 8px; display: none;">Clear</button>
-     <div class="state-summary-grid-container">
-      <div style="display: flex; gap: 6px; margin-bottom: 12px; background: white; padding: 4px; border-radius: 12px; border: 1px solid #d0d0d0;"><button id="viewClustered" class="view-btn active" style="flex: 1; padding: 6px 12px;">Clustered</button> <button id="viewIndividual" class="view-btn" style="flex: 1; padding: 6px 12px;">Individual</button>
-      </div>
-      <div id="stateSummary" class="state-summary-grid"></div>
-     </div>
-    </div>
-    <div class="panel-section" style="padding: 12px; border-bottom: 1px solid #f0f0f0;">
-     <div class="section-title">
-      📊 Overall Stats
+      📊 Stats
      </div>
      <div class="stats-grid">
       <div class="stat-card">
@@ -1844,7 +1203,7 @@
         0
        </div>
        <div class="stat-label">
-        Total Stations
+        Total
        </div>
       </div>
       <div class="stat-card">
@@ -1857,9 +1216,20 @@
       </div>
      </div>
     </div>
-    <div class="panel-section" style="padding: 12px; flex: 1; display: flex; flex-direction: column; min-height: 0; border-bottom: none;">
+    <div class="panel-section">
+     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+      <div class="section-title">🗺️ States</div>
+      <button id="clearStateSelection" class="view-btn" style="display: none; padding: 6px 12px;">Clear</button>
+     </div>
+     <div style="display: flex; gap: 6px; margin-bottom: 12px; background: white; padding: 4px; border-radius: 12px; border: 1px solid #d0d0d0;"><button id="viewClustered" class="view-btn active" style="flex: 1; padding: 6px 12px;">Clustered</button> <button id="viewIndividual" class="view-btn" style="flex: 1; padding: 6px 12px;">Individual</button>
+     </div>
+     <div class="state-summary-grid-container">
+      <div id="stateSummary" class="state-summary-grid"></div>
+     </div>
+    </div>
+    <div class="panel-section" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
      <div class="section-title">
-      🔋 Nearest Stations
+      📍 Nearest
      </div>
      <div id="nearestList"></div>
     </div>
@@ -1875,26 +1245,18 @@
      </div>
      <div class="routing-stat"><span class="routing-stat-label">Time</span> <span class="routing-stat-value" id="routingTime">--:--</span>
      </div>
-     <div class="routing-stat"><span class="routing-stat-label">Avg Speed</span> <span class="routing-stat-value" id="routingSpeed">-- km/h</span>
-     </div>
      <div class="battery-section">
-      <div class="battery-header"><span>🔋 Battery Impact</span> <span id="batteryRemaining">100%</span>
+      <div class="battery-header"><span>🔋 Battery</span> <span id="batteryRemaining">100%</span>
       </div>
       <div class="battery-bar">
        <div id="batteryFill" style="width: 100%;"></div>
       </div>
-      <div style="font-size: 11px; color: #999; margin-top: 6px;"><span id="batteryUsed">0 kWh used</span>
-      </div>
      </div>
-     <div class="nav-buttons"><button id="startNavBtn" class="nav-button primary">Navigate</button> <button id="routingClose2" class="nav-button secondary">Cancel</button>
+     <div class="nav-buttons"><button id="startNavBtn" class="nav-button primary">Start Nav</button> <button id="routingClose2" class="nav-button secondary">Cancel</button>
      </div>
     </div>
    </div>
    <div id="turnInstructionBar" class="turn-instruction-bar">
-    <div class="turn-instruction-icon" id="turnArrow">
-     <svg viewbox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" style="width: 22px; height: 22px;"><polyline points="12 5 19 12 12 19" /><line x1="19" y1="12" x2="5" y2="12" />
-     </svg>
-    </div>
     <div class="turn-instruction-distance" id="turnDistanceText">
      -- km
     </div>
@@ -1933,7 +1295,7 @@
       </div>
      </div>
     </div>
-    <div class="nav-control-buttons"><button class="nav-control-btn" onclick="toggleNavigationPause()">⏸ Pause</button> <button class="nav-control-btn" onclick="endNavigation()">🛑 End</button>
+    <div class="nav-control-buttons"><button class="nav-control-btn" onclick="endNavigation()">End Nav</button>
     </div>
    </div>
    <div id="stationDetailPanel" class="station-detail-panel">
@@ -1949,13 +1311,9 @@
     </div>
     <div class="station-detail-body">
      <div class="detail-item">
-      <div class="detail-icon">
-       <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-       </svg>
-      </div>
       <div class="detail-content">
        <div class="detail-label">
-        Operator
+        Network
        </div>
        <div class="detail-value" id="detailOperator">
         -
@@ -1963,13 +1321,19 @@
       </div>
      </div>
      <div class="detail-item">
-      <div class="detail-icon">
-       <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-       </svg>
-      </div>
       <div class="detail-content">
        <div class="detail-label">
         Location
+       </div>
+       <div class="detail-value" id="detailLocation">
+        -
+       </div>
+      </div>
+     </div>
+     <div class="detail-item">
+      <div class="detail-content">
+       <div class="detail-label">
+        State
        </div>
        <div class="detail-value" id="detailState">
         -
@@ -1977,38 +1341,98 @@
       </div>
      </div>
      <div class="detail-item">
-      <div class="detail-icon">
-       <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;"><circle cx="12" cy="12" r="1" /> <circle cx="19" cy="12" r="1" /> <circle cx="5" cy="12" r="1" />
-       </svg>
-      </div>
       <div class="detail-content">
        <div class="detail-label">
-        Available Chargers
+        Equipment
+       </div>
+       <div class="detail-value" id="detailEquipment">
+        -
+       </div>
+       <div class="equipment-list" id="detailEquipmentList"></div>
+      </div>
+     </div>
+     <div class="detail-item">
+      <div class="detail-content">
+       <div class="detail-label">
+        Chargers
        </div>
        <div class="detail-value" id="detailChargers">
         -
        </div>
       </div>
      </div>
-     <div class="station-detail-divider"></div><button class="station-detail-action" onclick="startDirectionsFromDetail()">
-      <svg viewbox="0 0 24 24" fill="currentColor" style="width: 18px; height: 18px;"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
-      </svg> Directions </button>
+     <div class="detail-item">
+      <div class="detail-content">
+       <div class="detail-label">
+        Usage
+       </div>
+       <div class="detail-value" id="detailUsage">
+        -
+       </div>
+      </div>
+     </div>
+     <div class="detail-item">
+      <div class="detail-content">
+       <div class="detail-label">
+        Access
+       </div>
+       <div class="detail-value" id="detailAccess">
+        -
+       </div>
+      </div>
+     </div>
+     <div class="station-detail-divider"></div><button class="station-detail-action" onclick="startDirectionsFromDetail()"> 🧭 Get Directions </button>
     </div>
+   </div>
+   <div id="equipmentIconsTemplate" style="display:none;">
+    <svg data-icon="type2" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="#ddd"/><circle cx="12" cy="12" r="2"/><circle cx="20" cy="12" r="2"/><circle cx="12" cy="20" r="2"/><circle cx="20" cy="20" r="2"/></svg>
+    <svg data-icon="ccs" viewBox="0 0 32 32"><rect x="8" y="8" width="16" height="16" rx="8" fill="#ddd"/><circle cx="13" cy="13" r="2"/><circle cx="19" cy="13" r="2"/><rect x="12" y="19" width="8" height="4" rx="2"/></svg>
+    <svg data-icon="chademo" viewBox="0 0 32 32"><rect x="8" y="8" width="16" height="16" rx="4" fill="#ddd"/><circle cx="16" cy="13" r="3"/><rect x="14" y="18" width="4" height="4"/></svg>
+    <svg data-icon="type1" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="#ddd"/><circle cx="16" cy="16" r="3"/><circle cx="12" cy="20" r="2"/><circle cx="20" cy="20" r="2"/></svg>
+    <svg data-icon="gbt" viewBox="0 0 32 32"><rect x="8" y="8" width="16" height="16" rx="2" fill="#ddd"/><circle cx="12" cy="12" r="2"/><circle cx="20" cy="12" r="2"/><circle cx="12" cy="20" r="2"/><circle cx="20" cy="20" r="2"/></svg>
+    <svg data-icon="tesla" viewBox="0 0 32 32"><path d="M6 10h20l-10 12z" fill="#ddd"/></svg>
+    <svg data-icon="scame" viewBox="0 0 32 32"><rect x="8" y="10" width="16" height="12" rx="2" fill="#ddd"/><circle cx="12" cy="16" r="2"/><circle cx="20" cy="16" r="2"/></svg>
+    <svg data-icon="unknown" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="#ddd"/><text x="16" y="20" text-anchor="middle" font-size="12">?</text></svg>
    </div>
    <div id="mapLegend" class="map-legend">
     <div class="legend-title">
-     <svg width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" />
-     </svg> Map Legend
+      Legend
     </div>
-    <div style="margin-bottom: 12px;">
-     <div style="font-size: 11px; text-transform: uppercase; color: #999; margin-bottom: 8px; font-weight: 600;">
-      Marker Types
+    <div class="legend-item" id="defaultLegendItem">
+     <div class="legend-color-box" style="background: linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%);"></div><span>All EV Stations</span>
+    </div>
+    <div class="legend-item" id="filteredLegendItem" style="display: none;">
+     <div class="legend-color-box" style="background: linear-gradient(135deg, #15B392 0%, #34D399 100%);"></div><span id="filteredLegendText">Filtered State</span>
+    </div>
+   </div>
+   <div id="filtersPanel" class="filter-panel">
+    <div class="section-title">🎛️ Filters</div>
+    <div class="filters-grid">
+     <div class="filter-toggle-row">
+      <button id="toggleApp" class="filter-toggle" disabled>App</button>
+      <button id="toggleAvailable" class="filter-toggle">Available</button>
+      <button id="toggleCable" class="filter-toggle">Cable</button>
+      <button id="toggleAutocharge" class="filter-toggle" disabled>Autocharge</button>
      </div>
-     <div class="legend-item">
-      <div class="legend-color-box" style="background: linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%);"></div><span>EV Station</span>
+     <div>
+      <div class="range-labels"><span>POWER from <span id="powerMinLabel">0 kW</span> to <span id="powerMaxLabel">400 kW</span></span></div>
+      <div class="power-range-row">
+       <input id="powerMin" type="range" min="0" max="400" value="0">
+       <input id="powerMax" type="range" min="0" max="400" value="400">
+      </div>
      </div>
-     <div class="legend-item">
-      <div class="legend-color-box" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);"></div><span>Filtered Station</span>
+     <div>
+      <div class="range-labels"><span>PLUG TYPE</span></div>
+      <div class="chip-grid">
+       <div class="chip plug-chip" data-type="Type 2">Type 2</div>
+       <div class="chip plug-chip" data-type="CCS Type 2">CCS Type 2</div>
+       <div class="chip plug-chip" data-type="CHAdeMO">CHAdeMO</div>
+       <div class="chip plug-chip" data-type="Type 1">Type 1</div>
+       <div class="chip plug-chip" data-type="CCS Type 1">CCS Type 1</div>
+       <div class="chip plug-chip" data-type="GB/T">GB/T</div>
+       <div class="chip plug-chip" data-type="SCAME">SCAME</div>
+       <div class="chip plug-chip" data-type="Tesla">Tesla</div>
+      </div>
      </div>
     </div>
    </div>
@@ -2017,8 +1441,7 @@
   <script src="https://unpkg.com/leaflet.markercluster@1.5.1/dist/leaflet.markercluster.js"></script>
   <script>
         const defaultConfig = {
-            map_title: '⚡ EV Station Finder',
-            search_placeholder: 'Search stations...'
+            map_title: '⚡ EV Station Finder'
         };
 
         let config = { ...defaultConfig };
@@ -2030,16 +1453,171 @@
         let currentView = 'clustered';
         let allMarkersArray = [];
         let routePolyline = null;
-        let vehicleMarker = null;
-        let routeCoordinates = [];
         let navigationActive = false;
-        let navigationPaused = false;
         let geolocationWatchId = null;
         let navigationDestination = null;
-        let totalRoutDistance = 0;
-        let navigationStartTime = 0;
-        let navigationPauseTime = 0;
-        let isMobile = window.innerWidth <= 480;
+        const MALAYSIA_STATES = [
+            'Johor','Kedah','Kelantan','Melaka','Negeri Sembilan','Pahang','Perak','Perlis','Pulau Pinang','Sabah','Sarawak','Selangor','Terengganu','Kuala Lumpur'
+        ];
+        let filterAvailable = false;
+        let filterCable = false;
+        let filterMinPower = 0;
+        let filterMaxPower = 400;
+        let selectedPlugTypes = new Set();
+
+        function normalizeConnectionType(c) {
+            let t = (c?.ConnectionType?.Title) || (c?.ConnectionType?.FormalName) || (c?.ConnectionType?.Description) || '';
+            const level = (c?.Level?.Title || '').toLowerCase();
+            const current = (c?.CurrentType?.Title || '').toLowerCase();
+            if (!t) {
+                if (level.includes('type 2') || level.includes('mennekes')) t = 'Type 2';
+                else if (level.includes('type 1') || level.includes('yazaki')) t = 'Type 1';
+                else if (current.includes('dc')) {
+                    t = 'DC';
+                } else if (current.includes('ac')) {
+                    t = 'AC';
+                }
+            }
+            return t ? t : 'Unknown';
+        }
+
+        function aggregateConnections(conns) {
+            if (!Array.isArray(conns) || conns.length === 0) return '-';
+            const map = new Map();
+            conns.forEach(c => {
+                const type = normalizeConnectionType(c);
+                const key = type.toLowerCase();
+                const power = typeof c.power === 'number' ? c.power : (typeof c.PowerKW === 'number' ? c.PowerKW : null);
+                const item = map.get(key) || { type, count: 0, maxPower: 0 };
+                item.count += 1;
+                if (power && power > item.maxPower) item.maxPower = power;
+                map.set(key, item);
+            });
+            return Array.from(map.values()).map(i => {
+                if (i.maxPower && i.maxPower > 0) return `${i.type} (${i.count}) • ${i.maxPower}kW`;
+                return `${i.type} (${i.count})`;
+            }).join(', ');
+        }
+
+        function deriveFullType(c) {
+            const base = normalizeConnectionType(c);
+            const level = (c.level || c.Level?.Title || '')?.toLowerCase();
+            const tether = level.includes('tethered') ? ' (Tethered Connector)' : '';
+            return (base || 'Unknown') + tether;
+        }
+
+        function getConnectorIconName(type) {
+            const t = (type || '').toLowerCase();
+            if (t.includes('ccs')) return 'ccs';
+            if (t.includes('type 2') || t.includes('mennekes')) return 'type2';
+            if (t.includes('type 1') || t.includes('yazaki')) return 'type1';
+            if (t.includes('chademo')) return 'chademo';
+            if (t.includes('gb/t')) return 'gbt';
+            if (t.includes('tesla')) return 'tesla';
+            if (t.includes('scame')) return 'scame';
+            return 'unknown';
+        }
+
+        function getIconSvg(iconName) {
+            const tpl = document.querySelector(`#equipmentIconsTemplate svg[data-icon="${iconName}"]`);
+            return tpl ? tpl.outerHTML : document.querySelector('#equipmentIconsTemplate svg[data-icon="unknown"]').outerHTML;
+        }
+
+        function renderEquipmentDetails(conns, isOperational) {
+            const list = document.getElementById('detailEquipmentList');
+            if (!list) return;
+            if (!Array.isArray(conns) || conns.length === 0) { list.innerHTML = ''; return; }
+            list.innerHTML = conns.map(c => {
+                const type = deriveFullType(c);
+                const icon = getIconSvg(getConnectorIconName(type));
+                const qty = (typeof c.quantity === 'number' && c.quantity > 0) ? c.quantity : 1;
+                const power = (typeof c.power === 'number' && c.power > 0) ? `${c.power} kW` : '';
+                const current = c.current || '';
+                const level = c.level || '';
+                const ampsVolt = [c.amps ? `${c.amps}A` : '', c.voltage ? `${c.voltage}V` : ''].filter(Boolean).join(' ');
+                const op = isOperational ? 'Operational' : 'Status unknown';
+                const idText = c.id ? String(c.id) : '';
+                return `
+                <div class="equipment-item">
+                    <div class="equipment-icon">${icon}</div>
+                    <div class="equipment-meta">
+                        <div class="equipment-sub">${qty} × • ${op}</div>
+                        <div class="equipment-title">${type}</div>
+                        <div class="equipment-sub">${power}</div>
+                        <div class="equipment-sub">${current || level}</div>
+                        <div class="equipment-sub">${[ampsVolt, idText].filter(Boolean).join(' ')}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function normalizeStateName(raw, lat, lon, addressInfo) {
+            const v = (raw || '').trim().toLowerCase();
+            const alias = {
+                'johor': 'Johor',
+                'johor ': 'Johor',
+                "johor darul ta'zim": 'Johor',
+                'selangor': 'Selangor',
+                'melaka': 'Melaka',
+                'malacca': 'Melaka',
+                'negeri sembilan': 'Negeri Sembilan',
+                'pulau pinang': 'Pulau Pinang',
+                'penang': 'Pulau Pinang',
+                'perlis': 'Perlis',
+                'kedah': 'Kedah',
+                'perak': 'Perak',
+                'pahang': 'Pahang',
+                'terengganu': 'Terengganu',
+                'kelantan': 'Kelantan',
+                'sabah': 'Sabah',
+                'sarawak': 'Sarawak',
+                'labuan': 'Labuan',
+                'putrajaya': 'Putrajaya',
+                'kuala lumpur': 'Kuala Lumpur',
+                'wilayah persekutuan kuala lumpur': 'Kuala Lumpur',
+                'wp kuala lumpur': 'Kuala Lumpur',
+                'w.p. kuala lumpur': 'Kuala Lumpur',
+                'kl': 'Kuala Lumpur',
+                'sungai buloh': 'Selangor',
+                'shah alam': 'Selangor',
+                'subang jaya': 'Selangor',
+                'johor bahru': 'Johor',
+                'george town': 'Pulau Pinang',
+                'butterworth': 'Pulau Pinang',
+                'ipoh': 'Perak',
+                'kota kinabalu': 'Sabah',
+                'sandakan': 'Sabah',
+                'tawau': 'Sabah',
+                'kuching': 'Sarawak',
+                'miri': 'Sarawak',
+                'bintulu': 'Sarawak'
+            };
+            if (alias[v]) return alias[v];
+            const latNum = typeof lat === 'number' ? lat : (addressInfo?.Latitude || null);
+            const lonNum = typeof lon === 'number' ? lon : (addressInfo?.Longitude || null);
+            if (latNum == null || lonNum == null) return raw && raw.toLowerCase() !== 'unknown' ? raw : 'Unknown';
+            const s = [
+                { n: 'Perlis', minLat: 6.30, maxLat: 6.80, minLon: 100.10, maxLon: 100.50 },
+                { n: 'Kedah', minLat: 5.00, maxLat: 6.70, minLon: 100.00, maxLon: 101.20 },
+                { n: 'Pulau Pinang', minLat: 5.20, maxLat: 5.55, minLon: 100.20, maxLon: 100.55 },
+                { n: 'Perak', minLat: 3.60, maxLat: 5.70, minLon: 100.50, maxLon: 101.50 },
+                { n: 'Selangor', minLat: 2.60, maxLat: 3.90, minLon: 101.15, maxLon: 101.95 },
+                { n: 'Kuala Lumpur', minLat: 3.05, maxLat: 3.25, minLon: 101.62, maxLon: 101.75 },
+                { n: 'Putrajaya', minLat: 2.90, maxLat: 2.96, minLon: 101.65, maxLon: 101.75 },
+                { n: 'Negeri Sembilan', minLat: 2.50, maxLat: 3.20, minLon: 101.80, maxLon: 102.40 },
+                { n: 'Melaka', minLat: 2.10, maxLat: 2.50, minLon: 102.10, maxLon: 102.50 },
+                { n: 'Johor', minLat: 1.20, maxLat: 2.20, minLon: 102.50, maxLon: 104.30 },
+                { n: 'Pahang', minLat: 2.70, maxLat: 4.70, minLon: 101.50, maxLon: 103.50 },
+                { n: 'Terengganu', minLat: 4.10, maxLat: 5.80, minLon: 102.60, maxLon: 103.70 },
+                { n: 'Kelantan', minLat: 4.60, maxLat: 6.20, minLon: 101.80, maxLon: 102.70 },
+                { n: 'Sarawak', minLat: 0.80, maxLat: 5.30, minLon: 109.60, maxLon: 115.00 },
+                { n: 'Sabah', minLat: 4.20, maxLat: 7.50, minLon: 115.00, maxLon: 118.70 },
+                { n: 'Labuan', minLat: 5.25, maxLat: 5.37, minLon: 115.18, maxLon: 115.40 }
+            ];
+            const hit = s.find(b => latNum >= b.minLat && latNum <= b.maxLat && lonNum >= b.minLon && lonNum <= b.maxLon);
+            if (hit) return hit.n;
+            return raw && raw.toLowerCase() !== 'unknown' ? raw : 'Unknown';
+        }
 
         async function initSDK() {
             if (window.elementSdk) {
@@ -2047,159 +1625,26 @@
                     defaultConfig,
                     onConfigChange: async (newConfig) => {
                         config = { ...defaultConfig, ...newConfig };
-                        applyConfig();
-                    },
-                    mapToCapabilities: (cfg) => ({
-                        recolorables: [],
-                        borderables: [],
-                        fontEditable: undefined,
-                        fontSizeable: undefined
-                    }),
-                    mapToEditPanelValues: (cfg) => new Map([
-                        ['map_title', cfg.map_title || defaultConfig.map_title],
-                        ['search_placeholder', cfg.search_placeholder || defaultConfig.search_placeholder]
-                    ])
+                    }
                 });
-                config = { ...defaultConfig, ...window.elementSdk.config };
             }
-            applyConfig();
             initMap();
-        }
-
-        function applyConfig() {
-            document.getElementById('mapTitle').textContent = config.map_title || defaultConfig.map_title;
-            document.getElementById('searchInput').placeholder = config.search_placeholder || defaultConfig.search_placeholder;
-        }
-
-        function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
-        }
-
-        async function getOSRMRoute(startLat, startLng, endLat, endLng) {
-            try {
-                const url = `https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`;
-                const response = await fetch(url, { method: 'GET' });
-                const data = await response.json();
-                
-                if (!response.ok || data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
-                    throw new Error('OSRM routing failed');
-                }
-                
-                const route = data.routes[0];
-                const coordinates = route.geometry.coordinates.map(coord => ({
-                    lat: coord[1],
-                    lng: coord[0]
-                }));
-                
-                return {
-                    summary: { 
-                        lengthInMeters: route.distance, 
-                        travelTimeInSeconds: route.duration 
-                    },
-                    legs: [{ points: coordinates }]
-                };
-            } catch (error) {
-                showErrorToast('Route calculation failed');
-                throw error;
-            }
-        }
-
-        async function getDirections(lat, lng, name) {
-            if (!userLocation) {
-                showToast('Please enable your location first');
-                document.getElementById('locationBtn').click();
-                return;
-            }
-            
-            selectedStation = { lat, lng, name };
-            
-            if (isMobile) {
-                document.getElementById('sidePanel').classList.remove('mobile-open');
-            }
-            
-            try {
-                showToast('🛣️ Calculating route...');
-                const routeData = await getOSRMRoute(userLocation.lat, userLocation.lng, lat, lng);
-                
-                const summary = routeData.summary;
-                const distance = (summary.lengthInMeters / 1000).toFixed(1);
-                const time = Math.round(summary.travelTimeInSeconds / 60);
-                const avgSpeed = (summary.lengthInMeters / summary.travelTimeInSeconds * 3.6).toFixed(0);
-                
-                routeCoordinates = routeData.legs[0].points || [];
-                totalRoutDistance = distance;
-                
-                const batteryCapacity = 60;
-                const consumptionRate = 17;
-                const batteryUsed = (distance * consumptionRate / 100).toFixed(1);
-                const batteryPercent = Math.max(0, 100 - (batteryUsed / batteryCapacity * 100)).toFixed(0);
-                
-                document.getElementById('routingDestination').textContent = name;
-                document.getElementById('routingDistance').textContent = `${distance} km`;
-                document.getElementById('routingTime').textContent = `${Math.floor(time / 60)}h ${time % 60}m`;
-                document.getElementById('routingSpeed').textContent = `${avgSpeed} km/h`;
-                document.getElementById('batteryFill').style.width = `${batteryPercent}%`;
-                document.getElementById('batteryUsed').textContent = `${batteryUsed} kWh used`;
-                document.getElementById('batteryRemaining').textContent = `${batteryPercent}% remaining`;
-                
-                const batteryFill = document.getElementById('batteryFill');
-                if (batteryPercent < 20) {
-                    batteryFill.style.background = 'linear-gradient(90deg, #ef4444 0%, #f87171 100%)';
-                } else if (batteryPercent < 50) {
-                    batteryFill.style.background = 'linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)';
-                } else {
-                    batteryFill.style.background = 'linear-gradient(90deg, #10b981 0%, #34d399 100%)';
-                }
-                
-                displayRouteOnMap();
-                
-                document.getElementById('routingPanel').classList.add('active');
-                showToast('⚡ Route ready! Click "Start Navigation" to begin...');
-                
-                const bounds = L.latLngBounds(routeCoordinates.map(c => [c.lat, c.lng]));
-                map.fitBounds(bounds, { padding: [50, 50] });
-                
-            } catch (error) {
-                showErrorToast(`Route failed: ${error.message}`);
-            }
-            
-            map.closePopup();
-        }
-
-        function displayRouteOnMap() {
-            if (!routeCoordinates || routeCoordinates.length === 0) return;
-
-            if (routePolyline && map.hasLayer(routePolyline)) map.removeLayer(routePolyline);
-
-            const routePath = routeCoordinates.map(c => [c.lat, c.lng]);
-            
-            routePolyline = L.polyline(routePath, {
-                color: '#007FFF',
-                weight: 8,
-                opacity: 0.8,
-                lineCap: 'round',
-                lineJoin: 'round'
-            }).addTo(map);
         }
 
         function initMap() {
             map = L.map('map', {
-                center: [4.2105, 101.9758], zoom: 7, zoomControl: false
+                center: [4.2105, 101.9758], 
+                zoom: 7, 
+                zoomControl: false
             });
 
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                attribution: '© OpenStreetMap contributors © CARTO',
-                maxZoom: 19,
-                crossOrigin: 'anonymous'
+                maxZoom: 19
             }).addTo(map);
 
             markerClusterGroup = L.markerClusterGroup({
-                maxClusterRadius: 60, iconCreateFunction: createClusterIcon
+                maxClusterRadius: 60,
+                iconCreateFunction: createClusterIcon
             });
 
             loadEVStations();
@@ -2208,46 +1653,67 @@
 
         function createClusterIcon(cluster) {
             const count = cluster.getChildCount();
-            let size, color;
-            if (count < 10) { size = 'small'; color = '#4DE9FF'; }
-            else if (count < 50) { size = 'medium'; color = '#00D9FF'; }
-            else { size = 'large'; color = '#00A8CC'; }
-            
+            const sz = count < 10 ? 40 : (count > 50 ? 60 : 50);
             return L.divIcon({
-                html: `<div style="background: linear-gradient(135deg, ${color}, #7C3AED); width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 12px; border: 3px solid white; box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);">${count}</div>`,
-                className: `marker-cluster marker-cluster-${size}`,
-                iconSize: size === 'small' ? [40, 40] : size === 'medium' ? [50, 50] : [60, 60],
-                iconAnchor: [size === 'small' ? 20 : size === 'medium' ? 25 : 30, size === 'small' ? 20 : size === 'medium' ? 25 : 30]
+                html: `<div style="background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%); width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 12px; border: 3px solid white; box-shadow: 0 4px 12px rgba(0, 127, 255, 0.3);">${count}</div>`,
+                className: `marker-cluster`,
+                iconSize: [sz, sz],
+                iconAnchor: [sz / 2, sz / 2]
             });
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-message';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
 
         async function loadEVStations() {
             try {
-                showToast('⚡ Loading stations...');
-                const response = await fetch('data/ev_station.geojson');
+                showToast('⚡ Loading Malaysian stations...');
+                const apiUrl = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=MY&maxresults=10000&compact=true&key=c10f1691-d3a4-4408-bf34-ff9a3b3e69bd';
+                const response = await fetch(apiUrl);
                 const data = await response.json();
-                
-                if (!data.features || data.features.length === 0) {
-                    throw new Error('No stations found');
-                }
 
-                allStations = data.features.map((feature, idx) => {
-                    const props = feature.properties || {};
-                    const coords = feature.geometry?.coordinates || [0, 0];
-                    
-                    return {
-                        properties: {
-                            name: props.name || props.station_name || 'Unknown Station',
-                            operator: props.operator || props.company || 'N/A',
-                            state: props.state || props.province || 'Unknown',
-                            chargers: parseInt(props.chargers) || 1
-                        },
-                        geometry: { 
-                            coordinates: [coords[0], coords[1]]
-                        },
-                        id: idx
-                    };
-                });
+                allStations = data.map((station, idx) => ({
+                    properties: {
+                        name: station.AddressInfo?.Title || 'Unknown Station',
+                        operator: station.OperatorInfo?.Title || 'N/A',
+                        operatorSite: station.OperatorInfo?.WebsiteURL || '',
+                        operatorEmail: station.OperatorInfo?.ContactEmail || '',
+                        state: normalizeStateName(
+                            station.AddressInfo?.StateOrProvince,
+                            station.AddressInfo?.Latitude,
+                            station.AddressInfo?.Longitude,
+                            station.AddressInfo
+                        ),
+                        chargers: station.NumberOfPoints || 1,
+                        addressLine1: station.AddressInfo?.AddressLine1 || '',
+                        town: station.AddressInfo?.Town || '',
+                        postcode: station.AddressInfo?.Postcode || '',
+                        usage: station.UsageType?.Title || 'Unknown',
+                        usageCost: station.UsageCost || '',
+                        access: station.AddressInfo?.AccessComments || '',
+                        statusTitle: station.StatusType?.Title || '',
+                        isOperational: !!station.StatusType?.IsOperational,
+                        connections: (station.Connections || []).map(c => ({
+                            type: normalizeConnectionType(c),
+                            power: typeof c.PowerKW === 'number' ? c.PowerKW : null,
+                            level: c.Level?.Title || '',
+                            current: c.CurrentType?.Title || '',
+                            amps: typeof c.Amps === 'number' ? c.Amps : null,
+                            voltage: typeof c.Voltage === 'number' ? c.Voltage : null,
+                            quantity: typeof c.Quantity === 'number' ? c.Quantity : 1,
+                            id: c.ID || null
+                        }))
+                    },
+                    geometry: { 
+                        coordinates: [station.AddressInfo?.Longitude || 0, station.AddressInfo?.Latitude || 0]
+                    },
+                    id: idx
+                })).filter(s => s.geometry.coordinates[0] !== 0);
 
                 processStations();
                 renderStations();
@@ -2255,562 +1721,262 @@
                 populateStateList();
                 updateNearestStations();
                 showToast(`✅ Loaded ${allStations.length} stations`);
-
             } catch (error) {
-                console.error('Load error:', error);
-                showErrorToast(`Load failed: ${error.message}`);
+                showToast('❌ API Error');
             }
         }
 
         function processStations() {
             stateData = {};
             allStations.forEach(station => {
-                const state = station.properties?.state || 'Unknown';
+                const state = station.properties.state;
                 if (!stateData[state]) stateData[state] = [];
                 stateData[state].push(station);
             });
         }
 
-        function showStationPopup(station) {
-            const props = station.properties || {};
-            document.getElementById('detailStationName').textContent = props.name || 'Unknown Station';
-            document.getElementById('detailOperator').textContent = props.operator || 'N/A';
-            document.getElementById('detailState').textContent = props.state || 'Unknown';
-            document.getElementById('detailChargers').textContent = `${props.chargers || 1} Unit${(props.chargers || 1) !== 1 ? 's' : ''}`;
-            
-            selectedStation = {
-                lat: station.geometry.coordinates[1],
-                lng: station.geometry.coordinates[0],
-                name: props.name || 'Unknown Station',
-                station: station
-            };
-            
-            document.getElementById('stationDetailPanel').classList.add('active');
-            
-            const coords = station.geometry?.coordinates;
-            if (coords) {
-                map.setView([coords[1], coords[0]], 16);
-            }
-        }
-
-        function closeStationDetail() {
-            document.getElementById('stationDetailPanel').classList.remove('active');
-            selectedStation = null;
-        }
-
-        function startDirectionsFromDetail() {
-            if (selectedStation) {
-                getDirections(selectedStation.lat, selectedStation.lng, selectedStation.name);
-                closeStationDetail();
-            }
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
         }
 
         function renderStations(filterState = null) {
-            const isClusteredView = currentView === 'clustered';
-            
-            // Remove clusters if showing individual
-            if (map.hasLayer(markerClusterGroup)) {
-                markerClusterGroup.clearLayers();
-                map.removeLayer(markerClusterGroup);
-            }
-
-            // Clear existing markers
-            allMarkersArray.forEach((marker) => {
-                if (map.hasLayer(marker)) map.removeLayer(marker);
-            });
-
+            if (map.hasLayer(markerClusterGroup)) markerClusterGroup.clearLayers();
+            allMarkersArray.forEach(m => map.removeLayer(m));
             allMarkersArray = [];
 
-            const stationsToRender = filterState ? allStations.filter(s => s.properties?.state === filterState) : allStations;
+            // Updated Legend Logic
+            const mapLegend = document.getElementById('mapLegend');
+            const defaultLegendItem = document.getElementById('defaultLegendItem');
+            const filteredLegendItem = document.getElementById('filteredLegendItem');
+            const filteredLegendText = document.getElementById('filteredLegendText');
 
-            stationsToRender.forEach((station, idx) => {
-                const coords = station.geometry?.coordinates;
-                if (!coords) return;
+            if (filterState) {
+                mapLegend.classList.add('highlighted');
+                defaultLegendItem.style.display = 'none'; // Hide "All" when filtered
+                filteredLegendItem.style.display = 'flex';
+                filteredLegendText.textContent = 'Filtered: ' + filterState;
+            } else {
+                mapLegend.classList.remove('highlighted');
+                defaultLegendItem.style.display = 'flex';
+                filteredLegendItem.style.display = 'none';
+            }
 
-                const props = station.properties || {};
-                const lat = coords[1], lng = coords[0];
-                const markerGradient = filterState ? 'linear-gradient(135deg, #10b981 0%, #34d399 100%)' : 'linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%)';
+            let stationsToRender = filterState ? allStations.filter(s => s.properties.state === filterState) : allStations;
+            if (filterAvailable) {
+                stationsToRender = stationsToRender.filter(s => s.properties.isOperational || (s.properties.statusTitle || '').toLowerCase().includes('operational'));
+            }
+            if (filterCable) {
+                stationsToRender = stationsToRender.filter(s => (s.properties.connections || []).some(c => {
+                    const t = (c.type || '').toLowerCase();
+                    if (t.includes('socket')) return false;
+                    if (t.includes('tethered')) return true;
+                    if (t.includes('cable')) return true;
+                    return ['ccs','chademo','tesla','gb/t','scame','type 2','type 1','mennekes'].some(k => t.includes(k));
+                }));
+            }
+            if (selectedPlugTypes.size > 0) {
+                stationsToRender = stationsToRender.filter(s => (s.properties.connections || []).some(c => {
+                    const ct = (c.type || '').toLowerCase();
+                    for (const t of selectedPlugTypes) { if (ct.includes(t.toLowerCase())) return true; }
+                    return false;
+                }));
+            }
+            if (filterMinPower > 0 || filterMaxPower < 400) {
+                stationsToRender = stationsToRender.filter(s => (s.properties.connections || []).some(c => {
+                    const p = c.power ?? 0;
+                    return p >= filterMinPower && p <= filterMaxPower;
+                }));
+            }
 
+            stationsToRender.forEach(station => {
+                const coords = station.geometry.coordinates;
+                // Markers change color to #15B392 when filtered
                 const icon = L.divIcon({
-                    html: `<div style="width: 28px; height: 28px; background: ${markerGradient}; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 4px 12px rgba(53, 89, 232, 0.3);"><svg viewBox="0 0 24 24" fill="white" style="width: 14px; height: 14px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>`,
-                    className: 'custom-marker-container', iconSize: [40, 40], iconAnchor: [20, 40], popupAnchor: [0, -40]
+                    html: `<div style="width: 28px; height: 28px; background: ${filterState ? '#15B392' : '#3559E8'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 0 8px rgba(0,0,0,0.2);"><svg viewBox="0 0 24 24" fill="white" style="width: 14px; height: 14px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>`,
+                    className: 'ev-marker',
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14]
                 });
 
-                const marker = L.marker([lat, lng], { icon });
-                marker.stationId = station.id;
-                marker.station = station;
-                marker.on('click', function() {
-                    showStationPopup(station);
-                });
-
-                if (isClusteredView) {
-                    markerClusterGroup.addLayer(marker);
-                } else {
-                    map.addLayer(marker);
-                }
-
+                const marker = L.marker([coords[1], coords[0]], { icon });
+                marker.on('click', () => showStationPopup(station));
+                
+                if (currentView === 'clustered') markerClusterGroup.addLayer(marker);
+                else marker.addTo(map);
+                
                 allMarkersArray.push(marker);
             });
 
-            if (isClusteredView) {
-                map.addLayer(markerClusterGroup);
-            }
-
+            if (currentView === 'clustered') map.addLayer(markerClusterGroup);
             if (filterState && stationsToRender.length > 0) {
                 const bounds = L.latLngBounds(stationsToRender.map(s => [s.geometry.coordinates[1], s.geometry.coordinates[0]]));
-                map.fitBounds(bounds, { padding: [50, 50], animate: true, duration: 0.8 });
+                map.fitBounds(bounds, { padding: [50, 50] });
             }
+        }
+
+        function showStationPopup(station) {
+            document.getElementById('detailStationName').textContent = station.properties.name;
+            const opBlock = document.getElementById('detailOperator');
+            const site = station.properties.operatorSite;
+            const email = station.properties.operatorEmail;
+            const opTitle = station.properties.operator;
+            opBlock.innerHTML = [opTitle, site ? `<a href="${site}" target="_blank">${site}</a>` : '', email || ''].filter(Boolean).join(' • ');
+            document.getElementById('detailState').textContent = station.properties.state;
+            document.getElementById('detailChargers').textContent = station.properties.chargers + ' units';
+            const loc = [station.properties.addressLine1, station.properties.town, station.properties.postcode].filter(Boolean).join(', ');
+            document.getElementById('detailLocation').textContent = loc || '-';
+            const eq = aggregateConnections(station.properties.connections || []);
+            document.getElementById('detailEquipment').textContent = eq || '-';
+            const usageText = station.properties.usage + (station.properties.usageCost ? ` • ${station.properties.usageCost}` : '');
+            document.getElementById('detailUsage').textContent = usageText || '-';
+            document.getElementById('detailAccess').textContent = station.properties.access || '-';
+            renderEquipmentDetails(station.properties.connections || [], station.properties.isOperational);
+            selectedStation = { lat: station.geometry.coordinates[1], lng: station.geometry.coordinates[0], name: station.properties.name };
+            document.getElementById('stationDetailPanel').classList.add('active');
+            map.setView([selectedStation.lat, selectedStation.lng], 16);
         }
 
         function updateStats() {
             document.getElementById('totalStations').textContent = allStations.length;
-            document.getElementById('totalStates').textContent = Object.keys(stateData).length;
+            document.getElementById('totalStates').textContent = MALAYSIA_STATES.length;
         }
 
         function populateStateList() {
-            const stateSummary = document.getElementById('stateSummary');
-            stateSummary.innerHTML = '';
-
-            Object.entries(stateData)
-                .sort((a, b) => b[1].length - a[1].length)
-                .forEach(([state, stations]) => {
-                    const summaryCard = document.createElement('div');
-                    summaryCard.className = 'state-summary-card';
-                    summaryCard.innerHTML = `<span class="state-summary-name">⚡ ${state}</span><span class="state-summary-count">${stations.length}</span>`;
-                    summaryCard.addEventListener('click', () => filterByState(state));
-                    stateSummary.appendChild(summaryCard);
-                });
-        }
-
-        function filterByState(state) {
-            document.querySelectorAll('.state-summary-card').forEach(card => {
-                const isActive = card.querySelector('.state-summary-name').textContent === state;
-                card.classList.toggle('active', isActive);
+            const container = document.getElementById('stateSummary');
+            container.innerHTML = '';
+            const counts = MALAYSIA_STATES.map(s => ({ state: s, count: (stateData[s] || []).length }));
+            counts.sort((a,b) => b.count - a.count);
+            counts.forEach(({ state, count }) => {
+                const card = document.createElement('div');
+                card.className = 'state-summary-card';
+                card.innerHTML = `<span class="state-summary-name">${state}</span><span class="state-summary-count">${count}</span>`;
+                card.onclick = () => {
+                    const isActive = card.classList.contains('active');
+                    document.querySelectorAll('.state-summary-card').forEach(c => c.classList.remove('active'));
+                    if (isActive) {
+                        renderStations(null);
+                    } else {
+                        card.classList.add('active');
+                        renderStations(state);
+                    }
+                    updateClearButtonVisibility();
+                };
+                container.appendChild(card);
             });
-            document.getElementById('clearFilterBtn').style.display = 'block';
-            renderStations(state);
+            updateClearButtonVisibility();
         }
 
-        function clearFilter() {
-            document.querySelectorAll('.state-summary-card').forEach(card => card.classList.remove('active'));
-            document.getElementById('clearFilterBtn').style.display = 'none';
-            renderStations();
-            map.setView([4.2105, 101.9758], 7);
+        function updateClearButtonVisibility() {
+            const btn = document.getElementById('clearStateSelection');
+            const active = document.querySelector('.state-summary-card.active');
+            if (!btn) return;
+            btn.style.display = active ? 'inline-block' : 'none';
         }
 
         function updateNearestStations() {
-            const nearestList = document.getElementById('nearestList');
-            nearestList.innerHTML = '';
-
+            const list = document.getElementById('nearestList');
             if (!userLocation) {
-                nearestList.innerHTML = '<div style="padding: 10px; color: #999; font-size: 0.85rem; text-align: center;">Enable location to see nearest stations</div>';
+                list.innerHTML = '<div style="padding: 10px; color: #999; font-size: 12px; text-align: center;">Enable location to see nearest</div>';
                 return;
             }
-
-            const withDistance = allStations.map(s => ({
-                ...s,
-                distance: getDistance(userLocation.lat, userLocation.lng, s.geometry.coordinates[1], s.geometry.coordinates[0])
-            })).sort((a, b) => a.distance - b.distance).slice(0, 3);
-
-            withDistance.forEach(station => {
-                const item = document.createElement('div');
-                item.className = 'nearest-item';
-                const props = station.properties;
-                item.innerHTML = `<div class="nearest-name">${props.name}</div><div class="nearest-distance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 12px; height: 12px;"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>${station.distance.toFixed(1)} km</div>`;
-                item.addEventListener('click', () => {
-                    getDirections(station.geometry.coordinates[1], station.geometry.coordinates[0], props.name);
-                });
-                nearestList.appendChild(item);
-            });
-        }
-
-        function showToast(message) {
-            // Toast messages removed
-        }
-
-        function showErrorToast(message) {
-            // Error toast messages removed
-        }
-
-        function startRealTimeNavigation() {
-            if (!routeCoordinates || routeCoordinates.length === 0) {
-                showErrorToast('No route found');
-                return;
-            }
-
-            navigationActive = true;
-            navigationPaused = false;
-            navigationDestination = selectedStation;
-            navigationStartTime = Date.now();
-            navigationPauseTime = 0;
-
-            document.getElementById('routingPanel').classList.remove('active');
-            document.getElementById('sidePanel').style.display = 'none';
-            document.getElementById('mapLegend').style.display = 'none';
-            document.getElementById('turnInstructionBar').classList.add('active');
-            document.getElementById('navHUD').classList.add('active');
-
-            if (userMarker && map.hasLayer(userMarker)) {
-                map.removeLayer(userMarker);
-            }
-
-            if (vehicleMarker && map.hasLayer(vehicleMarker)) {
-                map.removeLayer(vehicleMarker);
-            }
-
-            const vehicleIcon = L.divIcon({
-                html: '<div style="width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-bottom: 40px solid #F6CE53; filter: drop-shadow(0 0 8px rgba(246, 206, 83, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));"></div>',
-                iconSize: [40, 40],
-                iconAnchor: [20, 35],
-                className: 'nav-vehicle-marker'
-            });
-
-            vehicleMarker = L.marker([userLocation.lat, userLocation.lng], { icon: vehicleIcon }).addTo(map);
+            const nearest = allStations
+                .map(s => ({ ...s, dist: getDistance(userLocation.lat, userLocation.lng, s.geometry.coordinates[1], s.geometry.coordinates[0]) }))
+                .sort((a, b) => a.dist - b.dist).slice(0, 3);
             
-            // Smooth zoom animation from current zoom to closer view (like Google Maps)
-            map.setView([userLocation.lat, userLocation.lng], 17, {
-                animate: true,
-                duration: 1.2,
-                easeLinearity: 0.5
-            });
-
-            showToast(`🧭 Navigation started ⚡ ${parseFloat(totalRoutDistance).toFixed(1)} km • ~${(parseFloat(totalRoutDistance) / 50 * 60).toFixed(0)} min`);
-
-            beginLiveTracking();
-        }
-
-        function beginLiveTracking() {
-            if (geolocationWatchId !== null) {
-                navigator.geolocation.clearWatch(geolocationWatchId);
-            }
-
-            let gpsTimeoutCounter = 0;
-            const maxTimeoutsBeforeError = 3;
-            let lastValidPosition = null;
-
-            geolocationWatchId = navigator.geolocation.watchPosition(
-                (position) => {
-                    if (!navigationActive) return;
-
-                    gpsTimeoutCounter = 0;
-
-                    const newLat = position.coords.latitude;
-                    const newLng = position.coords.longitude;
-
-                    lastValidPosition = { lat: newLat, lng: newLng };
-
-                    userLocation = {
-                        lat: newLat,
-                        lng: newLng,
-                        heading: position.coords.heading || 0,
-                        speed: (position.coords.speed || 0) * 3.6
-                    };
-
-                    if (!vehicleMarker) {
-                        const vehicleIcon = L.divIcon({
-                            html: '<div style="width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-bottom: 40px solid #F6CE53; filter: drop-shadow(0 0 8px rgba(246, 206, 83, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));"></div>',
-                            iconSize: [40, 40],
-                            iconAnchor: [20, 35],
-                            className: 'nav-vehicle-marker'
-                        });
-                        
-                        vehicleMarker = L.marker([newLat, newLng], { icon: vehicleIcon }).addTo(map);
-                    } else {
-                        vehicleMarker.setLatLng([newLat, newLng]);
-                    }
-
-                    if (vehicleMarker._icon) {
-                        vehicleMarker._icon.style.transform = `rotate(${userLocation.heading}deg)`;
-                        vehicleMarker._icon.style.filter = 'drop-shadow(0 0 8px rgba(246, 206, 83, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))';
-                    }
-
-                    const mapCenter = map.getCenter();
-                    const distanceFromCenter = getDistance(mapCenter.lat, mapCenter.lng, newLat, newLng);
-                    
-                    if (distanceFromCenter > 0.05) {
-                        map.panTo([newLat, newLng], { animate: true, duration: 0.3 });
-                    }
-
-                    updateVehicleDisplay();
-                },
-                (error) => {
-                    gpsTimeoutCounter++;
-                    
-                    if (error.code === 1) {
-                        showErrorToast('Location permission denied');
-                        endNavigation();
-                    } else if (error.code === 2) {
-                        if (gpsTimeoutCounter >= maxTimeoutsBeforeError) {
-                            showErrorToast('GPS signal lost - position unavailable');
-                        }
-                    } else if (error.code === 3) {
-                        if (gpsTimeoutCounter >= maxTimeoutsBeforeError) {
-                            showErrorToast('GPS timeout - check location services');
-                        }
-                    }
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 8000,
-                    maximumAge: 0
-                }
-            );
-
-            showToast('🧭 Navigation started - tracking real GPS...');
-        }
-
-        function updateVehicleDisplay() {
-            if (!vehicleMarker || !navigationActive || !navigationDestination) return;
-
-            const destDistance = getDistance(
-                userLocation.lat,
-                userLocation.lng,
-                navigationDestination.lat,
-                navigationDestination.lng
-            );
-
-            let targetZoom = 18;
-            if (destDistance > 3) {
-                targetZoom = 14;
-            } else if (destDistance > 1) {
-                targetZoom = 16;
-            }
-
-            map.setView([userLocation.lat, userLocation.lng], targetZoom, {
-                animate: true,
-                duration: 0.5
-            });
-
-            if (destDistance < 0.05) {
-                navigationComplete();
-                return;
-            }
-
-            const avgSpeed = userLocation.speed || 50;
-            const remainingSeconds = (destDistance * 1000) / (avgSpeed / 3.6);
-            
-            const hours = Math.floor(remainingSeconds / 3600);
-            const mins = Math.floor((remainingSeconds % 3600) / 60);
-            let timeStr = '';
-            if (hours > 0) timeStr = `${hours}h ${mins}m`;
-            else timeStr = `${Math.max(1, Math.ceil(remainingSeconds / 60))}m`;
-
-            const eta = new Date(Date.now() + remainingSeconds * 1000);
-            const etaHour = String(eta.getHours()).padStart(2, '0');
-            const etaMin = String(eta.getMinutes()).padStart(2, '0');
-            const etaStr = `${etaHour}:${etaMin}`;
-
-            const speed = Math.round(userLocation.speed) || 0;
-
-            document.getElementById('hudDistance').textContent = destDistance < 1 ? `${Math.round(destDistance * 1000)}m` : `${destDistance.toFixed(1)} km`;
-            document.getElementById('hudTime').textContent = `ETA ${etaStr}`;
-            document.getElementById('hudSpeed').textContent = `${speed} km/h`;
-
-            document.getElementById('turnDistanceText').textContent = destDistance < 1 ? `${Math.round(destDistance * 1000)}m` : `${destDistance.toFixed(1)} km`;
-            document.getElementById('turnInstructionText').textContent = `🛣️ ${navigationDestination.name} • ETA ${etaStr}`;
-            document.getElementById('turnArrow').textContent = '→';
-        }
-
-        function navigationComplete() {
-            navigationActive = false;
-            document.getElementById('turnDistanceText').textContent = '0m';
-            document.getElementById('turnInstructionText').textContent = '✓ Arrived!';
-            document.getElementById('turnArrow').textContent = '✓';
-            
-            showToast('🎉 You\'ve arrived at the charging station!');
-            
-            setTimeout(() => {
-                endNavigation();
-            }, 3000);
-        }
-
-        function toggleNavigationPause() {
-            if (navigationPaused) {
-                navigationPaused = false;
-                navigationStartTime += Date.now() - navigationPauseTime;
-                showToast('🧭 Navigation resumed');
-            } else {
-                navigationPaused = true;
-                navigationPauseTime = Date.now();
-                showToast('⏸ Navigation paused');
-            }
-        }
-
-        function endNavigation() {
-            navigationActive = false;
-            navigationPaused = false;
-
-            if (geolocationWatchId !== null) {
-                navigator.geolocation.clearWatch(geolocationWatchId);
-                geolocationWatchId = null;
-            }
-
-            if (vehicleMarker && map.hasLayer(vehicleMarker)) {
-                map.removeLayer(vehicleMarker);
-            }
-
-            document.getElementById('turnInstructionBar').classList.remove('active');
-            document.getElementById('navHUD').classList.remove('active');
-            document.getElementById('routingPanel').classList.remove('active');
-            document.getElementById('sidePanel').style.display = '';
-            document.getElementById('mapLegend').style.display = '';
-
-            map.setView([userLocation.lat, userLocation.lng], 14);
-            showToast('✓ Navigation ended');
+            list.innerHTML = nearest.map(s => `
+                <div class="nearest-item" onclick="getDirections(${s.geometry.coordinates[1]}, ${s.geometry.coordinates[0]}, '${s.properties.name.replace(/'/g, "\\'")}')">
+                    <div class="nearest-name">${s.properties.name}</div>
+                    <div class="nearest-distance">📍 ${s.dist.toFixed(1)} km</div>
+                </div>`).join('');
         }
 
         function setupEventListeners() {
-            const searchInput = document.getElementById('searchInput');
-            const nightModeBtn = document.getElementById('nightModeBtn');
-            
-            const savedNightMode = localStorage.getItem('nightMode') === 'true';
-            if (savedNightMode) {
-                document.body.classList.add('night-mode');
-                document.getElementById('nightModeLabel').textContent = 'Light';
-            }
-            
-            nightModeBtn.addEventListener('click', () => {
-                document.body.classList.toggle('night-mode');
-                const isNightMode = document.body.classList.contains('night-mode');
-                localStorage.setItem('nightMode', isNightMode);
-                document.getElementById('nightModeLabel').textContent = isNightMode ? 'Light' : 'Night';
+            document.getElementById('locationBtn').onclick = getUserLocation;
+            document.getElementById('routingClose').onclick = () => document.getElementById('routingPanel').classList.remove('active');
+            document.getElementById('routingClose2').onclick = () => document.getElementById('routingPanel').classList.remove('active');
+            document.getElementById('startNavBtn').onclick = startNavigation;
+            document.getElementById('viewClustered').onclick = () => { currentView = 'clustered'; document.getElementById('viewClustered').classList.add('active'); document.getElementById('viewIndividual').classList.remove('active'); renderStations(); };
+            document.getElementById('viewIndividual').onclick = () => { currentView = 'individual'; document.getElementById('viewIndividual').classList.add('active'); document.getElementById('viewClustered').classList.remove('active'); renderStations(); };
+            document.getElementById('clearStateSelection').onclick = () => { document.querySelectorAll('.state-summary-card').forEach(c => c.classList.remove('active')); renderStations(null); updateClearButtonVisibility(); };
+            const toggleAvail = document.getElementById('toggleAvailable');
+            const toggleCable = document.getElementById('toggleCable');
+            const rangeMin = document.getElementById('powerMin');
+            const rangeMax = document.getElementById('powerMax');
+            const powerMinLabel = document.getElementById('powerMinLabel');
+            const powerMaxLabel = document.getElementById('powerMaxLabel');
+            [toggleAvail, toggleCable].forEach(btn => {
+                btn.onclick = () => { btn.classList.toggle('active'); filterAvailable = toggleAvail.classList.contains('active'); filterCable = toggleCable.classList.contains('active'); renderStations(document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null); };
+            });
+            rangeMin.oninput = () => { filterMinPower = parseInt(rangeMin.value, 10); if (filterMinPower > filterMaxPower) { filterMinPower = filterMaxPower; rangeMin.value = String(filterMinPower); } powerMinLabel.textContent = filterMinPower + ' kW'; renderStations(document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null); };
+            rangeMax.oninput = () => { filterMaxPower = parseInt(rangeMax.value, 10); if (filterMaxPower < filterMinPower) { filterMaxPower = filterMinPower; rangeMax.value = String(filterMaxPower); } powerMaxLabel.textContent = filterMaxPower + ' kW'; renderStations(document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null); };
+            document.querySelectorAll('.plug-chip').forEach(ch => {
+                ch.onclick = () => { const label = ch.getAttribute('data-type'); if (ch.classList.contains('active')) { ch.classList.remove('active'); selectedPlugTypes.delete(label); } else { ch.classList.add('active'); selectedPlugTypes.add(label); } renderStations(document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null); };
             });
             
-            document.getElementById('locationBtn').addEventListener('click', getUserLocation);
-            document.getElementById('clearFilterBtn').addEventListener('click', clearFilter);
-            document.getElementById('routingClose').addEventListener('click', () => document.getElementById('routingPanel').classList.remove('active'));
-            document.getElementById('routingClose2').addEventListener('click', () => document.getElementById('routingPanel').classList.remove('active'));
-
-            document.getElementById('startNavBtn').addEventListener('click', startRealTimeNavigation);
-
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const sidePanel = document.getElementById('sidePanel');
-            const mobilePanelOverlay = document.getElementById('mobilePanelOverlay');
-
-            if (isMobile) {
-                mobileMenuBtn.style.display = 'flex';
-            }
-
-            mobileMenuBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                sidePanel.classList.toggle('mobile-open');
-                mobilePanelOverlay.classList.toggle('active');
-            });
-
-            mobilePanelOverlay.addEventListener('click', () => {
-                sidePanel.classList.remove('mobile-open');
-                mobilePanelOverlay.classList.remove('active');
-            });
-
-            document.getElementById('viewClustered').addEventListener('click', () => {
-                currentView = 'clustered';
-                document.getElementById('viewClustered').classList.add('active');
-                document.getElementById('viewIndividual').classList.remove('active');
-                renderStations();
-            });
-
-            document.getElementById('viewIndividual').addEventListener('click', () => {
-                currentView = 'individual';
-                document.getElementById('viewIndividual').classList.add('active');
-                document.getElementById('viewClustered').classList.remove('active');
-                renderStations();
-            });
-
-            searchInput.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase().trim();
-                const searchResults = document.getElementById('searchResults');
-                
-                if (query.length < 2) {
-                    searchResults.classList.remove('active');
-                    return;
-                }
-                
-                const matches = allStations.filter(station => {
-                    const name = (station.properties?.name || '').toLowerCase();
-                    const operator = (station.properties?.operator || '').toLowerCase();
-                    return name.includes(query) || operator.includes(query);
-                }).slice(0, 10);
-                
-                searchResults.innerHTML = matches.length === 0 ? '<div style="padding: 12px; text-align: center; color: #999;">No stations found</div>' : matches.map(station => {
-                    const props = station.properties || {};
-                    return `<div class="search-result-item" data-lat="${station.geometry.coordinates[1]}" data-lng="${station.geometry.coordinates[0]}"><div class="search-result-name">${props.name || 'Unknown'}</div><div class="search-result-operator">${props.operator || 'N/A'}</div></div>`;
-                }).join('');
-                
-                searchResults.querySelectorAll('.search-result-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        const lat = parseFloat(item.dataset.lat);
-                        const lng = parseFloat(item.dataset.lng);
-                        map.setView([lat, lng], 16);
-                        searchResults.classList.remove('active');
-                        searchInput.value = '';
-                    });
-                });
-                
-                searchResults.classList.add('active');
-            });
-
-            document.addEventListener('click', (e) => {
-                const searchResults = document.getElementById('searchResults');
-                if (!e.target.closest('.search-container')) searchResults.classList.remove('active');
-            });
+            document.getElementById('searchInput').oninput = (e) => {
+                const q = e.target.value.toLowerCase();
+                const res = document.getElementById('searchResults');
+                if (q.length < 2) return res.classList.remove('active');
+                const matches = allStations.filter(s => s.properties.name.toLowerCase().includes(q)).slice(0, 5);
+                res.innerHTML = matches.map(s => `<div class="search-result-item" onclick="map.setView([${s.geometry.coordinates[1]}, ${s.geometry.coordinates[0]}], 15); document.getElementById('searchResults').classList.remove('active')">${s.properties.name}</div>`).join('');
+                res.classList.add('active');
+            };
         }
 
         function getUserLocation() {
-            if (!navigator.geolocation) {
-                showToast('Geolocation not supported');
-                return;
-            }
-            
-            const btn = document.getElementById('locationBtn');
-            btn.disabled = true;
-            
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    userLocation = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
-                    
-                    if (userMarker) map.removeLayer(userMarker);
-                    
-                    const userIcon = L.divIcon({
-                        html: '<div class="user-location-marker" style="width: 32px; height: 32px; background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);"><svg viewBox="0 0 24 24" fill="white" style="width: 16px; height: 16px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>',
-                        iconSize: [36, 36], iconAnchor: [18, 18],
-                        className: 'user-marker-wrapper'
-                    });
-                    
-                    userMarker = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon }).addTo(map);
-                    map.setView([userLocation.lat, userLocation.lng], 14);
-                    updateNearestStations();
-                    btn.disabled = false;
-                    showToast('📍 Location enabled');
-                },
-                () => {
-                    showToast('Unable to get location');
-                    btn.disabled = false;
-                },
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
+            navigator.geolocation.getCurrentPosition((pos) => {
+                userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                if (userMarker) map.removeLayer(userMarker);
+                userMarker = L.circleMarker([userLocation.lat, userLocation.lng], { color: '#10b981', fillOpacity: 1, radius: 8 }).addTo(map);
+                map.setView([userLocation.lat, userLocation.lng], 13);
+                updateNearestStations();
+            });
         }
 
-        window.getDirections = getDirections;
-        window.closeStationDetail = closeStationDetail;
-        window.startDirectionsFromDetail = startDirectionsFromDetail;
-        window.toggleNavigationPause = toggleNavigationPause;
-        window.endNavigation = endNavigation;
+        async function getDirections(lat, lng, name) {
+            if (!userLocation) return showToast('📍 Enable location first');
+            document.getElementById('routingDestination').textContent = name;
+            document.getElementById('routingPanel').classList.add('active');
+            if (routePolyline) map.removeLayer(routePolyline);
+            routePolyline = L.polyline([[userLocation.lat, userLocation.lng], [lat, lng]], { color: '#007FFF', weight: 6 }).addTo(map);
+            map.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
+            navigationDestination = { lat, lng, name };
+        }
 
-        window.addEventListener('resize', () => {
-            const wasMobile = isMobile;
-            isMobile = window.innerWidth <= 480;
-            
-            if (wasMobile !== isMobile) {
-                if (isMobile) {
-                    document.getElementById('sidePanel').classList.remove('mobile-open');
-                }
-            }
-        });
+        function startNavigation() {
+            if (!navigationDestination) return;
+            navigationActive = true;
+            document.getElementById('routingPanel').classList.remove('active');
+            document.getElementById('turnInstructionBar').classList.add('active');
+            document.getElementById('navHUD').classList.add('active');
+            beginTracking();
+        }
+
+        function beginTracking() {
+            geolocationWatchId = navigator.geolocation.watchPosition((pos) => {
+                if (!navigationActive) return;
+                userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                const dist = getDistance(userLocation.lat, userLocation.lng, navigationDestination.lat, navigationDestination.lng);
+                document.getElementById('hudDistance').textContent = dist.toFixed(1) + ' km';
+                document.getElementById('turnDistanceText').textContent = dist.toFixed(1) + ' km';
+                map.setView([userLocation.lat, userLocation.lng], 17);
+            });
+        }
+
+        function closeStationDetail() { document.getElementById('stationDetailPanel').classList.remove('active'); }
+        function startDirectionsFromDetail() { if (selectedStation) getDirections(selectedStation.lat, selectedStation.lng, selectedStation.name); closeStationDetail(); }
+        function endNavigation() {
+            navigationActive = false;
+            if (geolocationWatchId) navigator.geolocation.clearWatch(geolocationWatchId);
+            document.getElementById('turnInstructionBar').classList.remove('active');
+            document.getElementById('navHUD').classList.remove('active');
+        }
 
         initSDK();
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cbc4b5bf00bd964',t:'MTc3MDczMzcyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ </body>
 </html>
