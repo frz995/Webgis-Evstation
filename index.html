@@ -4474,15 +4474,19 @@
                     const mapEl = document.getElementById('map');
                     if (mapEl.classList.contains('map-tilted')) {
                         // Apply extra strong scale so rotated/tilted map fully covers viewport on webview and mobile
-                        mapEl.style.transform = `perspective(900px) rotateX(50deg) scale(2) rotateZ(-${heading}deg)`;
+                        mapEl.style.transform = `translateY(-10vh) perspective(900px) rotateX(50deg) scale(2.5) rotateZ(-${heading}deg)`;
                     }
 
-                    // 2. Rotate Marker (Match heading to stay "Up" relative to screen)
+                    // 2. Rotate & scale marker (Match heading and adapt size to zoom)
                     const markerElement = userMarker.getElement();
                     if (markerElement) {
                         const navMarker = markerElement.querySelector('.user-nav-marker');
                         if (navMarker) {
-                            navMarker.style.transform = `rotate(${heading}deg)`;
+                            const zoom = map ? map.getZoom() : 18;
+                            const zoomDelta = zoom - 18;
+                            let markerScale = 1 - zoomDelta * 0.15;
+                            markerScale = Math.max(0.6, Math.min(1.3, markerScale));
+                            navMarker.style.transform = `scale(${markerScale}) rotate(${heading}deg)`;
                         }
                     }
                 }
