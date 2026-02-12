@@ -156,16 +156,16 @@
             inset: 0;
             z-index: 2000;
             display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 32px 40px;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 32px 40px 32px 40px;
             color: #0f172a;
             background:
                 radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 55%),
                 radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.14), transparent 55%),
                 linear-gradient(135deg, #f9fafb 0%, #eef2ff 34%, #e0f2fe 100%);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             opacity: 1;
             transform: translateY(0);
             transition: opacity 0.6s ease, transform 0.6s ease;
@@ -182,17 +182,41 @@
             position: relative;
             z-index: 1;
             width: 100%;
-            max-width: 720px;
+            max-width: 1040px;
+            display: grid;
+            grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.1fr);
+            grid-template-rows: auto auto;
+            grid-template-areas:
+                "heading heading"
+                "panel   side";
+            column-gap: 28px;
+            row-gap: 20px;
+            align-items: flex-start;
+        }
+
+        .intro-heading {
+            font-size: 32px;
+            line-height: 1.08;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #2563eb 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            grid-area: heading;
         }
 
         .intro-panel {
             border-radius: 22px;
-            padding: 26px 26px 22px 26px;
+            padding: 24px 24px 20px 24px;
             background: rgba(255, 255, 255, 0.98);
-            border: 1px solid rgba(209, 213, 219, 0.9);
+            border: 1px solid rgba(226, 232, 240, 0.9);
             box-shadow:
-                0 22px 60px rgba(15, 23, 42, 0.16),
-                0 0 0 1px rgba(148, 163, 184, 0.4);
+                0 18px 40px rgba(15, 23, 42, 0.14),
+                0 0 0 1px rgba(148, 163, 184, 0.12);
+            min-height: 260px;
+            grid-area: panel;
         }
 
         .intro-map-grid {
@@ -240,7 +264,7 @@
             line-height: 1.2;
             font-weight: 800;
             letter-spacing: -0.04em;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: #0f172a;
         }
 
@@ -248,13 +272,13 @@
             font-size: 13px;
             line-height: 1.6;
             color: #4b5563;
-            max-width: 440px;
-            margin-bottom: 16px;
+            max-width: 460px;
+            margin-bottom: 18px;
         }
 
         .intro-summary {
             display: flex;
-            gap: 16px;
+            gap: 14px;
             margin-bottom: 18px;
             flex-wrap: wrap;
         }
@@ -263,7 +287,7 @@
             flex: 0 0 auto;
             min-width: 150px;
             padding: 10px 12px;
-            border-radius: 14px;
+            border-radius: 12px;
             background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%);
             border: 1px solid #bfdbfe;
         }
@@ -273,13 +297,118 @@
             text-transform: uppercase;
             letter-spacing: 0.12em;
             color: #4b5563;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .intro-summary-value {
             font-size: 20px;
             font-weight: 800;
             color: #1d4ed8;
+        }
+
+        .intro-heading,
+        .intro-panel,
+        .intro-side {
+            opacity: 0;
+            transform: translateY(12px);
+            animation: introFadeUp 0.7s ease forwards;
+        }
+
+        .intro-heading {
+            animation-delay: 0.05s;
+        }
+
+        .intro-panel {
+            animation-delay: 0.15s;
+        }
+
+        .intro-side {
+            animation-delay: 0.25s;
+        }
+
+        .intro-side {
+            border-radius: 22px;
+            padding: 22px 20px 20px 20px;
+            background: rgba(15, 23, 42, 0.98);
+            border: 1px solid rgba(30, 64, 175, 0.8);
+            box-shadow:
+                0 18px 40px rgba(15, 23, 42, 0.55),
+                0 0 0 1px rgba(30, 64, 175, 0.3);
+            color: #e5e7eb;
+            font-size: 12px;
+            line-height: 1.6;
+            grid-area: side;
+            align-self: center;
+        }
+
+        .intro-side-section {
+            margin-bottom: 14px;
+        }
+
+        .intro-side-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #a5b4fc;
+        }
+
+        .intro-side-section-body {
+            font-size: 12px;
+            color: #e5e7eb;
+        }
+
+        .intro-feedback-input {
+            width: 100%;
+            min-height: 70px;
+            margin-top: 6px;
+            border-radius: 10px;
+            border: 1px solid #4b5563;
+            background: rgba(15, 23, 42, 0.98);
+            color: #e5e7eb;
+            padding: 8px 10px;
+            font-size: 12px;
+            resize: vertical;
+        }
+
+        .intro-feedback-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .intro-feedback-submit {
+            margin-top: 8px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid #4b5563;
+            background: #1f2937;
+            color: #e5e7eb;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .intro-feedback-submit:active {
+            background: #111827;
+        }
+
+        .intro-feedback-status {
+            font-size: 11px;
+            color: #a5b4fc;
+        }
+
+        .intro-contact-line {
+            margin-top: 4px;
+        }
+
+        @keyframes introFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .intro-footer {
@@ -332,16 +461,32 @@
         }
 
         @media (max-width: 880px) {
-            .intro-layout {
-                grid-template-columns: minmax(0, 1fr);
+            .intro-overlay {
+                align-items: flex-start;
+                justify-content: center;
+                padding: 18px 14px 20px 14px;
+                overflow-y: auto;
             }
 
-            .intro-visual {
-                display: none;
+            .intro-layout {
+                max-width: 100%;
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-rows: auto auto auto;
+                grid-template-areas:
+                    "heading"
+                    "panel"
+                    "side";
+                row-gap: 16px;
+            }
+
+            .intro-heading {
+                font-size: 22px;
+                margin-bottom: 8px;
             }
 
             .intro-panel {
-                padding: 22px 18px 18px 18px;
+                padding: 18px 14px 16px 14px;
+                min-height: auto;
             }
 
             .intro-title {
@@ -356,6 +501,11 @@
             .intro-button {
                 width: 100%;
                 justify-content: center;
+            }
+
+            .intro-side {
+                padding: 18px 14px 16px 14px;
+                align-self: stretch;
             }
         }
 
@@ -455,6 +605,13 @@
             box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
         }
 
+        .dark-mode .control-title {
+            background: rgba(15, 23, 42, 0.98);
+            border-color: #1f2937;
+            color: #e5e7eb;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.85);
+        }
+
         .control-buttons {
             display: flex;
             align-items: center;
@@ -466,10 +623,20 @@
             box-shadow: 0 6px 16px rgba(15, 23, 42, 0.16);
         }
 
+        .dark-mode .control-buttons {
+            background: rgba(15, 23, 42, 0.98);
+            border-color: #1f2937;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.85);
+        }
+
         .control-divider {
             width: 1px;
             height: 16px;
             background: #e5e7eb;
+        }
+
+        .dark-mode .control-divider {
+            background: #374151;
         }
 
         .btn {
@@ -566,6 +733,30 @@
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.08em;
+        }
+
+        .dark-mode .section-title {
+            color: #9ca3af;
+        }
+
+        .side-panel-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: #1a1a1a;
+        }
+
+        .dark-mode .side-panel-title {
+            color: #e5e7eb;
+        }
+
+        .side-panel-subtitle {
+            font-size: 12px;
+            color: #999;
+            font-weight: 500;
+        }
+
+        .dark-mode .side-panel-subtitle {
+            color: #9ca3af;
         }
 
         .stats-grid {
@@ -697,6 +888,10 @@
             background: white;
         }
 
+        .dark-mode .state-summary-count {
+            background: rgba(15, 23, 42, 0.96);
+        }
+
         .ev-marker.highlighted svg {
             filter: drop-shadow(0 0 8px rgba(255, 193, 7, 0.8));
         }
@@ -780,12 +975,16 @@
             max-height: 400px;
             overflow-y: auto;
             transform: translateY(120%);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease;
             z-index: 10001;
+            opacity: 0;
+            pointer-events: none;
         }
 
         .routing-panel.active {
             transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .routing-header {
@@ -915,28 +1114,27 @@
         .turn-instruction-bar {
             position: fixed;
             top: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-150%);
+            left: 20px;
+            transform: translateY(-150%);
             background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             color: #1a1a1a;
-            padding: 16px 24px;
-            border-radius: 16px;
+            padding: 18px 22px;
+            border-radius: 18px;
             z-index: 3000;
-            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.18);
-            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 16px 45px rgba(15, 23, 42, 0.22);
+            border: 1px solid rgba(148, 163, 184, 0.45);
             display: flex;
             align-items: center;
             gap: 16px;
-            min-width: 300px;
-            max-width: 90%;
+            width: 280px;
             transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
             pointer-events: none;
         }
 
         .turn-instruction-bar.active {
-            transform: translateX(-50%) translateY(0);
+            transform: translateY(0);
             pointer-events: auto;
         }
 
@@ -990,21 +1188,23 @@
 
         .nav-hud {
             position: fixed;
-            bottom: 30px;
+            bottom: 26px;
             left: 50%;
             transform: translateX(-50%) translateY(150%);
-            background: rgba(255, 255, 255, 0.97);
+            background: white;
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             color: #111827;
-            padding: 16px 24px;
-            border-radius: 24px;
+            padding: 12px 18px 10px 18px;
+            border-radius: 16px;
             z-index: 3000;
-            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.18);
-            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e0e0e0;
             display: flex;
-            align-items: center;
-            gap: 24px;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 320px;
+            max-width: 420px;
             transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
             pointer-events: none;
         }
@@ -1016,14 +1216,15 @@
 
         .hud-metrics {
             display: flex;
-            gap: 24px;
             align-items: center;
+            justify-content: space-between;
+            gap: 18px;
         }
 
         .hud-metric-item {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
             gap: 2px;
         }
 
@@ -1036,11 +1237,11 @@
         }
 
         .hud-value {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 800;
             color: #111827;
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.4px;
         }
         .dark-mode .hud-label {
             color: #9ca3af;
@@ -1049,27 +1250,394 @@
             color: #f9fafb;
         }
 
+        .nav-progress-track {
+            position: relative;
+            height: 6px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            overflow: hidden;
+        }
+
+        .nav-progress-fill {
+            position: absolute;
+            inset: 0;
+            width: 55%;
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .nav-progress-marker {
+            position: absolute;
+            top: 50%;
+            left: 55%;
+            transform: translate(-50%, -50%);
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.4);
+        }
+
+        .nav-hud-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 2px;
+        }
+
+        .nav-hud-sub {
+            font-size: 12px;
+            font-weight: 600;
+            color: #047857;
+        }
+
         .nav-control-btn {
-            padding: 10px 20px;
-            background: #ffecec;
-            color: #d32f2f;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 13px;
+            padding: 8px 16px;
+            background: #f3f4f6;
+            color: #111827;
+            border: 1px solid #e5e7eb;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.16s ease;
             white-space: nowrap;
-            margin-left: auto;
         }
 
         .nav-control-btn:hover {
-            background: #ffd1d1;
+            background: #e5e7eb;
             transform: translateY(-1px);
         }
 
         .nav-control-btn:active {
             transform: translateY(1px);
+        }
+
+        .nav-left-stack {
+            position: fixed;
+            top: 112px;
+            left: 20px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 3000;
+        }
+
+        .nav-mode .nav-left-stack {
+            display: flex;
+        }
+
+        .nav-card {
+            background: white;
+            border-radius: 16px;
+            padding: 12px 14px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e0e0e0;
+        }
+
+        .dark-mode .nav-card {
+            background: #020617;
+            border-color: #1f2937;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85);
+        }
+
+        .nav-media-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 280px;
+        }
+
+        .nav-media-cover {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: #e5e7eb;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-media-glyph {
+            width: 22px;
+            height: 22px;
+            border-radius: 8px;
+            background: #111827;
+            color: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .nav-media-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .nav-media-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .nav-media-artist {
+            font-size: 11px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .nav-media-close {
+            margin-left: auto;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        .dark-mode .nav-media-cover {
+            background: #020617;
+        }
+
+        .dark-mode .nav-media-title {
+            color: #e5e7eb;
+        }
+
+        .dark-mode .nav-media-artist {
+            color: #9ca3af;
+        }
+
+        .dark-mode .nav-media-close {
+            color: #6b7280;
+        }
+
+        .nav-energy-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 280px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-energy-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-energy-icon {
+            position: relative;
+            width: 32px;
+            height: 20px;
+            border-radius: 6px;
+            background: #ecfdf5;
+            border: 2px solid #22c55e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-energy-icon::before {
+            content: '';
+            position: absolute;
+            left: 4px;
+            right: 6px;
+            top: 4px;
+            bottom: 4px;
+            border-radius: 4px;
+            background: #22c55e;
+        }
+
+        .nav-energy-icon::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            width: 4px;
+            height: 10px;
+            border-radius: 2px;
+            background: #22c55e;
+            transform: translateY(-50%);
+        }
+
+        .nav-energy-icon span {
+            position: relative;
+            font-size: 0;
+        }
+
+        .nav-right-stack {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 3000;
+        }
+
+        .nav-mode .nav-right-stack {
+            display: flex;
+        }
+
+        .nav-ctrl-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .dark-mode .nav-ctrl-btn {
+            border-color: #1f2937;
+            background: #020617;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+            color: #e5e7eb;
+        }
+
+        .nav-energy-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .nav-energy-value {
+            font-size: 15px;
+            font-weight: 800;
+            color: #047857;
+        }
+
+        .nav-energy-label {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .nav-energy-more {
+            font-size: 18px;
+            color: #9ca3af;
+        }
+
+        .dark-mode .nav-energy-card {
+            background: #020617;
+            border-color: #1f2937;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85);
+        }
+
+        .dark-mode .nav-energy-icon {
+            background: rgba(21, 128, 61, 0.25);
+            border-color: #22c55e;
+        }
+
+        .dark-mode .nav-energy-icon::before {
+            background: #22c55e;
+        }
+
+        .dark-mode .nav-energy-icon::after {
+            background: #22c55e;
+        }
+
+        .dark-mode .nav-energy-value {
+            color: #bbf7d0;
+        }
+
+        .dark-mode .nav-energy-label {
+            color: #9ca3af;
+        }
+
+        .dark-mode .nav-energy-more {
+            color: #4b5563;
+        }
+
+        .nav-speed-hud {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 3000;
+        }
+
+        .nav-mode .nav-speed-hud {
+            display: flex;
+        }
+
+        @media (max-width: 768px) {
+            .nav-speed-hud {
+                top: 50%;
+                left: 10px;
+                right: auto;
+                transform: translateY(-50%);
+                flex-direction: column;
+            }
+        }
+
+        .nav-speed-pill {
+            border-radius: 16px;
+            padding: 8px 10px;
+            min-width: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+            border: 1px solid #e0e0e0;
+        }
+
+        .nav-speed-current {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .nav-speed-limit {
+            background: white;
+            color: #111827;
+        }
+
+        .nav-speed-value {
+            font-size: 18px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .nav-speed-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 2px;
+        }
+
+        .dark-mode .nav-speed-pill {
+            border-color: #1f2937;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
+        }
+
+        .dark-mode .nav-speed-current {
+            background: rgba(22, 163, 74, 0.16);
+            color: #bbf7d0;
+        }
+
+        .dark-mode .nav-speed-limit {
+            background: rgba(15, 23, 42, 0.96);
+            color: #e5e7eb;
+        }
+
+        .dark-mode .nav-speed-label {
+            color: #9ca3af;
         }
 
         .map-legend {
@@ -1087,6 +1655,20 @@
             overflow-y: auto;
             transition: all 0.3s ease;
         }
+
+        /* Desktop/webview: place filters toggle above legend on right with clear gap */
+        @media (min-width: 769px) {
+            #filtersMiniToggle {
+                position: fixed !important;
+                right: 20px;
+                bottom: 140px;
+                left: auto;
+                top: auto;
+                width: 36px;
+                height: 36px;
+                z-index: 1002;
+            }
+        }
         .panel-toggle {
             border-radius: 10px;
             border: none;
@@ -1097,6 +1679,12 @@
             justify-content: center;
             font-size: 16px;
             cursor: pointer;
+        }
+
+        .dark-mode .panel-toggle {
+            background: #020617;
+            color: #e5e7eb;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.85);
         }
         .filter-panel {
             position: fixed;
@@ -1129,6 +1717,14 @@
             display: flex;
             align-items: center;
             gap: 6px;
+        }
+
+        .dark-mode .legend-title {
+            color: #e5e7eb;
+        }
+
+        .dark-mode .legend-item {
+            color: #9ca3af;
         }
 
         .legend-item {
@@ -1361,6 +1957,21 @@
             color: white;
         }
 
+        .view-toggle-container {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            background: white;
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid #d0d0d0;
+        }
+
+        .dark-mode .view-toggle-container {
+            background: #020617;
+            border-color: #1f2937;
+        }
+
         .leaflet-control-attribution {
             display: none !important;
         }
@@ -1393,8 +2004,18 @@
 
             .control-bar {
                 top: 10px;
-                right: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                right: auto;
                 gap: 6px;
+            }
+
+            .control-title {
+                max-width: 85vw;
+                font-size: 11px;
+                padding: 4px 10px;
+                text-align: center;
+                white-space: nowrap;
             }
 
             .control-buttons {
@@ -1407,12 +2028,13 @@
             }
 
             #savedAddressPanel {
-                top: auto;
-                bottom: 80px;
-                right: 10px;
-                left: 10px;
+                /* On mobile, open the saved addresses panel at the top, centered */
+                top: 60px;
+                bottom: auto;
+                left: 4%;
+                right: 4%;
                 width: auto;
-                max-height: 220px;
+                max-height: 50vh;
             }
 
             #map {
@@ -1443,28 +2065,34 @@
 
             .routing-panel {
                 width: 92%;
-                max-width: 320px;
-                bottom: 8px;
-                right: 4%;
-                left: 4%;
-                max-height: 42vh;
+                max-width: 340px;
+                top: 50%;
+                left: 50%;
+                bottom: auto;
+                right: auto;
+                max-height: 70vh;
+                transform: translate(-50%, 120%);
                 overflow-y: auto;
+            }
+
+            .routing-panel.active {
+                transform: translate(-50%, -50%);
             }
 
             .station-detail-panel {
                 width: 94%;
-                max-width: 340px;
-                right: 3%;
-                left: 3%;
-                top: auto;
-                bottom: 72px;
-                max-height: 60vh;
-                transform: translateY(120%);
+                max-width: 360px;
+                top: 50%;
+                left: 50%;
+                right: auto;
+                bottom: auto;
+                max-height: 70vh;
+                transform: translate(-50%, 120%);
                 overflow-y: auto;
             }
 
             .station-detail-panel.active {
-                transform: translateY(0);
+                transform: translate(-50%, -50%);
             }
 
             .map-legend {
@@ -1504,9 +2132,15 @@
 
             .turn-instruction-bar {
                 top: 10px;
+                left: 50%;
+                transform: translate(-50%, -150%);
                 padding: 12px 16px;
                 gap: 12px;
                 max-width: 95%;
+            }
+
+            .turn-instruction-bar.active {
+                transform: translate(-50%, 0);
             }
 
             .turn-instruction-distance {
@@ -1519,9 +2153,11 @@
             }
 
             .nav-hud {
-                bottom: 20px;
+                bottom: 24px;
                 padding: 12px 16px;
                 gap: 16px;
+                max-width: 360px;
+                min-width: 300px;
             }
 
             .hud-value {
@@ -1532,19 +2168,24 @@
                 padding: 8px 14px;
             }
 
+            .nav-ctrl-btn {
+                width: 40px;
+                height: 40px;
+            }
+
             .panel-toggle {
                 display: flex;
-                width: 32px;
+                width: 36px;
                 height: 32px;
-                left: 10px;
-                top: 70px;
+                left: 8px;
+                top: 12px;
                 bottom: auto;
                 transform: none;
             }
 
             .panel-toggle-filters {
-                left: 10px;
-                top: 70px;
+                left: 8px;
+                top: 12px;
                 right: auto;
                 bottom: auto;
             }
@@ -1777,10 +2418,10 @@
         .user-pulse-marker {
             width: 24px;
             height: 24px;
-            background: radial-gradient(circle at 30% 30%, #5c7cff, #3559E8);
+            background: radial-gradient(circle at 30% 30%, #ffd27a, #FFAE42);
             border: 3px solid #ffffff;
             border-radius: 50%;
-            box-shadow: 0 4px 12px rgba(53, 89, 232, 0.4);
+            box-shadow: 0 4px 12px rgba(255, 174, 66, 0.5);
             position: relative;
             z-index: 1000;
         }
@@ -1792,7 +2433,7 @@
             left: -12px;
             right: -12px;
             bottom: -12px;
-            background: rgba(53, 89, 232, 0.2);
+            background: rgba(255, 174, 66, 0.25);
             border-radius: 50%;
             z-index: -1;
             animation: softPulse 2s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
@@ -1965,11 +2606,11 @@
    <div id="sidePanel" class="side-panel">
     <div class="panel-section">
      <div style="margin-bottom: 4px;">
-      <div style="font-size: 18px; font-weight: 900; color: #1a1a1a;">
+      <div class="side-panel-title">
        ⚡ EV Stations
       </div>
      </div>
-     <div style="font-size: 12px; color: #999; font-weight: 500;">
+     <div class="side-panel-subtitle">
       Filter &amp; explore charging stations
      </div>
      <div class="search-container"><input id="searchInput" type="text" placeholder="Search stations...">
@@ -2004,7 +2645,7 @@
        <div class="section-title">🗺️ States</div>
        <button id="clearStateSelection" class="view-btn" style="display: none; padding: 6px 12px; color: #dc2626; font-weight: 700; background: rgba(220, 38, 38, 0.08);">Clear</button>
      </div>
-     <div style="display: flex; gap: 6px; margin-bottom: 12px; background: white; padding: 4px; border-radius: 12px; border: 1px solid #d0d0d0;"><button id="viewClustered" class="view-btn active" style="flex: 1; padding: 6px 12px;">Clustered</button> <button id="viewIndividual" class="view-btn" style="flex: 1; padding: 6px 12px;">Individual</button>
+     <div class="view-toggle-container"><button id="viewClustered" class="view-btn active" style="flex: 1; padding: 6px 12px;">Clustered</button> <button id="viewIndividual" class="view-btn" style="flex: 1; padding: 6px 12px;">Individual</button>
      </div>
      <div class="state-summary-grid-container">
       <div id="stateSummary" class="state-summary-grid"></div>
@@ -2029,7 +2670,7 @@
      <div class="routing-stat"><span class="routing-stat-label">Time</span> <span class="routing-stat-value" id="routingTime">--:--</span>
      </div>
      <div class="battery-section">
-      <div class="battery-header"><span>🔋 Battery</span> <span id="batteryRemaining">100%</span>
+                    <div class="battery-header"><span>Battery</span> <span id="batteryRemaining">100%</span>
       </div>
       <div class="battery-bar">
        <div id="batteryFill" style="width: 100%;"></div>
@@ -2039,47 +2680,127 @@
      </div>
     </div>
    </div>
-   <div id="turnInstructionBar" class="turn-instruction-bar">
-    <div class="turn-instruction-icon">
-     ➤
+  <div id="turnInstructionBar" class="turn-instruction-bar">
+   <div class="turn-instruction-icon">
+   </div>
+   <div class="turn-instruction-content">
+    <div class="turn-instruction-distance" id="turnDistanceText">
+     -- km
     </div>
-    <div class="turn-instruction-content">
-     <div class="turn-instruction-distance" id="turnDistanceText">
-      -- km
+    <div class="turn-instruction-text" id="turnInstructionText">
+     Navigation active
+    </div>
+   </div>
+  </div>
+  <div class="nav-left-stack">
+   <div class="nav-card nav-media-card" id="navMediaCard">
+    <div class="nav-media-cover">
+    </div>
+    <div class="nav-media-text">
+     <div class="nav-media-title">
+      Pigments
      </div>
-     <div class="turn-instruction-text" id="turnInstructionText">
-      Navigation active
+     <div class="nav-media-artist">
+      Norabel
+     </div>
+    </div>
+    <button class="nav-media-close" onclick="document.getElementById('navMediaCard').style.display='none'">
+     ✕
+    </button>
+   </div>
+   <div class="nav-energy-card">
+    <div class="nav-energy-main">
+     <div class="nav-energy-icon">
+      ⚡
+     </div>
+     <div class="nav-energy-text">
+      <div class="nav-energy-value" id="navArrivalEnergy">
+       155 mi
+      </div>
+      <div class="nav-energy-label">
+       on arrival
+      </div>
+     </div>
+    </div>
+    <div class="nav-energy-more">
+     ⋮
+    </div>
+   </div>
+  </div>
+  <div id="navHUD" class="nav-hud">
+   <div class="hud-metrics">
+    <div class="hud-metric-item">
+     <div class="hud-label">
+      Distance
+     </div>
+     <div class="hud-value" id="hudDistance">
+      --
+     </div>
+    </div>
+    <div class="hud-metric-item">
+     <div class="hud-label">
+      Duration
+     </div>
+     <div class="hud-value" id="hudTime">
+      --:--
+     </div>
+    </div>
+    <div class="hud-metric-item">
+     <div class="hud-label">
+      Arrival
+     </div>
+     <div class="hud-value" id="hudArrival">
+      --:--
      </div>
     </div>
    </div>
-   <div id="navHUD" class="nav-hud">
-    <div class="hud-metrics">
-     <div class="hud-metric-item">
-      <div class="hud-label">
-       Distance
-      </div>
-      <div class="hud-value" id="hudDistance">
-       --
-      </div>
-     </div>
-     <div class="hud-metric-item">
-      <div class="hud-label">
-       ETA
-      </div>
-      <div class="hud-value" id="hudTime">
-       --:--
-      </div>
-     </div>
-     <div class="hud-metric-item">
-      <div class="hud-label">
-       Speed
-      </div>
-      <div class="hud-value" id="hudSpeed">
-       --
-      </div>
-     </div>
-    </div><button class="nav-control-btn" onclick="endNavigation()">End Navigation</button>
+   <div class="nav-progress-track">
+    <div class="nav-progress-fill"></div>
+    <div class="nav-progress-marker"></div>
    </div>
+   <div class="nav-hud-bottom">
+    <div class="nav-hud-sub" id="hudRemainingLabel">
+     15 min remaining
+    </div><button class="nav-control-btn" onclick="endNavigation()">End navigation</button>
+   </div>
+  </div>
+  <div class="nav-speed-hud">
+   <div class="nav-speed-pill nav-speed-current">
+    <div class="nav-speed-value" id="hudSpeed">
+     --
+    </div>
+    <div class="nav-speed-label">
+     speed
+    </div>
+   </div>
+   <div class="nav-speed-pill nav-speed-limit">
+    <div class="nav-speed-value" id="hudSpeedLimit">
+     30
+    </div>
+    <div class="nav-speed-label">
+     limit
+    </div>
+   </div>
+  </div>
+  <div class="nav-right-stack">
+   <button id="navRecenterBtn" class="nav-ctrl-btn">
+    <svg width="22" height="22" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+     <defs>
+      <linearGradient id="navRecenterGrad" x1="0" y1="0" x2="1" y2="0">
+       <stop offset="0%" stop-color="#ffd27a"/>
+       <stop offset="100%" stop-color="#FFAE42"/>
+      </linearGradient>
+     </defs>
+     <polygon points="16 3 5 28 16 22 27 28" fill="url(#navRecenterGrad)"/>
+    </svg>
+   </button>
+   <button id="navZoomInBtn" class="nav-ctrl-btn">
+    +
+   </button>
+   <button id="navZoomOutBtn" class="nav-ctrl-btn">
+    −
+   </button>
+  </div>
    <div id="stationDetailPanel" class="station-detail-panel">
     <div class="station-detail-header">
      <div class="station-detail-header-content">
@@ -2228,6 +2949,7 @@
    <div id="introOverlay" class="intro-overlay">
     <div class="intro-map-grid"></div>
     <div class="intro-layout">
+     <div class="intro-heading">WebGIS - An Interactive Webmap EV Station Finder MY</div>
      <div class="intro-panel">
       <div class="intro-tag">
        <span>EV CHARGING · MALAYSIA</span>
@@ -2259,6 +2981,39 @@
        </button>
       </div>
      </div>
+     <div class="intro-side">
+      <div class="intro-side-section">
+       <div class="intro-side-section-title">About this webmap</div>
+       <div class="intro-side-section-body">
+        EV Station Finder MY is a personal, non-commercial project built to visualise Malaysia’s EV charging network in a single interactive experience. It focuses on helping drivers and enthusiasts explore coverage by state, understand charger density, and experiment with turn-by-turn navigation around real-world locations.
+       </div>
+      </div>
+      <div class="intro-side-section">
+       <div class="intro-side-section-title">Data and sources</div>
+       <div class="intro-side-section-body">
+        Charging station information is based on open, community-maintained EV data (for example Open Charge Map and similar public datasets). The data used here is open source and does not rely on any illegal or unauthorised sources, and there is no guarantee of completeness or absolute accuracy.
+       </div>
+      </div>
+      <div class="intro-side-section">
+       <div class="intro-side-section-title">Feedback</div>
+       <div class="intro-side-section-body">
+        Help improve this webmap by sharing missing stations, incorrect details, or ideas for new features.
+       </div>
+       <textarea id="introFeedback" class="intro-feedback-input" placeholder="Type your feedback here…"></textarea>
+       <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+        <button id="introFeedbackSubmit" class="intro-feedback-submit">Submit feedback</button>
+        <span id="introFeedbackStatus" class="intro-feedback-status"></span>
+       </div>
+      </div>
+      <div class="intro-side-section">
+       <div class="intro-side-section-title">Contact</div>
+       <div class="intro-side-section-body">
+        <div>This is a personal project created for learning and future improvements to EV tools.</div>
+        <div class="intro-contact-line">Email: fariz.farhan95@gmail.com</div>
+        <div class="intro-contact-line">Contact: +60177776506</div>
+       </div>
+      </div>
+     </div>
     </div>
    </div>
   </div>
@@ -2284,6 +3039,8 @@
         let currentStepIndex = 0;
         let geolocationWatchId = null;
         let navigationDestination = null;
+        let routeTotalDistanceKm = 0;
+        let routeTotalDurationMin = 0;
         let baseLayer = null;
         let isDarkMode = false;
         let wasDarkBeforeNav = false;
@@ -2614,6 +3371,9 @@
                     }
                 };
 
+                // On mobile, start with the side panel minimized when the map first loads
+                autoHidePanels();
+
                 map.on('click', autoHidePanels);
                 map.on('movestart', autoHidePanels);
             }).catch(error => {
@@ -2726,6 +3486,14 @@
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
             return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+        }
+
+        function latLngToTile(lat, lng, zoom) {
+            const rad = lat * Math.PI / 180;
+            const n = Math.pow(2, zoom);
+            const x = Math.floor((lng + 180) / 360 * n);
+            const y = Math.floor((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2 * n);
+            return { x, y };
         }
 
         function renderStations(filterState = null, adjustView = true) {
@@ -3037,13 +3805,29 @@
             }
             const nearest = sourceStations
                 .map(s => ({ ...s, dist: getDistance(userLocation.lat, userLocation.lng, s.geometry.coordinates[1], s.geometry.coordinates[0]) }))
-                .sort((a, b) => a.dist - b.dist).slice(0, 3);
+                    .sort((a, b) => a.dist - b.dist).slice(0, 3);
             
             list.innerHTML = nearest.map(s => `
-                <div class="nearest-item" onclick="getDirections(${s.geometry.coordinates[1]}, ${s.geometry.coordinates[0]}, '${s.properties.name.replace(/'/g, "\\'")}')">
+                <div class="nearest-item" onclick="onNearestItemClick(${s.geometry.coordinates[1]}, ${s.geometry.coordinates[0]}, '${s.properties.name.replace(/'/g, "\\'")}')">
                     <div class="nearest-name">${s.properties.name}</div>
                     <div class="nearest-distance">📍 ${s.dist.toFixed(1)} km</div>
                 </div>`).join('');
+        }
+
+        function onNearestItemClick(lat, lng, name) {
+            if (window.innerWidth <= 768) {
+                const station = allStations.find(s => {
+                    const props = s.properties || {};
+                    return Math.abs(s.geometry.coordinates[1] - lat) < 1e-6 &&
+                           Math.abs(s.geometry.coordinates[0] - lng) < 1e-6 &&
+                           props.name === name;
+                });
+                if (station) {
+                    showStationPopup(station);
+                    return;
+                }
+            }
+            getDirections(lat, lng, name);
         }
 
         let sidePanelTouchStartY = null;
@@ -3194,6 +3978,33 @@
                 };
             }
 
+            const navRecenterBtn = document.getElementById('navRecenterBtn');
+            const navZoomInBtn = document.getElementById('navZoomInBtn');
+            const navZoomOutBtn = document.getElementById('navZoomOutBtn');
+
+            if (navRecenterBtn) {
+                navRecenterBtn.onclick = () => {
+                    if (userLocation && map) {
+                        map.flyTo([userLocation.lat, userLocation.lng], map.getZoom(), {
+                            animate: true,
+                            duration: 1.0
+                        });
+                    }
+                };
+            }
+
+            if (navZoomInBtn) {
+                navZoomInBtn.onclick = () => {
+                    if (map) map.zoomIn();
+                };
+            }
+
+            if (navZoomOutBtn) {
+                navZoomOutBtn.onclick = () => {
+                    if (map) map.zoomOut();
+                };
+            }
+
             setupSidePanelDrag();
 
             const nightBtn = document.getElementById('nightModeBtn');
@@ -3218,6 +4029,9 @@
         function setupIntroOverlay() {
             const introOverlay = document.getElementById('introOverlay');
             const introStartBtn = document.getElementById('introStartBtn');
+            const feedbackInput = document.getElementById('introFeedback');
+            const feedbackSubmit = document.getElementById('introFeedbackSubmit');
+            const feedbackStatus = document.getElementById('introFeedbackStatus');
             if (introOverlay && introStartBtn) {
                 introStartBtn.onclick = () => {
                     introOverlay.classList.add('intro-hidden');
@@ -3225,6 +4039,22 @@
                     setTimeout(() => {
                         introOverlay.style.display = 'none';
                     }, 600);
+                };
+            }
+
+            if (feedbackInput && feedbackSubmit && feedbackStatus) {
+                feedbackSubmit.onclick = () => {
+                    const value = feedbackInput.value.trim();
+                    if (!value) {
+                        showToast('✏️ Please type some feedback before submitting');
+                        return;
+                    }
+                    console.log('Intro feedback:', value);
+                    feedbackInput.value = '';
+                    feedbackStatus.textContent = 'Thank you for your feedback!';
+                    setTimeout(() => {
+                        feedbackStatus.textContent = '';
+                    }, 3000);
                 };
             }
         }
@@ -3304,6 +4134,20 @@
             document.getElementById('routingDistance').textContent = 'Calculating...';
             document.getElementById('routingTime').textContent = '--:--';
 
+            const mediaCoverEl = document.querySelector('#navMediaCard .nav-media-cover');
+            const mediaTitleEl = document.querySelector('#navMediaCard .nav-media-title');
+            const mediaSubtitleEl = document.querySelector('#navMediaCard .nav-media-artist');
+            if (mediaTitleEl) mediaTitleEl.textContent = name || 'Destination';
+            if (mediaSubtitleEl) mediaSubtitleEl.textContent = 'EV charging station';
+            if (mediaCoverEl) {
+                const zoom = 16;
+                const tile = latLngToTile(lat, lng, zoom);
+                const imgUrl = `https://a.basemaps.cartocdn.com/light_all/${zoom}/${tile.x}/${tile.y}.png`;
+                mediaCoverEl.style.backgroundImage = `url('${imgUrl}')`;
+                mediaCoverEl.style.backgroundSize = 'cover';
+                mediaCoverEl.style.backgroundPosition = 'center';
+            }
+
             if (routePolyline) map.removeLayer(routePolyline);
 
             // 1. Try OSRM Routing API
@@ -3330,13 +4174,39 @@
                     }).addTo(map);
                     
                     // Update stats
-                    const distKm = (route.distance / 1000).toFixed(1);
-                    const durMin = Math.round(route.duration / 60);
-                    const hrs = Math.floor(durMin / 60);
-                    const mins = durMin % 60;
+                    routeTotalDistanceKm = route.distance / 1000;
+                    routeTotalDurationMin = Math.round(route.duration / 60);
+                    const distKm = routeTotalDistanceKm.toFixed(1);
+                    const hrs = Math.floor(routeTotalDurationMin / 60);
+                    const mins = routeTotalDurationMin % 60;
                     
                     document.getElementById('routingDistance').textContent = `${distKm} km`;
                     document.getElementById('routingTime').textContent = hrs > 0 ? `${hrs}h ${mins}m` : `${mins} min`;
+
+                    // Prime HUD metrics
+                    const hudDistanceEl = document.getElementById('hudDistance');
+                    const hudTimeEl = document.getElementById('hudTime');
+                    const hudArrivalEl = document.getElementById('hudArrival');
+                    const hudRemainingLabelEl = document.getElementById('hudRemainingLabel');
+                    const navArrivalEnergyEl = document.getElementById('navArrivalEnergy');
+
+                    if (hudDistanceEl) hudDistanceEl.textContent = `${distKm} km`;
+                    if (hudTimeEl) hudTimeEl.textContent = hrs > 0 ? `${hrs} hr ${mins} min` : `${mins} min`;
+
+                    if (hudArrivalEl) {
+                        const arrivalDate = new Date(Date.now() + routeTotalDurationMin * 60000);
+                        const hours = arrivalDate.getHours().toString().padStart(2, '0');
+                        const minutes = arrivalDate.getMinutes().toString().padStart(2, '0');
+                        hudArrivalEl.textContent = `${hours}:${minutes}`;
+                    }
+
+                    if (hudRemainingLabelEl) {
+                        hudRemainingLabelEl.textContent = routeTotalDurationMin > 0 ? `~${routeTotalDurationMin} min remaining` : '';
+                    }
+
+                    if (navArrivalEnergyEl) {
+                        navArrivalEnergyEl.textContent = `${distKm} km`;
+                    }
                     
                     map.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
                 } else {
@@ -3351,6 +4221,8 @@
                 
                 // Calculate straight line distance
                 const dist = getDistance(userLocation.lat, userLocation.lng, lat, lng);
+                routeTotalDistanceKm = dist;
+                routeTotalDurationMin = 0;
                 document.getElementById('routingDistance').textContent = `${dist.toFixed(1)} km (Linear)`;
                 document.getElementById('routingTime').textContent = '--';
                 
@@ -3370,6 +4242,10 @@
             document.getElementById('turnInstructionBar').classList.add('active');
             document.getElementById('navHUD').classList.add('active');
 
+            if (userLocation) {
+                updateTurnInstruction(userLocation.lat, userLocation.lng);
+            }
+
             // Hide UI panels during navigation
             document.getElementById('sidePanel').style.display = 'none';
             document.getElementById('filtersPanel').style.display = 'none';
@@ -3382,6 +4258,18 @@
                 filtersMiniToggle.style.display = 'none';
             }
 
+            // On mobile, briefly show the left stack cards then auto-hide after 5s
+            if (window.innerWidth <= 768) {
+                const leftStack = document.querySelector('.nav-left-stack');
+                if (leftStack) {
+                    leftStack.style.display = '';
+                    setTimeout(() => {
+                        if (!navigationActive) return;
+                        leftStack.style.display = 'none';
+                    }, 5000);
+                }
+            }
+
             // Apply 3D Tilt
             document.getElementById('map').classList.add('map-tilted');
             
@@ -3391,15 +4279,15 @@
                 if (map) map.invalidateSize();
             }, 350);
 
-            // Switch to nav marker (blue navigation arrow)
+            // Switch to nav marker (navigation arrow)
             if (userMarker) {
                 const navIconSvg = `
                 <div class="user-nav-marker" style="width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; overflow: visible;">
                     <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 8px 12px rgba(0,0,0,0.35));">
                         <defs>
                             <linearGradient id="navArrowGrad" x1="0" y1="0" x2="1" y2="0">
-                                <stop offset="0%" stop-color="#60a5fa"/>
-                                <stop offset="100%" stop-color="#1d4ed8"/>
+                                <stop offset="0%" stop-color="#ffd27a"/>
+                                <stop offset="100%" stop-color="#FFAE42"/>
                             </linearGradient>
                         </defs>
                         <polygon points="32 6 10 58 32 48 54 58" fill="url(#navArrowGrad)"/>
@@ -3465,6 +4353,14 @@
                 return;
             }
 
+            // Approximate speed limit for the current road segment using step distance/duration
+            const hudSpeedLimitEl = document.getElementById('hudSpeedLimit');
+            if (hudSpeedLimitEl && typeof nextStep.distance === 'number' && typeof nextStep.duration === 'number' && nextStep.duration > 0) {
+                const inferredSpeed = (nextStep.distance / nextStep.duration) * 3.6; // m/s -> km/h
+                const clampedSpeed = Math.max(20, Math.min(120, inferredSpeed));
+                hudSpeedLimitEl.textContent = clampedSpeed.toFixed(0);
+            }
+
             // Update UI
             const modifier = nextStep.maneuver.modifier;
             const type = nextStep.maneuver.type;
@@ -3524,8 +4420,8 @@
                     // 1. Rotate Map Pane (Opposite to heading)
                     const mapEl = document.getElementById('map');
                     if (mapEl.classList.contains('map-tilted')) {
-                        // Apply smoother perspective + tilt + rotation with gentler scaling
-                        mapEl.style.transform = `perspective(900px) rotateX(50deg) scale(1.15) rotateZ(-${heading}deg)`;
+                        // Apply extra strong scale so rotated/tilted map fully covers viewport on webview and mobile
+                        mapEl.style.transform = `perspective(900px) rotateX(50deg) scale(2) rotateZ(-${heading}deg)`;
                     }
 
                     // 2. Rotate Marker (Match heading to stay "Up" relative to screen)
@@ -3538,12 +4434,43 @@
                     }
                 }
 
-                // Calculate distance
+                // Calculate distance to destination
                 const dist = getDistance(userLocation.lat, userLocation.lng, navigationDestination.lat, navigationDestination.lng);
                 
-                // Update HUD
+                // Update HUD distance
                 const distText = dist < 1 ? `${(dist * 1000).toFixed(0)} m` : `${dist.toFixed(1)} km`;
-                document.getElementById('hudDistance').textContent = distText;
+                const hudDistanceEl = document.getElementById('hudDistance');
+                if (hudDistanceEl) hudDistanceEl.textContent = distText;
+
+                // Update energy card distance indicator
+                const navArrivalEnergyEl = document.getElementById('navArrivalEnergy');
+                if (navArrivalEnergyEl) navArrivalEnergyEl.textContent = distText;
+
+                // Update progress bar and remaining time if we know total route length
+                if (routeTotalDistanceKm && routeTotalDistanceKm > 0) {
+                    const remainingRatio = Math.min(1, dist / routeTotalDistanceKm);
+                    const progress = 1 - remainingRatio;
+                    const progressPct = Math.max(0, Math.min(progress * 100, 100));
+
+                    const progressFill = document.querySelector('.nav-progress-fill');
+                    const progressMarker = document.querySelector('.nav-progress-marker');
+                    if (progressFill) progressFill.style.width = `${Math.max(progressPct, 4)}%`;
+                    if (progressMarker) progressMarker.style.left = `${Math.min(Math.max(progressPct, 4), 96)}%`;
+
+                    const remainingMinutes = routeTotalDurationMin > 0 ? Math.max(1, Math.round(routeTotalDurationMin * remainingRatio)) : 0;
+                    const hudRemainingLabelEl = document.getElementById('hudRemainingLabel');
+                    if (hudRemainingLabelEl && remainingMinutes > 0) {
+                        hudRemainingLabelEl.textContent = `~${remainingMinutes} min remaining`;
+                    }
+
+                    const hudArrivalEl = document.getElementById('hudArrival');
+                    if (hudArrivalEl && remainingMinutes > 0) {
+                        const arrivalDate = new Date(Date.now() + remainingMinutes * 60000);
+                        const hours = arrivalDate.getHours().toString().padStart(2, '0');
+                        const minutes = arrivalDate.getMinutes().toString().padStart(2, '0');
+                        hudArrivalEl.textContent = `${hours}:${minutes}`;
+                    }
+                }
                 
                 // Update Turn Instructions
                 updateTurnInstruction(lat, lng);
