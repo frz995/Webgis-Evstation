@@ -3097,6 +3097,8 @@
         let baseLayer = null;
         let isDarkMode = false;
         let wasDarkBeforeNav = false;
+        let lastHeading = null;
+        let smoothedHeading = 0;
         const MALAYSIA_STATES = [
             'Johor','Kedah','Kelantan','Melaka','Negeri Sembilan','Pahang','Perak','Perlis','Pulau Pinang','Sabah','Sarawak','Selangor','Terengganu','Kuala Lumpur'
         ];
@@ -4468,7 +4470,23 @@
                     userMarker.setLatLng([lat, lng]);
                     
                     // Rotate Map & Marker (Heading Up Mode)
-                    const heading = (pos.coords.heading !== null && !isNaN(pos.coords.heading)) ? pos.coords.heading : 0;
+                    let heading = (pos.coords.heading !== null && !isNaN(pos.coords.heading)) ? pos.coords.heading : smoothedHeading;
+
+                    // Smooth heading to avoid jitter: exponential moving average + clamp per update
+                    if (lastHeading === null) {
+                        lastHeading = heading;
+                        smoothedHeading = heading;
+                    } else {
+                        let rawDiff = heading - lastHeading;
+                        rawDiff = ((rawDiff + 540) % 360) - 180;
+                        const maxStep = 10;
+                        const clampedDiff = Math.max(-maxStep, Math.min(maxStep, rawDiff));
+                        const limitedHeading = lastHeading + clampedDiff;
+                        const alpha = 0.2;
+                        smoothedHeading = (1 - alpha) * smoothedHeading + alpha * limitedHeading;
+                        lastHeading = limitedHeading;
+                        heading = smoothedHeading;
+                    }
                     
                     // 1. Rotate Map Pane (Opposite to heading)
                     const mapEl = document.getElementById('map');
