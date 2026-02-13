@@ -56,13 +56,18 @@
         }
 
         .nav-gl-marker {
-            width: 24px;
-            height: 24px;
-            border-radius: 999px;
-            background: #ef4444;
-            border: 2px solid #ffffff;
-            box-shadow:
-                0 10px 24px rgba(0, 0, 0, 0.55);
+            width: 32px;
+            height: 32px;
+            background: #ef4444; /* Tesla-style Red */
+            /* Arrow with notch shape: Matches the SVG icon structure */
+            clip-path: polygon(50% 0%, 0% 100%, 50% 80%, 100% 100%);
+            /* Very strong white outline simulated with stacked drop-shadows */
+            filter: 
+                drop-shadow(0 0 2px white) 
+                drop-shadow(0 0 2px white) 
+                drop-shadow(0 0 2px white)
+                drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            z-index: 10;
         }
 
         .nav-gl-dest-marker {
@@ -1374,6 +1379,12 @@
             margin-top: 2px;
         }
 
+        .nav-hud-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .nav-hud-sub {
             font-size: 12px;
             font-weight: 600;
@@ -2581,6 +2592,11 @@
             filter: drop-shadow(0 0 10px rgba(0, 127, 255, 0.5));
         }
 
+        .active-layer {
+            background: #10b981 !important;
+            color: white !important;
+        }
+
         .saved-address-panel {
             position: fixed;
             top: 60px;
@@ -2852,7 +2868,11 @@
    <div class="nav-hud-bottom">
     <div class="nav-hud-sub" id="hudRemainingLabel">
      15 min remaining
-    </div><button class="nav-control-btn" onclick="endNavigation()">End navigation</button>
+    </div>
+    <div class="nav-hud-actions">
+        <button class="nav-control-btn" onclick="toggleNavOverview()">Overview</button>
+        <button class="nav-control-btn" onclick="endNavigation()">End navigation</button>
+    </div>
    </div>
   </div>
   <div class="nav-speed-hud">
@@ -2874,15 +2894,14 @@
    </div>
   </div>
   <div class="nav-right-stack">
+   <button id="navLayerBtn" class="nav-ctrl-btn" onclick="toggleNavLayer()" style="margin-bottom: 8px;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+    </svg>
+   </button>
    <button id="navRecenterBtn" class="nav-ctrl-btn">
-    <svg width="22" height="22" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-     <defs>
-      <linearGradient id="navRecenterGrad" x1="0" y1="0" x2="1" y2="0">
-       <stop offset="0%" stop-color="#ffd27a"/>
-       <stop offset="100%" stop-color="#FFAE42"/>
-      </linearGradient>
-     </defs>
-     <polygon points="16 3 5 28 16 22 27 28" fill="url(#navRecenterGrad)"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+     <polygon points="12 2 2 22 12 18 22 22 12 2" fill="#f8fafc" stroke="#64748b"/>
     </svg>
    </button>
    <button id="navZoomInBtn" class="nav-ctrl-btn">
@@ -3505,11 +3524,11 @@
                 style: NAV_GL_STYLE_LIGHT,
                 center,
                 zoom: 17,
-                pitch: 45,
+                pitch: 60,
                 bearing: 0,
                 attributionControl: true
             });
-            navGlMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+            // Removed default NavigationControl as per user request
             navGlMap.on('load', () => {
                 if (!navGlMap.getLayer('3d-buildings')) {
                     const style = navGlMap.getStyle();
@@ -3576,7 +3595,8 @@
                         },
                         paint: {
                             'line-color': '#007FFF',
-                            'line-width': 8
+                            'line-width': 8,
+                            'line-blur': 1
                         }
                     });
                 }
@@ -3584,7 +3604,7 @@
                 if (!navGlMarker) {
                     const el = document.createElement('div');
                     el.className = 'nav-gl-marker';
-                    navGlMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
+                    navGlMarker = new maplibregl.Marker({ element: el, anchor: 'center', rotationAlignment: 'map' })
                         .setLngLat(center)
                         .addTo(navGlMap);
                 }
@@ -3725,6 +3745,7 @@
                         access: station.AddressInfo?.AccessComments ?? '',
                         statusTitle: station.StatusType?.Title ?? '-',
                         isOperational: station.StatusType?.IsOperational ?? false,
+                        image: station.MediaItems?.[0]?.ItemURL || station.MediaItems?.[0]?.ItemThumbnailURL || null,
                         connections: (station.Connections || []).map(c => ({
                             type: normalizeConnectionType(c),
                             power: c?.PowerKW ?? null,
@@ -3935,7 +3956,8 @@
             selectedStation = {
                 lat: station.geometry.coordinates[1],
                 lng: station.geometry.coordinates[0],
-                name: station.properties.name
+                name: station.properties.name,
+                image: station.properties.image
             };
 
             const props = station.properties;
@@ -4461,9 +4483,15 @@
             if (mediaTitleEl) mediaTitleEl.textContent = name || 'Destination';
             if (mediaSubtitleEl) mediaSubtitleEl.textContent = 'EV charging station';
             if (mediaCoverEl) {
-                const zoom = 16;
-                const tile = latLngToTile(lat, lng, zoom);
-                const imgUrl = `https://a.basemaps.cartocdn.com/light_all/${zoom}/${tile.x}/${tile.y}.png`;
+                let imgUrl;
+                if (selectedStation && selectedStation.image) {
+                    imgUrl = selectedStation.image;
+                } else {
+                    // Fallback to Satellite Tile (ArcGIS) for "real picture" look
+                    const zoom = 17;
+                    const tile = latLngToTile(lat, lng, zoom);
+                    imgUrl = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${zoom}/${tile.y}/${tile.x}`;
+                }
                 mediaCoverEl.style.backgroundImage = `url('${imgUrl}')`;
                 mediaCoverEl.style.backgroundSize = 'cover';
                 mediaCoverEl.style.backgroundPosition = 'center';
@@ -4645,16 +4673,14 @@
             ensureNavGlMap();
             if (navGlMap && userLocation) {
                 const targetCenter = [userLocation.lng, userLocation.lat];
-                const currentZoom = navGlMap.getZoom();
-                const zoom = isNaN(currentZoom) ? 18 : Math.max(currentZoom, 15);
-                navGlMap.easeTo({
+                // Fix Initial POV Start: jumpTo immediately to lock POV
+                navGlMap.jumpTo({
                     center: targetCenter,
-                    zoom,
-                    pitch: 45,
-                    bearing: 0,
-                    duration: 800,
-                    essential: true
+                    zoom: 18,
+                    pitch: 65,
+                    bearing: smoothedHeading || 0
                 });
+                
                 if (navGlMap.getLayer('3d-buildings')) {
                     navGlMap.setLayoutProperty('3d-buildings', 'visibility', 'visible');
                 }
@@ -4723,25 +4749,36 @@
         }
 
         function getTurnIcon(modifier) {
-            const svgBase = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width: 28px; height: 28px;">';
-            
+            // Tesla-style: Bold, rounded, white stroke (via currentColor)
+            const style = 'fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"';
+            const size = 'style="width: 32px; height: 32px;"';
+            const svgStart = `<svg viewBox="0 0 24 24" ${style} ${size}>`;
+
             if (modifier === 'arrive') {
-                return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 28px; height: 28px;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>';
+                return `<svg viewBox="0 0 24 24" fill="currentColor" style="width: 32px; height: 32px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`;
             }
             
+            let path;
             if (modifier === 'uturn') {
-                return `${svgBase}<path d="M7 19v-6a4 4 0 0 1 4-4h0a4 4 0 0 1 4 4v2m-4-2l4-4-4-4"/></svg>`;
+                 path = '<path d="M7 19v-7a4 4 0 0 1 8 0v7M7 19l-4-4M7 19l4-4"/>';
+            } else if (modifier.includes('sharp left')) {
+                path = '<path d="M18 20v-8a4 4 0 0 0-4-4H4M4 8l5-5M4 8l5 5"/>';
+            } else if (modifier.includes('slight left')) {
+                path = '<path d="M15 21v-8a6 6 0 0 0-6-6M9 7l-4-4 4-4"/>';
+            } else if (modifier.includes('left')) {
+                path = '<path d="M17 21v-8a4 4 0 0 0-4-4H5M5 9l5-5M5 9l5 5"/>';
+            } else if (modifier.includes('sharp right')) {
+                path = '<path d="M6 20v-8a4 4 0 0 1 4-4h10M20 8l-5-5M20 8l-5 5"/>';
+            } else if (modifier.includes('slight right')) {
+                path = '<path d="M9 21v-8a6 6 0 0 1 6-6M15 7l4-4-4-4"/>';
+            } else if (modifier.includes('right')) {
+                path = '<path d="M7 21v-8a4 4 0 0 1 4-4h8M19 9l-5-5M19 9l-5 5"/>';
+            } else {
+                // Straight
+                path = '<path d="M12 21V3M5 10l7-7 7 7"/>';
             }
 
-            let rotation = 0;
-            if (modifier.includes('slight left')) rotation = -45;
-            else if (modifier.includes('sharp left')) rotation = -135;
-            else if (modifier.includes('left')) rotation = -90;
-            else if (modifier.includes('slight right')) rotation = 45;
-            else if (modifier.includes('sharp right')) rotation = 135;
-            else if (modifier.includes('right')) rotation = 90;
-            
-            return `${svgBase}<path d="M12 19V5M5 12l7-7 7 7" transform="rotate(${rotation} 12 12)"/></svg>`;
+            return `${svgStart}${path}</svg>`;
         }
 
         function updateTurnInstruction(lat, lng) {
@@ -4806,6 +4843,33 @@
                 distToManeuver.toFixed(1) + ' km';
         }
 
+        let isNavTracking = true;
+        let isNavOverview = false;
+
+        function updateNavMap(lat, lng, bearing) {
+            if (!navGlMap || !navGlMap.isStyleLoaded()) return;
+
+            const center = [lng, lat];
+
+            // Update marker
+            if (navGlMarker) {
+                navGlMarker.setLngLat(center);
+                navGlMarker.setRotation(bearing);
+            }
+
+            // Tesla POV Smooth Movement
+            if (isNavTracking) {
+                navGlMap.easeTo({
+                    center: center,
+                    zoom: 18,
+                    pitch: 65,
+                    bearing: bearing,
+                    duration: 1000,
+                    essential: true
+                });
+            }
+        }
+
         function beginTracking() {
             if (userLocation) {
                 map.flyTo([userLocation.lat, userLocation.lng], 19, {
@@ -4821,6 +4885,47 @@
                         bearing: 0
                     });
                 }
+            }
+
+            // Reset tracking state on start
+            isNavTracking = true;
+            
+            // Setup Map Interaction Listeners for navGlMap
+            if (navGlMap) {
+                const disableTracking = () => { isNavTracking = false; };
+                navGlMap.on('dragstart', disableTracking);
+                navGlMap.on('pitchstart', disableTracking);
+                navGlMap.on('rotatestart', disableTracking);
+                navGlMap.on('touchmove', disableTracking);
+                navGlMap.on('wheel', disableTracking);
+                
+                // Bind custom buttons
+                const zoomInBtn = document.getElementById('navZoomInBtn');
+                const zoomOutBtn = document.getElementById('navZoomOutBtn');
+                const recenterBtn = document.getElementById('navRecenterBtn');
+                
+                if (zoomInBtn) zoomInBtn.onclick = (e) => { 
+                    e.stopPropagation(); 
+                    navGlMap.zoomIn(); 
+                };
+                if (zoomOutBtn) zoomOutBtn.onclick = (e) => { 
+                    e.stopPropagation(); 
+                    navGlMap.zoomOut(); 
+                };
+                if (recenterBtn) recenterBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    isNavTracking = true;
+                    if (userLocation) {
+                        // User requested to bring back exact zoom for navigating
+                        navGlMap.flyTo({
+                            center: [userLocation.lng, userLocation.lat],
+                            zoom: 18,
+                            pitch: 45,
+                            bearing: smoothedHeading || 0,
+                            essential: true
+                        });
+                    }
+                };
             }
 
             geolocationWatchId = navigator.geolocation.watchPosition((pos) => {
@@ -4839,7 +4944,7 @@
                     displayLat = snap.lat;
                     displayLng = snap.lng;
                     offRouteKm = snap.distanceKm;
-                    if (offRouteKm > 0.08) {
+                    if (offRouteKm > 0.02) { // 20m threshold
                         rerouteFromCurrentLocation();
                     }
                 }
@@ -4885,22 +4990,8 @@
 
                     const navCenterLat = navigationActive && routePolyline ? displayLat : lat;
                     const navCenterLng = navigationActive && routePolyline ? displayLng : lng;
-                    if (navGlMap && navGlMap.isStyleLoaded()) {
-                        const center = [navCenterLng, navCenterLat];
-                        if (navGlMarker) {
-                            navGlMarker.setLngLat(center);
-                        }
-                        const currentZoom = navGlMap.getZoom();
-                        const targetZoom = isNaN(currentZoom) ? 18 : Math.max(16, Math.min(19, currentZoom));
-                        navGlMap.easeTo({
-                            center,
-                            zoom: targetZoom,
-                            pitch: 45,
-                            bearing: heading,
-                            duration: 800,
-                            essential: true
-                        });
-                    }
+                    
+                    updateNavMap(navCenterLat, navCenterLng, heading);
                 }
 
                 // Calculate distance to destination
@@ -5100,11 +5191,154 @@
                 navGlDestMarker = null;
             }
 
+            // Reset Basemap to Default (Light)
+            if (navGlMap) {
+                 if (navGlMap.getLayer('nav-satellite')) {
+                     navGlMap.removeLayer('nav-satellite');
+                     if (navGlMap.getSource('nav-satellite')) {
+                        navGlMap.removeSource('nav-satellite');
+                     }
+                 }
+                 if (navGlMap.getLayer('3d-buildings')) {
+                     navGlMap.setLayoutProperty('3d-buildings', 'visibility', 'visible');
+                 }
+            }
+            const navLayerBtn = document.getElementById('navLayerBtn');
+            if (navLayerBtn) {
+                navLayerBtn.innerText = 'SATELLITE';
+                navLayerBtn.classList.remove('active-layer');
+            }
+
             // Restore map view to destination area or user location
             if (userLocation) {
                  map.flyTo([userLocation.lat, userLocation.lng], 15);
             }
         }
+
+        function toggleNavOverview() {
+            if (!navGlMap) return;
+            isNavOverview = !isNavOverview;
+            
+            if (isNavOverview) {
+                // Wide view of route
+                if (navigationRouteGeoJSON && navigationRouteGeoJSON.features && navigationRouteGeoJSON.features.length > 0) {
+                     const coordinates = navigationRouteGeoJSON.features[0].geometry.coordinates;
+                     const bounds = coordinates.reduce((bounds, coord) => {
+                         return bounds.extend(coord);
+                     }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
+                     
+                     navGlMap.fitBounds(bounds, {
+                         padding: 50,
+                         pitch: 0,
+                         duration: 1000,
+                         essential: true
+                     });
+                } else {
+                     // Fallback if no route
+                     const currentZoom = navGlMap.getZoom();
+                     navGlMap.flyTo({
+                        pitch: 0,
+                        zoom: Math.max(13, currentZoom - 3),
+                        duration: 1000,
+                        essential: true
+                     });
+                }
+            } else {
+                // Restore 3D Navigation View
+                if (userLocation) {
+                    navGlMap.flyTo({
+                        center: [userLocation.lng, userLocation.lat],
+                        zoom: 18,
+                        pitch: 60,
+                        bearing: smoothedHeading || 0,
+                        duration: 1000,
+                        essential: true
+                    });
+                }
+            }
+        }
+
+        function toggleNavLayer() {
+            if (!navGlMap) return;
+            
+            const layerId = 'nav-satellite';
+            const btn = document.getElementById('navLayerBtn');
+            
+            if (navGlMap.getLayer(layerId)) {
+                // Switch to LIGHT (default)
+                navGlMap.removeLayer(layerId);
+                navGlMap.removeSource(layerId);
+                
+                // Show 3D buildings and labels
+                if (navGlMap.getLayer('3d-buildings')) {
+                     navGlMap.setLayoutProperty('3d-buildings', 'visibility', 'visible');
+                     navGlMap.setPaintProperty('3d-buildings', 'fill-extrusion-opacity', 0.6);
+                }
+                
+                // Ensure labels are visible
+                ['poi-label', 'transit-label'].forEach(layer => {
+                    if (navGlMap.getLayer(layer)) {
+                        navGlMap.setLayoutProperty(layer, 'visibility', 'visible');
+                    }
+                });
+                
+                // Enhance POI icons (fuel, cafe, charging_station)
+                if (navGlMap.getLayer('poi-label')) {
+                    navGlMap.setFilter('poi-label', ['in', 'class', 'fuel', 'cafe', 'charging_station']);
+                    // Make them vibrant
+                    navGlMap.setPaintProperty('poi-label', 'text-halo-width', 2);
+                    navGlMap.setPaintProperty('poi-label', 'text-halo-color', '#ffffff');
+                    navGlMap.setPaintProperty('poi-label', 'icon-opacity', 1);
+                }
+                
+                // Update button state (icon only)
+                if (btn) {
+                    btn.classList.remove('active-layer');
+                }
+            } else {
+                // Switch to SATELLITE
+                navGlMap.addSource(layerId, {
+                    'type': 'raster',
+                    'tiles': [
+                        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                    ],
+                    'tileSize': 256
+                });
+                
+                // Find the first symbol layer to insert before (so labels stay on top)
+                let beforeId;
+                const layers = navGlMap.getStyle().layers;
+                for (const layer of layers) {
+                    if (layer.type === 'symbol') {
+                        beforeId = layer.id;
+                        break;
+                    }
+                }
+                
+                navGlMap.addLayer({
+                    'id': layerId,
+                    'type': 'raster',
+                    'source': layerId,
+                    'paint': {}
+                }, beforeId);
+                
+                // Force route line to top
+                if (navGlMap.getLayer('route-line')) {
+                    navGlMap.moveLayer('route-line');
+                }
+                
+                // Hide 3D buildings to reduce clutter
+                if (navGlMap.getLayer('3d-buildings')) {
+                     navGlMap.setLayoutProperty('3d-buildings', 'visibility', 'none');
+                }
+                
+                // Update button state (icon only)
+                if (btn) {
+                    btn.classList.add('active-layer');
+                }
+            }
+        }
+
 
         setupIntroOverlay();
         initSDK();
