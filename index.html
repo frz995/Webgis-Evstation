@@ -3676,7 +3676,17 @@
                     el.className = 'nav-gl-marker';
                     el.innerHTML = `
                     <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M32 10 L50 50 Q32 42 14 50 Z" fill="#e31937" stroke="white" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+                        <defs>
+                            <filter id="navShadow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="rgba(0,0,0,0.4)"/>
+                            </filter>
+                        </defs>
+                        <g filter="url(#navShadow)">
+                            <!-- Right Face (Lit) -->
+                            <path d="M32 10 L50 50 Q41 46 32 46 Z" fill="#ef4444" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+                            <!-- Left Face (Shadowed) -->
+                            <path d="M32 10 L32 46 Q23 46 14 50 Z" fill="#b91c1c" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+                        </g>
                     </svg>
                     `;
                     
@@ -3934,11 +3944,11 @@
 
         function getClosestPointOnRoute(lat, lng) {
             if (!routePolyline || !map || typeof L === 'undefined') {
-                return { lat, lng, distanceKm: 0 };
+                return { lat, lng, distanceKm: 0, bearing: 0 };
             }
             let latlngs = routePolyline.getLatLngs();
             if (!latlngs || latlngs.length === 0) {
-                return { lat, lng, distanceKm: 0 };
+                return { lat, lng, distanceKm: 0, bearing: 0 };
             }
             if (Array.isArray(latlngs[0])) {
                 latlngs = latlngs.flat();
@@ -3946,6 +3956,7 @@
             const targetPoint = map.latLngToLayerPoint([lat, lng]);
             let closestPoint = null;
             let minDist = Infinity;
+            let bestSegmentIndex = 0;
 
             for (let i = 0; i < latlngs.length - 1; i++) {
                 const p1 = map.latLngToLayerPoint(latlngs[i]);
@@ -3955,16 +3966,22 @@
                 if (dist < minDist) {
                     minDist = dist;
                     closestPoint = candidate;
+                    bestSegmentIndex = i;
                 }
             }
 
             if (!closestPoint) {
-                return { lat, lng, distanceKm: 0 };
+                return { lat, lng, distanceKm: 0, bearing: 0 };
             }
+
+            // Calculate bearing of the closest segment
+            const pStart = latlngs[bestSegmentIndex];
+            const pEnd = latlngs[bestSegmentIndex + 1];
+            const bearing = calculateRouteBearing(pStart.lat, pStart.lng, pEnd.lat, pEnd.lng);
 
             const closestLatLng = map.layerPointToLatLng(closestPoint);
             const distanceKm = getDistance(lat, lng, closestLatLng.lat, closestLatLng.lng);
-            return { lat: closestLatLng.lat, lng: closestLatLng.lng, distanceKm };
+            return { lat: closestLatLng.lat, lng: closestLatLng.lng, distanceKm, bearing };
         }
 
         function latLngToTile(lat, lng, zoom) {
@@ -4959,7 +4976,17 @@
                 const navIcon = L.divIcon({
                     html: `
                     <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M32 10 L50 50 Q32 42 14 50 Z" fill="#e31937" stroke="white" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+                        <defs>
+                            <filter id="navShadow2" x="-50%" y="-50%" width="200%" height="200%">
+                                <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="rgba(0,0,0,0.4)"/>
+                            </filter>
+                        </defs>
+                        <g filter="url(#navShadow2)">
+                            <!-- Right Face (Lit) -->
+                            <path d="M32 10 L50 50 Q41 46 32 46 Z" fill="#ef4444" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+                            <!-- Left Face (Shadowed) -->
+                            <path d="M32 10 L32 46 Q23 46 14 50 Z" fill="#b91c1c" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+                        </g>
                     </svg>
                     `,
                     className: 'nav-gl-marker smooth-marker-move',
@@ -5145,7 +5172,7 @@
                     zoom: 18,             // Locked zoom
                     pitch: 65,            // Locked Tesla-style pitch
                     bearing: effectiveBearing,
-                    duration: 1000,
+                    duration: 300,
                     easing: (t) => t,     // Linear easing for smooth driving feel
                     essential: true
                 });
@@ -5215,16 +5242,18 @@
                 let displayLat = lat;
                 let displayLng = lng;
                 let offRouteKm = 0;
+                let routeBearing = null;
 
                 // Journey Track Restriction: Snap to route
                 if (navigationActive && routePolyline && typeof getClosestPointOnRoute === 'function') {
                     const snap = getClosestPointOnRoute(lat, lng);
                     if (snap) {
-                         const offRouteKm = snap.distanceKm;
+                         offRouteKm = snap.distanceKm;
                          // Strict Route Snapping: If within 50m, snap to line.
                          if (offRouteKm < 0.05) {
                              displayLat = snap.lat;
                              displayLng = snap.lng;
+                             routeBearing = snap.bearing;
                          } else {
                              // Prevention: If > 50m, trigger reroute (allow drift to show off-track)
                              rerouteFromCurrentLocation();
@@ -5236,16 +5265,21 @@
                 if (userMarker) {
                     userMarker.setLatLng([displayLat, displayLng]);
                     
-                    let heading = (pos.coords.heading !== null && !isNaN(pos.coords.heading)) ? pos.coords.heading : smoothedHeading;
-                    
-                    // Marker Rotation: Only update when moving
                     const isMoving = pos.coords.speed !== null && pos.coords.speed > 0.5;
+                    let targetHeading = smoothedHeading;
+
+                    if (isMoving && pos.coords.heading !== null && !isNaN(pos.coords.heading)) {
+                        targetHeading = pos.coords.heading;
+                    } else if (!isMoving && routeBearing !== null) {
+                        targetHeading = routeBearing;
+                    }
 
                     if (lastHeading === null) {
-                        lastHeading = heading;
-                        smoothedHeading = heading;
-                    } else if (isMoving) { // Only update heading if moving
-                        let rawDiff = heading - lastHeading;
+                        lastHeading = targetHeading;
+                        smoothedHeading = targetHeading;
+                    } else {
+                        // Smoothly transition to targetHeading (whether GPS or Route Bearing)
+                        let rawDiff = targetHeading - lastHeading;
                         rawDiff = ((rawDiff + 540) % 360) - 180;
                         const maxStep = 10;
                         const clampedDiff = Math.max(-maxStep, Math.min(maxStep, rawDiff));
@@ -5253,11 +5287,9 @@
                         const alpha = 0.2;
                         smoothedHeading = (1 - alpha) * smoothedHeading + alpha * limitedHeading;
                         lastHeading = limitedHeading;
-                        heading = smoothedHeading;
-                    } else {
-                        // Keep previous heading if stationary
-                        heading = smoothedHeading;
                     }
+                    
+                    let heading = smoothedHeading;
                     
                     const mapEl = document.getElementById('map');
                     if (mapEl.classList.contains('map-tilted')) {
