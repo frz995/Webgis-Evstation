@@ -3548,6 +3548,18 @@
                 attributionControl: true
             });
             // Removed default NavigationControl as per user request
+            
+            // Close filters panel on map interaction
+            const closeFiltersPanel = () => {
+                const filtersPanel = document.getElementById('filtersPanel');
+                if (filtersPanel) filtersPanel.classList.remove('mobile-open');
+            };
+            navGlMap.on('click', closeFiltersPanel);
+            navGlMap.on('dragstart', closeFiltersPanel);
+            navGlMap.on('pitchstart', closeFiltersPanel);
+            navGlMap.on('rotatestart', closeFiltersPanel);
+            navGlMap.on('touchstart', closeFiltersPanel);
+
             navGlMap.on('load', () => {
                 if (!navGlMap.getLayer('3d-buildings')) {
                     const style = navGlMap.getStyle();
@@ -4368,6 +4380,17 @@
                 filtersMiniToggle.onclick = () => {
                     filtersPanel.classList.toggle('mobile-open');
                 };
+
+                // Close filters panel on map interaction
+                if (typeof map !== 'undefined' && map) {
+                    const closeFilters = () => {
+                        filtersPanel.classList.remove('mobile-open');
+                    };
+                    map.on('click', closeFilters);
+                    map.on('dragstart', closeFilters);
+                    map.on('zoomstart', closeFilters);
+                    map.on('movestart', closeFilters);
+                }
             }
 
             const navRecenterBtn = document.getElementById('navRecenterBtn');
