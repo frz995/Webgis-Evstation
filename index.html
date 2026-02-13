@@ -3166,6 +3166,7 @@
         let currentRouteSteps = [];
         let currentStepIndex = 0;
         let geolocationWatchId = null;
+        let lastGpsUpdate = 0;
         let navigationDestination = null;
         let routeTotalDistanceKm = 0;
         let routeTotalDurationMin = 0;
@@ -3923,6 +3924,7 @@
             }
 
             // 4. RENDERING MARKERS
+            const markersToAdd = [];
             stationsToRender.forEach(station => {
                 const coords = station.geometry.coordinates;
                 const icon = L.divIcon({
@@ -3935,12 +3937,21 @@
                 const marker = L.marker([coords[1], coords[0]], { icon });
                 marker.on('click', () => showStationPopup(station));
                 
-                if (currentView === 'clustered') markerClusterGroup.addLayer(marker);
-                else marker.addTo(map);
+                markersToAdd.push(marker);
                 allMarkersArray.push(marker);
             });
 
-            if (currentView === 'clustered') map.addLayer(markerClusterGroup);
+            if (currentView === 'clustered') {
+                markerClusterGroup.addLayers(markersToAdd);
+                map.addLayer(markerClusterGroup);
+            } else {
+                // Batch add to map by iterating? Leaflet doesn't have a batch add for map.
+                // But we can use a FeatureGroup or just iterate. 
+                // Iterating is fine if not clustered, but still slow.
+                // Creating a LayerGroup is slightly cleaner but same performance.
+                // We'll stick to iterating but check if we can optimize later.
+                markersToAdd.forEach(m => m.addTo(map));
+            }
             if (adjustView && stationsToRender.length > 0) {
                 const latLngs = stationsToRender.map(s => [s.geometry.coordinates[1], s.geometry.coordinates[0]]);
                 const bounds = L.latLngBounds(latLngs);
@@ -5014,6 +5025,11 @@
 
             geolocationWatchId = navigator.geolocation.watchPosition((pos) => {
                 if (!navigationActive) return;
+
+                // Throttle GPS updates to ~5Hz (200ms) to prevent UI lag
+                const now = Date.now();
+                if (now - lastGpsUpdate < 200) return;
+                lastGpsUpdate = now;
                 
                 const lat = pos.coords.latitude;
                 const lng = pos.coords.longitude;
