@@ -265,7 +265,7 @@
             pointer-events: none;
             background:
                 linear-gradient(rgba(249, 250, 251, 0.25), rgba(249, 250, 251, 0.25)),
-                url('assets/evpic-Photoroom.png');
+                url('data/evpic-Photoroom.png');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -752,11 +752,16 @@
         }
 
         .control-buttons .btn {
-            padding: 4px 6px;
+            width: 36px;
+            height: 36px;
+            padding: 0;
             border-radius: 999px;
             font-size: 0;
             border: none;
             background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn:active {
@@ -809,6 +814,18 @@
             flex-direction: column;
             max-height: calc(100vh - 130px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .side-panel, .filters-panel, .map-legend, .control-bar, .search-container, #filtersMiniToggle {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .ui-fade-out {
+            opacity: 0 !important;
+            pointer-events: none;
         }
 
         .panel-section {
@@ -2500,6 +2517,22 @@
             color: #666;
         }
         /* Update this block in your <style> tag */
+        .nav-gl-marker {
+            width: 48px;
+            height: 48px;
+            background: transparent;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .nav-arrow-shape {
+            display: none;
+        }
+
         .equipment-badge {
             display: inline-flex; /* Changed from inline-block to inline-flex for better centering */
             align-items: center;
@@ -3567,7 +3600,7 @@
                         },
                         paint: {
                             'fill-extrusion-color': '#eeeeee',
-                            'fill-extrusion-opacity': 0.9,
+                            'fill-extrusion-opacity': 0.5,
                             'fill-extrusion-height': [
                                 'coalesce',
                                 ['get', 'render_height'],
@@ -3604,6 +3637,12 @@
                 if (!navGlMarker) {
                     const el = document.createElement('div');
                     el.className = 'nav-gl-marker';
+                    el.innerHTML = `
+                    <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M32 10 L50 50 Q32 42 14 50 Z" fill="#e31937" stroke="white" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+                    </svg>
+                    `;
+                    
                     navGlMarker = new maplibregl.Marker({ element: el, anchor: 'center', rotationAlignment: 'map' })
                         .setLngLat(center)
                         .addTo(navGlMap);
@@ -3679,7 +3718,7 @@
                         'text-keep-upright': true
                     },
                     paint: {
-                        'text-color': '#2563eb',
+                        'text-color': '#ef4444',
                         'text-halo-color': '#f9fafb',
                         'text-halo-width': 1
                     }
@@ -4227,8 +4266,22 @@
 
         function setupEventListeners() {
             document.getElementById('locationBtn').onclick = getUserLocation;
-            document.getElementById('routingClose').onclick = () => document.getElementById('routingPanel').classList.remove('active');
-            document.getElementById('routingClose2').onclick = () => document.getElementById('routingPanel').classList.remove('active');
+            
+            const closeRouting = () => {
+                document.getElementById('routingPanel').classList.remove('active');
+                const sidePanel = document.getElementById('sidePanel');
+                if (sidePanel) sidePanel.classList.remove('ui-fade-out');
+                
+                // Clear the route line
+                if (routePolyline) {
+                    map.removeLayer(routePolyline);
+                    routePolyline = null;
+                }
+            };
+            
+            document.getElementById('routingClose').onclick = closeRouting;
+            document.getElementById('routingClose2').onclick = closeRouting;
+            
             document.getElementById('startNavBtn').onclick = startNavigation;
             document.getElementById('viewClustered').onclick = () => {
                 currentView = 'clustered';
@@ -4474,6 +4527,11 @@
             if (!userLocation) return showToast('📍 Enable location first');
             document.getElementById('routingDestination').textContent = name;
             document.getElementById('routingPanel').classList.add('active');
+            
+            // Fade out the side panel
+            const sidePanel = document.getElementById('sidePanel');
+            if (sidePanel) sidePanel.classList.add('ui-fade-out');
+
             document.getElementById('routingDistance').textContent = 'Calculating...';
             document.getElementById('routingTime').textContent = '--:--';
 
@@ -4558,7 +4616,11 @@
                         navArrivalEnergyEl.textContent = `${distKm} km`;
                     }
                     
-                    map.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
+                    map.fitBounds(routePolyline.getBounds(), { 
+                        padding: [50, 50],
+                        animate: true,
+                        duration: 5.0
+                    });
                     ensureNavGlMap();
                     updateNavGlRoute(rawCoords);
                     updateNavRouteLine();
@@ -4579,7 +4641,11 @@
                 document.getElementById('routingDistance').textContent = `${dist.toFixed(1)} km (Linear)`;
                 document.getElementById('routingTime').textContent = '--';
                 
-                map.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
+                map.fitBounds(routePolyline.getBounds(), { 
+                    padding: [50, 50],
+                    animate: true,
+                    duration: 5.0
+                });
             }
 
             navigationDestination = { lat, lng, name };
@@ -4660,25 +4726,36 @@
             if (!navigationDestination) return;
             navigationActive = true;
             wasDarkBeforeNav = isDarkMode;
-            document.body.classList.toggle('dark-mode', isDarkMode);
-            document.body.classList.add('nav-mode');
-            document.getElementById('routingPanel').classList.remove('active');
-            document.getElementById('turnInstructionBar').classList.add('active');
-            document.getElementById('navHUD').classList.add('active');
-
+            
+            // Phase 1: 2D Preparation (Leaflet)
+            // Zoom in on Leaflet map first
             if (userLocation) {
-                updateTurnInstruction(userLocation.lat, userLocation.lng);
+                map.flyTo([userLocation.lat, userLocation.lng], 18, {
+                    animate: true,
+                    duration: 1.2,
+                    easeLinearity: 0.1
+                });
             }
 
+            // Prepare Nav Map (Hidden initially)
+            const navMapEl = document.getElementById('navGlMap');
+            if (navMapEl) {
+                navMapEl.style.opacity = '0';
+                navMapEl.style.transition = 'opacity 0.8s ease-in-out';
+            }
+
+            // Add nav-mode to trigger UI fade-outs and display nav container
+            document.body.classList.add('nav-mode');
+            
+            // Ensure Nav Map is ready and set to top-down view (Phase 2 Prep)
             ensureNavGlMap();
             if (navGlMap && userLocation) {
-                const targetCenter = [userLocation.lng, userLocation.lat];
-                // Fix Initial POV Start: jumpTo immediately to lock POV
+                navGlMap.resize(); // Important after display:none -> block
                 navGlMap.jumpTo({
-                    center: targetCenter,
-                    zoom: 18,
-                    pitch: 65,
-                    bearing: smoothedHeading || 0
+                    center: [userLocation.lng, userLocation.lat],
+                    zoom: 18, // Match Leaflet target
+                    pitch: 0,
+                    bearing: 0
                 });
                 
                 if (navGlMap.getLayer('3d-buildings')) {
@@ -4686,17 +4763,46 @@
                 }
             }
 
-            // Hide UI panels during navigation
-            document.getElementById('sidePanel').style.display = 'none';
-            document.getElementById('filtersPanel').style.display = 'none';
-            document.getElementById('mapLegend').style.display = 'none';
-            const controlBarEl = document.querySelector('.control-bar');
-            if (controlBarEl) controlBarEl.style.display = 'none';
-            document.querySelector('.search-container').style.display = 'none';
-            const filtersMiniToggle = document.getElementById('filtersMiniToggle');
-            if (filtersMiniToggle) {
-                filtersMiniToggle.style.display = 'none';
-            }
+            // Phase 2: The Transition Hand-off
+            // Wait for 800ms before showing 3D map
+            setTimeout(() => {
+                // Fade in Nav Map
+                if (navMapEl) {
+                    navMapEl.style.opacity = '1';
+                }
+
+                // Phase 3: 3D "Falling" Animation (MapLibre)
+                // Start immediately with the fade
+                if (navGlMap && userLocation) {
+                    navGlMap.flyTo({
+                        center: [userLocation.lng, userLocation.lat],
+                        zoom: 18.5,
+                        pitch: 65, // Target pitch
+                        bearing: smoothedHeading || 0,
+                        duration: 2500, // 2.5s duration
+                        curve: 1.2,
+                        essential: true
+                    });
+                }
+
+                // UI Polish: Delay HUD and Turn Instructions
+                setTimeout(() => {
+                    document.getElementById('turnInstructionBar').classList.add('active');
+                    document.getElementById('navHUD').classList.add('active');
+                    
+                    if (userLocation) {
+                        updateTurnInstruction(userLocation.lat, userLocation.lng);
+                    }
+
+                    // Start tracking
+                    if (navigationActive) {
+                        beginTracking();
+                    }
+                }, 2000); // 80% of 2500ms
+
+            }, 800); // Wait 800ms
+
+            document.getElementById('routingPanel').classList.remove('active');
 
             // On mobile, briefly show the left stack cards then auto-hide after 5s
             if (window.innerWidth <= 768) {
@@ -4721,31 +4827,19 @@
 
             // Switch to nav marker (navigation arrow)
             if (userMarker) {
-                const navIconSvg = `
-                <div class="user-nav-marker" style="width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; overflow: visible;">
-                    <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 8px 12px rgba(0,0,0,0.35));">
-                        <defs>
-                            <linearGradient id="navArrowGrad" x1="0" y1="0" x2="1" y2="0">
-                                <stop offset="0%" stop-color="#ffd27a"/>
-                                <stop offset="100%" stop-color="#FFAE42"/>
-                            </linearGradient>
-                        </defs>
-                        <polygon points="32 6 10 58 32 48 54 58" fill="url(#navArrowGrad)"/>
-                    </svg>
-                </div>
-                `;
-
                 const navIcon = L.divIcon({
-                    html: navIconSvg,
-                    className: 'smooth-marker-move',
-                    iconSize: [64, 64],
-                    iconAnchor: [32, 44]
+                    html: `
+                    <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M32 10 L50 50 Q32 42 14 50 Z" fill="#e31937" stroke="white" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+                    </svg>
+                    `,
+                    className: 'nav-gl-marker smooth-marker-move',
+                    iconSize: [48, 48],
+                    iconAnchor: [24, 24]
                 });
                 userMarker.setIcon(navIcon);
                 userMarker.setZIndexOffset(2000);
             }
-
-            beginTracking();
         }
 
         function getTurnIcon(modifier) {
@@ -4846,47 +4940,52 @@
         let isNavTracking = true;
         let isNavOverview = false;
 
+        let lastNavPos = null;
+
         function updateNavMap(lat, lng, bearing) {
             if (!navGlMap || !navGlMap.isStyleLoaded()) return;
 
             const center = [lng, lat];
+            let effectiveBearing = bearing;
 
-            // Update marker
-            if (navGlMarker) {
-                navGlMarker.setLngLat(center);
-                navGlMarker.setRotation(bearing);
+            // Sync Marker with Route Shape: Calculate bearing if null
+            if ((effectiveBearing === null || effectiveBearing === undefined || isNaN(effectiveBearing)) && lastNavPos) {
+                 const dLon = (lng - lastNavPos.lng) * Math.PI / 180;
+                 const lat1 = lastNavPos.lat * Math.PI / 180;
+                 const lat2 = lat * Math.PI / 180;
+                 const y = Math.sin(dLon) * Math.cos(lat2);
+                 const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+                 const brng = Math.atan2(y, x) * 180 / Math.PI;
+                 effectiveBearing = (brng + 360) % 360;
+            }
+            lastNavPos = { lat, lng };
+            
+            // Default to current map bearing if still unknown
+            if (effectiveBearing === null || effectiveBearing === undefined || isNaN(effectiveBearing)) {
+                effectiveBearing = navGlMap.getBearing();
             }
 
-            // Tesla POV Smooth Movement
+            // Sync Marker Rotation IMMEDIATELY before ease
+            if (navGlMarker) {
+                navGlMarker.setLngLat(center);
+                navGlMarker.setRotation(effectiveBearing);
+            }
+
+            // Lock POV Parameters (Fix Zoom Out)
             if (isNavTracking) {
                 navGlMap.easeTo({
                     center: center,
-                    zoom: 18,
-                    pitch: 65,
-                    bearing: bearing,
+                    zoom: 18,             // Locked zoom
+                    pitch: 65,            // Locked Tesla-style pitch
+                    bearing: effectiveBearing,
                     duration: 1000,
+                    easing: (t) => t,     // Linear easing for smooth driving feel
                     essential: true
                 });
             }
         }
 
         function beginTracking() {
-            if (userLocation) {
-                map.flyTo([userLocation.lat, userLocation.lng], 19, {
-                    animate: true,
-                    duration: 1.5
-                });
-                ensureNavGlMap();
-                if (navGlMap) {
-                    navGlMap.jumpTo({
-                        center: [userLocation.lng, userLocation.lat],
-                        zoom: 18,
-                        pitch: 45,
-                        bearing: 0
-                    });
-                }
-            }
-
             // Reset tracking state on start
             isNavTracking = true;
             
@@ -5162,12 +5261,21 @@
             toggleMapTheme(isDarkMode);
 
             // Restore UI panels
-            document.getElementById('sidePanel').style.display = '';
-            document.getElementById('filtersPanel').style.display = '';
-            document.getElementById('mapLegend').style.display = '';
-            const controlBarEl = document.querySelector('.control-bar');
-            if (controlBarEl) controlBarEl.style.display = '';
-            document.querySelector('.search-container').style.display = '';
+            const elementsToRestore = [
+                document.getElementById('sidePanel'),
+                document.getElementById('filtersPanel'),
+                document.getElementById('mapLegend'),
+                document.querySelector('.control-bar'),
+                document.querySelector('.search-container'),
+                document.getElementById('filtersMiniToggle')
+            ];
+
+            elementsToRestore.forEach(el => {
+                if (el) {
+                    el.style.display = '';
+                    el.classList.remove('ui-fade-out');
+                }
+            });
             
             // Restore default marker
             if (userMarker) {
@@ -5269,10 +5377,10 @@
                 navGlMap.removeLayer(layerId);
                 navGlMap.removeSource(layerId);
                 
-                // Show 3D buildings and labels
+                // Show 3D buildings and labels (Conditional 3D Depth)
                 if (navGlMap.getLayer('3d-buildings')) {
                      navGlMap.setLayoutProperty('3d-buildings', 'visibility', 'visible');
-                     navGlMap.setPaintProperty('3d-buildings', 'fill-extrusion-opacity', 0.6);
+                     navGlMap.setPaintProperty('3d-buildings', 'fill-extrusion-opacity', 0.5);
                 }
                 
                 // Ensure labels are visible
@@ -5282,13 +5390,17 @@
                     }
                 });
                 
-                // Enhance POI icons (fuel, cafe, charging_station)
+                // Enhance POI icons (Information Visibility)
                 if (navGlMap.getLayer('poi-label')) {
                     navGlMap.setFilter('poi-label', ['in', 'class', 'fuel', 'cafe', 'charging_station']);
-                    // Make them vibrant
+                    // Make them vibrant and slightly larger
                     navGlMap.setPaintProperty('poi-label', 'text-halo-width', 2);
                     navGlMap.setPaintProperty('poi-label', 'text-halo-color', '#ffffff');
                     navGlMap.setPaintProperty('poi-label', 'icon-opacity', 1);
+                    // Ensure icon size is slightly increased
+                    if (navGlMap.getLayer('poi-label')) {
+                         navGlMap.setLayoutProperty('poi-label', 'icon-size', 1.2);
+                    }
                 }
                 
                 // Update button state (icon only)
