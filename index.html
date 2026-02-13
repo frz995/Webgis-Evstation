@@ -690,7 +690,10 @@
         }
 
         .control-title {
-            padding: 6px 10px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
             border-radius: 999px;
             background: rgba(255, 255, 255, 0.96);
             border: 1px solid #e5e7eb;
@@ -1227,7 +1230,7 @@
             position: fixed;
             top: 20px;
             left: 20px;
-            transform: translateY(-150%);
+            transform: translateX(-150%);
             background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
@@ -1246,7 +1249,7 @@
         }
 
         .turn-instruction-bar.active {
-            transform: translateY(0);
+            transform: translateX(0);
             pointer-events: auto;
         }
 
@@ -1434,14 +1437,18 @@
             position: fixed;
             top: 112px;
             left: 20px;
-            display: none;
+            display: flex;
             flex-direction: column;
             gap: 10px;
             z-index: 3000;
+            transform: translateX(-150%);
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: none;
         }
 
-        .nav-mode .nav-left-stack {
-            display: flex;
+        .nav-left-stack.active {
+            transform: translateX(0);
+            pointer-events: auto;
         }
 
         .nav-card {
@@ -1594,15 +1601,18 @@
             position: fixed;
             top: 50%;
             right: 20px;
-            transform: translateY(-50%);
-            display: none;
+            transform: translate(150%, -50%);
+            display: flex;
             flex-direction: column;
             gap: 10px;
             z-index: 3000;
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: none;
         }
 
-        .nav-mode .nav-right-stack {
-            display: flex;
+        .nav-right-stack.active {
+            transform: translate(0, -50%);
+            pointer-events: auto;
         }
 
         .nav-ctrl-btn {
@@ -1683,46 +1693,50 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            z-index: 3000;
-        }
-
-        .nav-mode .nav-speed-hud {
             display: flex;
-        }
-
-        @media (max-width: 768px) {
-            .nav-speed-hud {
-                top: 50%;
-                left: 10px;
-                right: auto;
-                transform: translateY(-50%);
-                flex-direction: column;
-            }
-        }
-
-        .nav-speed-pill {
+            align-items: center;
+            z-index: 3000;
+            background: white;
             border-radius: 16px;
-            padding: 8px 10px;
-            min-width: 70px;
+            padding: 4px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+            border: 1px solid #e0e0e0;
+            
+            /* Transition properties */
+            opacity: 0;
+            transform: translateY(-100%);
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: none;
+        }
+
+        .nav-speed-hud.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .nav-speed-block {
+            padding: 8px 12px;
+            min-width: 60px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
-            border: 1px solid #e0e0e0;
         }
 
-        .nav-speed-current {
-            background: #dcfce7;
+        .nav-speed-divider {
+            width: 1px;
+            height: 32px;
+            background-color: #e0e0e0;
+            margin: 0 4px;
+        }
+
+        .nav-speed-current .nav-speed-value {
             color: #166534;
         }
-
-        .nav-speed-limit {
-            background: white;
+        
+        .nav-speed-limit .nav-speed-value {
             color: #111827;
         }
 
@@ -1737,25 +1751,49 @@
             text-transform: uppercase;
             letter-spacing: 0.08em;
             margin-top: 2px;
+            color: #6b7280;
         }
 
-        .dark-mode .nav-speed-pill {
+        .dark-mode .nav-speed-hud {
+            background: #020617;
             border-color: #1f2937;
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
         }
 
-        .dark-mode .nav-speed-current {
-            background: rgba(22, 163, 74, 0.16);
+        .dark-mode .nav-speed-divider {
+            background-color: #374151;
+        }
+
+        .dark-mode .nav-speed-current .nav-speed-value {
             color: #bbf7d0;
         }
 
-        .dark-mode .nav-speed-limit {
-            background: rgba(15, 23, 42, 0.96);
+        .dark-mode .nav-speed-limit .nav-speed-value {
             color: #e5e7eb;
         }
 
         .dark-mode .nav-speed-label {
             color: #9ca3af;
+        }
+
+        @media (max-width: 768px) {
+            .nav-speed-hud {
+                top: 50%;
+                left: 10px;
+                right: auto;
+                transform: translateY(calc(-50% - 50px));
+                flex-direction: column;
+            }
+
+            .nav-mode .nav-speed-hud {
+                transform: translateY(-50%);
+            }
+            
+            .nav-speed-divider {
+                width: 32px;
+                height: 1px;
+                margin: 4px 0;
+            }
         }
 
         .map-legend {
@@ -2893,8 +2931,8 @@
     </div>
    </div>
   </div>
-  <div class="nav-speed-hud">
-   <div class="nav-speed-pill nav-speed-current">
+  <div id="navSpeedHUD" class="nav-speed-hud">
+   <div class="nav-speed-block nav-speed-current">
     <div class="nav-speed-value" id="hudSpeed">
      --
     </div>
@@ -2902,7 +2940,8 @@
      speed
     </div>
    </div>
-   <div class="nav-speed-pill nav-speed-limit">
+   <div class="nav-speed-divider"></div>
+   <div class="nav-speed-block nav-speed-limit">
     <div class="nav-speed-value" id="hudSpeedLimit">
      30
     </div>
@@ -3654,6 +3693,19 @@
             }
         }
 
+        function calculateRouteBearing(startLat, startLng, destLat, destLng) {
+            const startLatRad = startLat * (Math.PI / 180);
+            const startLngRad = startLng * (Math.PI / 180);
+            const destLatRad = destLat * (Math.PI / 180);
+            const destLngRad = destLng * (Math.PI / 180);
+
+            const y = Math.sin(destLngRad - startLngRad) * Math.cos(destLatRad);
+            const x = Math.cos(startLatRad) * Math.sin(destLatRad) -
+                      Math.sin(startLatRad) * Math.cos(destLatRad) * Math.cos(destLngRad - startLngRad);
+            const brng = Math.atan2(y, x);
+            return (brng * 180 / Math.PI + 360) % 360;
+        }
+
         function updateNavGlRoute(rawCoords) {
             if (!navGlMap || !rawCoords || !rawCoords.length) return;
             if (!navGlMap.isStyleLoaded()) {
@@ -3723,15 +3775,63 @@
                 });
             }
             const bounds = rawCoords.reduce((b, c) => b.extend(c), new maplibregl.LngLatBounds(rawCoords[0], rawCoords[0]));
-            navGlMap.fitBounds(bounds, { padding: 120, pitch: 45 });
-            if (!navGlMarker) {
-                const el = document.createElement('div');
-                el.className = 'nav-gl-marker';
-                navGlMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
-                    .setLngLat(rawCoords[0])
-                    .addTo(navGlMap);
+            
+            // Phased Navigation Start
+            
+            // Phase 1: Overview
+            // The Lock: Prevent fitBounds from ever running if isGuidanceActive is true (already navigating/rerouting)
+            if (!isGuidanceActive) {
+                // Calculate Bearing between first two points
+                let initialBearing = 0;
+                if (rawCoords.length >= 2) {
+                    const p1 = rawCoords[0]; // [lng, lat]
+                    const p2 = rawCoords[1]; // [lng, lat]
+                    initialBearing = calculateRouteBearing(p1[1], p1[0], p2[1], p2[0]);
+                }
+
+                // Phase 1: Immediate Journey Overview
+                // Show the entire route immediately with Top-Down View, aligned to calculated bearing
+                navGlMap.setBearing(initialBearing);
+                navGlMap.fitBounds(bounds, { padding: 120, pitch: 0, bearing: initialBearing, animate: false });
+
+                if (!navGlMarker) {
+                    const el = document.createElement('div');
+                    el.className = 'nav-gl-marker';
+                    navGlMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
+                        .setLngLat(rawCoords[0])
+                        .setRotation(initialBearing) // Immediate Alignment
+                        .addTo(navGlMap);
+                } else {
+                    navGlMarker.setLngLat(rawCoords[0]);
+                    navGlMarker.setRotation(initialBearing); // Immediate Alignment
+                }
+                
+                // Phase 2: Delayed 3D Transition (After 5 Seconds)
+                setTimeout(() => {
+                    if (!navigationActive) return; // Cancel if navigation ended
+                    isGuidanceActive = true;
+                    
+                    // Sync Marker Rotation (Redundant but safe)
+                    if (navGlMarker) {
+                        navGlMarker.setRotation(initialBearing);
+                    }
+
+                    if (navGlMap) {
+                        navGlMap.easeTo({
+                            center: rawCoords[0],
+                            zoom: 18,
+                            pitch: 65,
+                            bearing: initialBearing, // Align camera with track
+                            duration: 2000,
+                            essential: true
+                        });
+                    }
+                }, 5000);
             } else {
-                navGlMarker.setLngLat(rawCoords[0]);
+                // If guidance is active (e.g. rerouting), just update marker position if needed
+                if (navGlMarker) {
+                    navGlMarker.setLngLat(rawCoords[0]);
+                }
             }
         }
 
@@ -4744,6 +4844,7 @@
         function startNavigation() {
             if (!navigationDestination) return;
             navigationActive = true;
+            isNavigating = false; // Reset navigation movement state
             wasDarkBeforeNav = isDarkMode;
             
             // Phase 1: 2D Preparation (Leaflet)
@@ -4808,6 +4909,15 @@
                 setTimeout(() => {
                     document.getElementById('turnInstructionBar').classList.add('active');
                     document.getElementById('navHUD').classList.add('active');
+                    const navSpeedHUD = document.getElementById('navSpeedHUD');
+                    if (navSpeedHUD) navSpeedHUD.classList.add('active');
+                    
+                    // Activate slide-in stacks
+                    const leftStack = document.querySelector('.nav-left-stack');
+                    if (leftStack) leftStack.classList.add('active');
+                    
+                    const rightStack = document.querySelector('.nav-right-stack');
+                    if (rightStack) rightStack.classList.add('active');
                     
                     if (userLocation) {
                         updateTurnInstruction(userLocation.lat, userLocation.lng);
@@ -4958,6 +5068,40 @@
 
         let isNavTracking = true;
         let isNavOverview = false;
+        
+        // Navigation Guidance State
+        let isGuidanceActive = false;
+        
+        // Idle & Navigation State
+        let isNavigating = false; 
+
+        function alignToRouteStart() {
+            // Align to first segment of the route
+            if (!navigationRouteGeoJSON || !navigationRouteGeoJSON.coordinates || navigationRouteGeoJSON.coordinates.length < 2) return;
+            
+            // GeoJSON coordinates are [lng, lat]
+            const p1 = navigationRouteGeoJSON.coordinates[0];
+            const p2 = navigationRouteGeoJSON.coordinates[1];
+            
+            // Calculate bearing from p1 to p2
+            const bearing = calculateRouteBearing(p1[1], p1[0], p2[1], p2[0]);
+            
+            // Update smoothedHeading so updateNavMap respects this bearing
+            if (typeof smoothedHeading !== 'undefined') {
+                smoothedHeading = bearing;
+                lastHeading = bearing;
+            }
+            
+            if (navGlMarker && navGlMap) {
+                 navGlMarker.setRotation(bearing);
+                 navGlMap.easeTo({
+                     bearing: bearing,
+                     duration: 1500,
+                     easing: (t) => t,
+                     essential: true
+                 });
+            }
+        }
 
         let lastNavPos = null;
 
@@ -4965,6 +5109,7 @@
             if (!navGlMap || !navGlMap.isStyleLoaded()) return;
 
             const center = [lng, lat];
+            
             let effectiveBearing = bearing;
 
             // Sync Marker with Route Shape: Calculate bearing if null
@@ -4991,7 +5136,10 @@
             }
 
             // Lock POV Parameters (Fix Zoom Out)
-            if (isNavTracking) {
+            // Only force camera follow if guidance is active and user is moving/navigating
+            // The Lock: Prevent fitBounds from ever running if isGuidanceActive is true (handled by logic flow)
+            // But we also need to prevent this updateNavMap from overriding the fitBounds during Phase 1
+            if (isNavTracking && isGuidanceActive) {
                 navGlMap.easeTo({
                     center: center,
                     zoom: 18,             // Locked zoom
@@ -5049,6 +5197,12 @@
             geolocationWatchId = navigator.geolocation.watchPosition((pos) => {
                 if (!navigationActive) return;
 
+                // Check for movement to start navigation
+                if (!isNavigating && pos.coords.speed !== null && pos.coords.speed > 0.5) {
+                    isNavigating = true;
+                    alignToRouteStart(); 
+                }
+
                 // Throttle GPS updates to ~5Hz (200ms) to prevent UI lag
                 const now = Date.now();
                 if (now - lastGpsUpdate < 200) return;
@@ -5062,13 +5216,19 @@
                 let displayLng = lng;
                 let offRouteKm = 0;
 
-                if (navigationActive && routePolyline) {
+                // Journey Track Restriction: Snap to route
+                if (navigationActive && routePolyline && typeof getClosestPointOnRoute === 'function') {
                     const snap = getClosestPointOnRoute(lat, lng);
-                    displayLat = snap.lat;
-                    displayLng = snap.lng;
-                    offRouteKm = snap.distanceKm;
-                    if (offRouteKm > 0.02) { // 20m threshold
-                        rerouteFromCurrentLocation();
+                    if (snap) {
+                         const offRouteKm = snap.distanceKm;
+                         // Strict Route Snapping: If within 50m, snap to line.
+                         if (offRouteKm < 0.05) {
+                             displayLat = snap.lat;
+                             displayLng = snap.lng;
+                         } else {
+                             // Prevention: If > 50m, trigger reroute (allow drift to show off-track)
+                             rerouteFromCurrentLocation();
+                         }
                     }
                 }
 
@@ -5077,11 +5237,14 @@
                     userMarker.setLatLng([displayLat, displayLng]);
                     
                     let heading = (pos.coords.heading !== null && !isNaN(pos.coords.heading)) ? pos.coords.heading : smoothedHeading;
+                    
+                    // Marker Rotation: Only update when moving
+                    const isMoving = pos.coords.speed !== null && pos.coords.speed > 0.5;
 
                     if (lastHeading === null) {
                         lastHeading = heading;
                         smoothedHeading = heading;
-                    } else {
+                    } else if (isMoving) { // Only update heading if moving
                         let rawDiff = heading - lastHeading;
                         rawDiff = ((rawDiff + 540) % 360) - 180;
                         const maxStep = 10;
@@ -5090,6 +5253,9 @@
                         const alpha = 0.2;
                         smoothedHeading = (1 - alpha) * smoothedHeading + alpha * limitedHeading;
                         lastHeading = limitedHeading;
+                        heading = smoothedHeading;
+                    } else {
+                        // Keep previous heading if stationary
                         heading = smoothedHeading;
                     }
                     
@@ -5266,9 +5432,20 @@
         }
         function endNavigation() {
             navigationActive = false;
+            isGuidanceActive = false; // Reset guidance flag for next session
             if (geolocationWatchId) navigator.geolocation.clearWatch(geolocationWatchId);
             document.getElementById('turnInstructionBar').classList.remove('active');
             document.getElementById('navHUD').classList.remove('active');
+            const navSpeedHUD = document.getElementById('navSpeedHUD');
+            if (navSpeedHUD) navSpeedHUD.classList.remove('active');
+            
+            // Remove active class from slide-in stacks
+            const leftStack = document.querySelector('.nav-left-stack');
+            if (leftStack) leftStack.classList.remove('active');
+            
+            const rightStack = document.querySelector('.nav-right-stack');
+            if (rightStack) rightStack.classList.remove('active');
+
             document.body.classList.remove('nav-mode');
 
             // Remove 3D Tilt and Rotation
