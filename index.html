@@ -1053,6 +1053,15 @@
             color: #15B392;
         }
 
+        .map-legend.selected {
+            border: 2px solid #FFDD3C;
+            box-shadow: 0 4px 16px rgba(255, 221, 60, 0.25);
+        }
+
+        .map-legend.selected .legend-title {
+            color: #FFDD3C;
+        }
+
         .nearest-item {
             padding: 10px 12px;
             background: #ffffff;
@@ -1147,6 +1156,31 @@
             font-weight: 700;
             color: #1a1a1a;
             font-size: 16px;
+        }
+
+        .routing-eta-chip {
+            margin-top: 4px;
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(255, 221, 60, 0.1);
+            color: #92400e;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .route-eta-marker {
+            width: auto !important;
+            height: auto !important;
+            border: none;
+            background: transparent;
+        }
+
+        .dark-mode .routing-eta-chip {
+            background: rgba(251, 191, 36, 0.12);
+            color: #fbbf24;
         }
 
         .routing-close {
@@ -1435,7 +1469,7 @@
         .nav-hud-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 0;
         }
 
         .nav-hud-sub {
@@ -1445,25 +1479,38 @@
         }
 
         .nav-control-btn {
-            padding: 8px 16px;
-            background: #f3f4f6;
-            color: #111827;
-            border: 1px solid #e5e7eb;
-            border-radius: 999px;
+            padding: 0 10px;
+            background: transparent;
+            color: #6b7280;
+            border: none;
+            border-radius: 0;
             font-weight: 600;
             font-size: 12px;
             cursor: pointer;
-            transition: all 0.16s ease;
+            transition: color 0.16s ease;
             white-space: nowrap;
         }
 
+        .nav-hud-actions .nav-control-btn + .nav-control-btn {
+            border-left: 1px solid #d1d5db;
+            margin-left: 8px;
+            padding-left: 12px;
+        }
+
         .nav-control-btn:hover {
-            background: #e5e7eb;
-            transform: translateY(-1px);
+            color: #111827;
         }
 
         .nav-control-btn:active {
-            transform: translateY(1px);
+            color: #111827;
+        }
+
+        .dark-mode .nav-control-btn {
+            color: #e5e7eb;
+        }
+
+        .dark-mode .nav-hud-actions .nav-control-btn + .nav-control-btn {
+            border-left-color: #374151;
         }
 
         .nav-left-stack {
@@ -2862,8 +2909,11 @@
    </div>
    <div id="routingPanel" class="routing-panel">
     <div class="routing-header">
-     <div class="routing-destination" id="routingDestination">
-      Loading...
+     <div class="routing-header-main">
+      <div class="routing-destination" id="routingDestination">
+       Loading...
+      </div>
+      <div id="routingEtaChip" class="routing-eta-chip" style="display: none;">-- min</div>
      </div><button id="routingClose" class="routing-close">✕</button>
     </div>
     <div class="routing-content">
@@ -3132,10 +3182,38 @@
       Legend
     </div>
     <div class="legend-item" id="defaultLegendItem">
-     <div class="legend-color-box" style="background: linear-gradient(135deg, #3559E8 0%, #5B7EF7 100%);"></div><span>All EV Stations</span>
+     <div class="legend-marker-icon">
+      <div style="width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px rgba(255,255,255,0.8), 0 0 4px rgba(0,0,0,0.25);">
+       <div style="width: 14px; height: 14px; background: #3559E8; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+        <svg viewBox="0 0 24 24" fill="white" style="width: 8px; height: 8px;">
+         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+       </div>
+      </div>
+     </div><span>All EV Stations</span>
     </div>
     <div class="legend-item" id="filteredLegendItem" style="display: none; cursor: pointer;" title="Click to clear filter" onclick="document.getElementById('clearStateSelection').click()">
-     <div class="legend-color-box" style="background: linear-gradient(135deg, #15B392 0%, #34D399 100%);"></div><span id="filteredLegendText">Filtered State</span> <span style="margin-left: auto; font-size: 10px; color: #999;">✕</span>
+     <div class="legend-marker-icon">
+      <div style="width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px rgba(255,255,255,0.8), 0 0 4px rgba(0,0,0,0.25);">
+       <div style="width: 14px; height: 14px; background: #15B392; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+        <svg viewBox="0 0 24 24" fill="white" style="width: 8px; height: 8px;">
+         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+       </div>
+      </div>
+     </div><span id="filteredLegendText">Filtered State</span> <span style="margin-left: auto; font-size: 10px; color: #999;">✕</span>
+    </div>
+    <div class="legend-item" id="selectedLegendItem" style="display: none;">
+     <div class="legend-marker-icon">
+      <div class="station-pulse-marker" style="transform: scale(0.55); transform-origin: center;">
+       <div class="pulse-ring"></div>
+       <div class="pulse-core">
+        <svg viewBox="0 0 24 24" fill="black" style="width: 9px; height: 9px;">
+         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+       </div>
+      </div>
+     </div><span>Selected Station</span>
     </div>
    </div>
    <div id="filtersPanel" class="filter-panel">
@@ -3240,6 +3318,8 @@
         let currentView = 'clustered';
         let allMarkersArray = [];
         let routePolyline = null;
+        let routeTrafficLayers = [];
+        let routeEtaMarker = null;
         let navigationActive = false;
         let currentRouteSteps = [];
         let currentStepIndex = 0;
@@ -3255,10 +3335,12 @@
         let smoothedHeading = 0;
         let lastRerouteTime = 0;
         let navGlMap = null;
+        let navGlMapReady = false;
         let navGlMarker = null;
         let navGlDestMarker = null;
         let navGlRouteData = null;
         let navigationRouteGeoJSON = null;
+        const OSRM_BASE_URL = 'http://localhost:5000';
         let navGl3DEnabled = false;
         const NAV_GL_STYLE_LIGHT = 'https://tiles.openfreemap.org/styles/positron';
         const NAV_GL_STYLE_DARK = 'https://tiles.openfreemap.org/styles/liberty';
@@ -3593,6 +3675,7 @@
                 autoHidePanels();
 
                 map.on('click', autoHidePanels);
+                map.on('click', closeStationDetail);
                 map.on('movestart', autoHidePanels);
             }).catch(error => {
                 console.error("Failed to load EV stations:", error);
@@ -3612,16 +3695,30 @@
 
         function addStationsToNavMap() {
             if (!navGlMap) return;
-
-            // Wait for style to load
-            if (!navGlMap.isStyleLoaded()) {
-                navGlMap.once('load', addStationsToNavMap);
+            if (!navGlMapReady) {
+                if (navGlMap) {
+                    navGlMap.once('load', () => {
+                        if (!navGlMapReady) return;
+                        addStationsToNavMap();
+                    });
+                }
                 return;
             }
 
             // Prepare Data with isDestination flag
             const features = allStations.map(station => {
-                const isDest = !!(navigationDestination && navigationDestination.id != null && station.id === navigationDestination.id);
+                let isDest = false;
+                if (navigationDestination) {
+                    if (navigationDestination.id != null && station.id === navigationDestination.id) {
+                        isDest = true;
+                    } else if (navigationDestination.id == null) {
+                        const [stationLng, stationLat] = station.geometry.coordinates || [null, null];
+                        if (stationLat != null && stationLng != null) {
+                            isDest = Math.abs(stationLat - navigationDestination.lat) < 0.0001 &&
+                                     Math.abs(stationLng - navigationDestination.lng) < 0.0001;
+                        }
+                    }
+                }
  
                 return {
                     ...station,
@@ -3698,8 +3795,8 @@
                         ctx.fillStyle = '#FFDD3C';
                         ctx.fill();
                         
-                        // Draw Lightning Bolt (Dark Grey for contrast)
-                        ctx.fillStyle = '#333333';
+                        // Draw Lightning Bolt (Pure Black for strong contrast)
+                        ctx.fillStyle = '#000000';
                         ctx.beginPath();
                         // Simple bolt shape centered
                         ctx.moveTo(centerX + 3, centerY - 10);
@@ -3861,6 +3958,7 @@
             navGlMap.on('touchstart', closeFiltersPanel);
 
             navGlMap.on('load', () => {
+                navGlMapReady = true;
                 if (!navGlMap.getLayer('3d-buildings')) {
                     const style = navGlMap.getStyle();
                     let buildingSource = 'openmaptiles';
@@ -3982,20 +4080,31 @@
 
         function updateNavGlRoute(rawCoords) {
             if (!navGlMap || !rawCoords || !rawCoords.length) return;
-            if (!navGlMap.isStyleLoaded()) {
-                navGlMap.once('load', () => updateNavGlRoute(rawCoords));
+            if (!navGlMapReady) {
+                if (navGlMap) {
+                    navGlMap.once('load', () => updateNavGlRoute(rawCoords));
+                }
                 return;
             }
 
-            // Update Destination Marker
+            // Update Destination Marker (Yellow circle with black bolt, matching 2D)
             const destCoords = rawCoords[rawCoords.length - 1];
             if (navGlDestMarker) {
                 navGlDestMarker.setLngLat(destCoords);
             } else {
                 const el = document.createElement('div');
                 el.className = 'nav-gl-dest-marker';
-                el.innerHTML = '⚡';
-                navGlDestMarker = new maplibregl.Marker({ element: el })
+                el.innerHTML = `
+                    <div class="station-pulse-marker">
+                        <div class="pulse-ring"></div>
+                        <div class="pulse-core">
+                            <svg viewBox="0 0 24 24" fill="black" style="width: 16px; height: 16px;">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            </svg>
+                        </div>
+                    </div>
+                `;
+                navGlDestMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
                     .setLngLat(destCoords)
                     .addTo(navGlMap);
             }
@@ -4277,6 +4386,7 @@
             const defaultLegendItem = document.getElementById('defaultLegendItem');
             const filteredLegendItem = document.getElementById('filteredLegendItem');
             const filteredLegendText = document.getElementById('filteredLegendText');
+            const selectedLegendItem = document.getElementById('selectedLegendItem');
 
             // Update the Summary Cards and Legend based on selected state
             if (filterState) {
@@ -4286,8 +4396,25 @@
                 filteredLegendText.textContent = 'Filtered: ' + filterState;
             } else {
                 mapLegend.classList.remove('highlighted');
-                defaultLegendItem.style.display = 'flex';
+                if (selectedStation) {
+                    defaultLegendItem.style.display = 'none';
+                } else {
+                    defaultLegendItem.style.display = 'flex';
+                }
                 filteredLegendItem.style.display = 'none';
+            }
+
+            if (selectedStation) {
+                mapLegend.classList.add('selected');
+            } else {
+                mapLegend.classList.remove('selected');
+            }
+
+            // Selected station legend entry
+            if (selectedStation && selectedLegendItem) {
+                selectedLegendItem.style.display = 'flex';
+            } else if (selectedLegendItem) {
+                selectedLegendItem.style.display = 'none';
             }
 
             // 3. APPLY FILTERS (State + Plug Type + Power)
@@ -4331,10 +4458,10 @@
             stationsToRender.forEach(station => {
                 const coords = station.geometry.coordinates;
                 const icon = L.divIcon({
-                    html: `<div style="width: 28px; height: 28px; background: ${filterState ? '#15B392' : '#3559E8'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 8px rgba(0,0,0,0.2);"><svg viewBox="0 0 24 24" fill="white" style="width: 14px; height: 14px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>`,
+                    html: `<div style="width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px rgba(255,255,255,0.8), 0 0 6px rgba(0,0,0,0.25);"><div style="width: 22px; height: 22px; background: ${filterState ? '#15B392' : '#3559E8'}; border-radius: 50%; display: flex; align-items: center; justify-content: center;"><svg viewBox="0 0 24 24" fill="white" style="width: 12px; height: 12px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div></div>`,
                     className: 'ev-marker',
-                    iconSize: [28, 28],
-                    iconAnchor: [14, 14]
+                    iconSize: [26, 26],
+                    iconAnchor: [13, 13]
                 });
 
                 const marker = L.marker([coords[1], coords[0]], { icon });
@@ -4377,6 +4504,72 @@
             }
             updateNearestStations(stationsToRender);
             updateClearButtonVisibility();
+
+            // If there is an active navigation destination, highlight it with the pulsing icon
+            if (navigationDestination) {
+                const destLat = navigationDestination.lat;
+                const destLng = navigationDestination.lng;
+                let destHighlighted = false;
+                allMarkersArray.forEach(m => {
+                    const mLat = m.getLatLng().lat;
+                    const mLng = m.getLatLng().lng;
+                    const isDest = Math.abs(mLat - destLat) < 0.0001 && Math.abs(mLng - destLng) < 0.0001;
+                    if (isDest) {
+                        const pulseIcon = L.divIcon({
+                            html: `<div class="station-pulse-marker">
+                                    <div class="pulse-ring"></div>
+                                    <div class="pulse-core">
+                                        <svg viewBox="0 0 24 24" fill="black" style="width: 16px; height: 16px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                    </div>
+                                   </div>`,
+                            className: 'station-selected-icon',
+                            iconSize: [40, 40],
+                            iconAnchor: [20, 20]
+                        });
+                        m.setIcon(pulseIcon);
+                        m.setZIndexOffset(1000);
+                        destHighlighted = true;
+                    }
+                });
+
+                // Fallback: if no marker matched by coords (e.g. tiny rounding), approximate nearest
+                if (!destHighlighted && allMarkersArray.length > 0) {
+                    let bestMarker = null;
+                    let bestDist = Infinity;
+                    allMarkersArray.forEach(m => {
+                        const mLat = m.getLatLng().lat;
+                        const mLng = m.getLatLng().lng;
+                        const dLat = mLat - destLat;
+                        const dLng = mLng - destLng;
+                        const distSq = dLat * dLat + dLng * dLng;
+                        if (distSq < bestDist) {
+                            bestDist = distSq;
+                            bestMarker = m;
+                        }
+                    });
+                    if (bestMarker) {
+                        const pulseIcon = L.divIcon({
+                            html: `<div class="station-pulse-marker">
+                                    <div class="pulse-ring"></div>
+                                    <div class="pulse-core">
+                                        <svg viewBox="0 0 24 24" fill="black" style="width: 16px; height: 16px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                    </div>
+                                   </div>`,
+                            className: 'station-selected-icon',
+                            iconSize: [40, 40],
+                            iconAnchor: [20, 20]
+                        });
+                        bestMarker.setIcon(pulseIcon);
+                        bestMarker.setZIndexOffset(1000);
+                    }
+                }
+            }
+        }
+
+        function clearSelectedStationHighlight() {
+            const activeStateName = document.querySelector('.state-summary-card.active .state-summary-name')?.textContent || null;
+            selectedStation = null;
+            renderStations(activeStateName || null, false);
         }
 
         function resetToMalaysiaView() {
@@ -4390,7 +4583,8 @@
         }
 
         function showStationPopup(station) {
-            // 1. Save selected station for navigation
+            clearSelectedStationHighlight();
+
             selectedStation = {
                 lat: station.geometry.coordinates[1],
                 lng: station.geometry.coordinates[0],
@@ -4398,6 +4592,42 @@
                 image: station.properties.image,
                 id: station.id
             };
+
+            const selLat = selectedStation.lat;
+            const selLng = selectedStation.lng;
+            allMarkersArray.forEach(m => {
+                const mLat = m.getLatLng().lat;
+                const mLng = m.getLatLng().lng;
+                const isSel = Math.abs(mLat - selLat) < 0.0001 && Math.abs(mLng - selLng) < 0.0001;
+                if (isSel) {
+                    const pulseIcon = L.divIcon({
+                        html: `<div class="station-pulse-marker">
+                                <div class="pulse-ring"></div>
+                                <div class="pulse-core">
+                                    <svg viewBox="0 0 24 24" fill="black" style="width: 16px; height: 16px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                </div>
+                               </div>`,
+                        className: 'station-selected-icon',
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 20]
+                    });
+                    m.setIcon(pulseIcon);
+                    m.setZIndexOffset(1000);
+                }
+            });
+
+            const selectedLegendItem = document.getElementById('selectedLegendItem');
+            const defaultLegendItem = document.getElementById('defaultLegendItem');
+            const mapLegend = document.getElementById('mapLegend');
+            if (selectedLegendItem) {
+                selectedLegendItem.style.display = 'flex';
+            }
+            if (defaultLegendItem) {
+                defaultLegendItem.style.display = 'none';
+            }
+            if (mapLegend) {
+                mapLegend.classList.add('selected');
+            }
 
             const props = station.properties;
 
@@ -4596,6 +4826,20 @@
                 </div>`).join('');
         }
 
+        function clearRouteTrafficLayers() {
+            if (!map || !routeTrafficLayers || routeTrafficLayers.length === 0) return;
+            routeTrafficLayers.forEach(layer => {
+                try {
+                    map.removeLayer(layer);
+                } catch {}
+            });
+            routeTrafficLayers = [];
+        }
+
+        function updateRouteTrafficOverlay(route) {
+            clearRouteTrafficLayers();
+        }
+
         function onNearestItemClick(lat, lng, name) {
             if (window.innerWidth <= 768) {
                 const station = allStations.find(s => {
@@ -4677,6 +4921,15 @@
                     map.removeLayer(routePolyline);
                     routePolyline = null;
                 }
+                if (routeEtaMarker) {
+                    map.removeLayer(routeEtaMarker);
+                    routeEtaMarker = null;
+                }
+                clearRouteTrafficLayers();
+
+                // Cancel current routing destination and selection
+                navigationDestination = null;
+                selectedStation = null;
                 
                 // Re-render markers to restore default icons
                 const activeState = document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null;
@@ -4694,6 +4947,11 @@
                          map.removeLayer(routePolyline);
                          routePolyline = null;
                     }
+                    if (routeEtaMarker) {
+                         map.removeLayer(routeEtaMarker);
+                         routeEtaMarker = null;
+                    }
+                    clearRouteTrafficLayers();
                 };
                 closeRouting();
             };
@@ -4966,6 +5224,11 @@
 
             document.getElementById('routingDistance').textContent = 'Calculating...';
             document.getElementById('routingTime').textContent = '--:--';
+            const etaChipEl = document.getElementById('routingEtaChip');
+            if (etaChipEl) {
+                etaChipEl.style.display = 'none';
+                etaChipEl.textContent = '-- min';
+            }
 
             const mediaCoverEl = document.querySelector('#navMediaCard .nav-media-cover');
             const mediaTitleEl = document.querySelector('#navMediaCard .nav-media-title');
@@ -4990,6 +5253,9 @@
             if (routePolyline) map.removeLayer(routePolyline);
 
             // 0. Update Marker Icon for Destination (Yellow Pulse)
+            const activeState = document.querySelector('.state-summary-card.active')?.querySelector('.state-summary-name')?.textContent || null;
+            renderStations(activeState, false);
+
             allMarkersArray.forEach(m => {
                 const mLat = m.getLatLng().lat;
                 const mLng = m.getLatLng().lng;
@@ -5019,7 +5285,7 @@
             // 1. Try OSRM Routing API
             try {
                 showToast('🚗 Calculating route...');
-                const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${userLocation.lng},${userLocation.lat};${lng},${lat}?overview=full&geometries=geojson&steps=true`);
+                const response = await fetch(`${OSRM_BASE_URL}/route/v1/driving/${userLocation.lng},${userLocation.lat};${lng},${lat}?overview=full&geometries=geojson&steps=true`);
                 const data = await response.json();
 
                 if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
@@ -5046,9 +5312,54 @@
                     const distKm = routeTotalDistanceKm.toFixed(1);
                     const hrs = Math.floor(routeTotalDurationMin / 60);
                     const mins = routeTotalDurationMin % 60;
+
+                    const etaDurationText = routeTotalDurationMin > 0 ? `${routeTotalDurationMin} min` : '0 min';
+
+                    const nowForEta = new Date();
+                    const arrivalForEta = new Date(nowForEta.getTime() + routeTotalDurationMin * 60000);
+                    let etaHours = arrivalForEta.getHours();
+                    const etaMinutesNum = arrivalForEta.getMinutes();
+                    const ampm = etaHours >= 12 ? 'PM' : 'AM';
+                    etaHours = etaHours % 12;
+                    if (etaHours === 0) etaHours = 12;
+                    const etaMinutesStr = etaMinutesNum.toString().padStart(2, '0');
+                    const etaArrivalText = `${etaHours}:${etaMinutesStr} ${ampm}`;
                     
                     document.getElementById('routingDistance').textContent = `${distKm} km`;
                     document.getElementById('routingTime').textContent = hrs > 0 ? `${hrs}h ${mins}m` : `${mins} min`;
+
+                    const etaChipEl2 = document.getElementById('routingEtaChip');
+                    if (etaChipEl2) {
+                        etaChipEl2.textContent = etaArrivalText;
+                        etaChipEl2.style.display = 'inline-flex';
+                    }
+
+                    if (map && typeof L !== 'undefined' && routePolyline) {
+                        let latlngs = routePolyline.getLatLngs();
+                        if (Array.isArray(latlngs) && latlngs.length > 0) {
+                            if (Array.isArray(latlngs[0])) {
+                                latlngs = latlngs.flat();
+                            }
+                            const midIndex = Math.floor(latlngs.length / 2);
+                            const midLatLng = latlngs[midIndex];
+                            if (routeEtaMarker) {
+                                map.removeLayer(routeEtaMarker);
+                                routeEtaMarker = null;
+                            }
+                            const etaIcon = L.divIcon({
+                                html: `<div style="padding:4px 10px;border-radius:6px;background:#ffffff;color:#111827;font-size:11px;font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,0.18);border:1px solid rgba(148,163,184,0.8);white-space:nowrap;">${etaDurationText}</div>`,
+                                className: 'route-eta-marker',
+                                iconSize: null
+                            });
+                            routeEtaMarker = L.marker(midLatLng, {
+                                icon: etaIcon,
+                                interactive: false,
+                                zIndexOffset: 1000
+                            }).addTo(map);
+                        }
+                    }
+
+                    updateRouteTrafficOverlay(route);
 
                     // Prime HUD metrics
                     const hudDistanceEl = document.getElementById('hudDistance');
@@ -5094,7 +5405,16 @@
                 showToast('⚠️ Road routing failed, showing straight line');
                 
                 // Fallback to straight line
-                routePolyline = L.polyline([[userLocation.lat, userLocation.lng], [lat, lng]], { color: '#007FFF', weight: 6, dashArray: '10, 10' }).addTo(map);
+                const fallbackRawCoords = [
+                    [userLocation.lng, userLocation.lat],
+                    [lng, lat]
+                ];
+                const fallbackLeafletCoords = fallbackRawCoords.map(c => [c[1], c[0]]);
+                routePolyline = L.polyline(fallbackLeafletCoords, { 
+                    color: '#007FFF', 
+                    weight: 6, 
+                    dashArray: '10, 10' 
+                }).addTo(map);
                 
                 // Calculate straight line distance
                 const dist = getDistance(userLocation.lat, userLocation.lng, lat, lng);
@@ -5102,12 +5422,33 @@
                 routeTotalDurationMin = 0;
                 document.getElementById('routingDistance').textContent = `${dist.toFixed(1)} km (Linear)`;
                 document.getElementById('routingTime').textContent = '--';
+                const etaChipFallback = document.getElementById('routingEtaChip');
+                if (etaChipFallback) {
+                    etaChipFallback.style.display = 'none';
+                    etaChipFallback.textContent = '-- min';
+                }
+                if (routeEtaMarker) {
+                    map.removeLayer(routeEtaMarker);
+                    routeEtaMarker = null;
+                }
                 
                 map.fitBounds(routePolyline.getBounds(), { 
                     padding: [50, 50],
                     animate: true,
                     duration: 5.0
                 });
+
+                // Ensure 3D nav map also shows this fallback route
+                navigationRouteGeoJSON = {
+                    type: 'LineString',
+                    coordinates: fallbackRawCoords
+                };
+                ensureNavGlMap();
+                updateNavGlRoute(fallbackRawCoords);
+                updateNavRouteLine();
+                
+                // Update stations to highlight the destination in 3D
+                addStationsToNavMap();
             }
         }
 
@@ -5120,8 +5461,9 @@
             try {
                 const { lat, lng, name } = navigationDestination;
                 if (routePolyline) map.removeLayer(routePolyline);
+                clearRouteTrafficLayers();
 
-                const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${userLocation.lng},${userLocation.lat};${lng},${lat}?overview=full&geometries=geojson&steps=true`);
+                const response = await fetch(`${OSRM_BASE_URL}/route/v1/driving/${userLocation.lng},${userLocation.lat};${lng},${lat}?overview=full&geometries=geojson&steps=true`);
                 const data = await response.json();
 
                 if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
@@ -5173,6 +5515,7 @@
                         navArrivalEnergyEl.textContent = `${distKm} km`;
                     }
 
+                    updateRouteTrafficOverlay(route);
                     ensureNavGlMap();
                     updateNavGlRoute(rawCoords);
                     updateNavRouteLine();
@@ -5225,6 +5568,12 @@
                 if (navGlMap.getLayer('3d-buildings')) {
                     navGlMap.setLayoutProperty('3d-buildings', 'visibility', 'visible');
                 }
+
+                // Ensure latest route and stations are visible when navigation starts
+                if (navigationRouteGeoJSON && navigationRouteGeoJSON.coordinates && navigationRouteGeoJSON.coordinates.length) {
+                    updateNavGlRoute(navigationRouteGeoJSON.coordinates);
+                }
+                addStationsToNavMap();
             }
 
             // Phase 2: The Transition Hand-off
@@ -5728,7 +6077,7 @@
             });
         }
 
-        function closeStationDetail() { document.getElementById('stationDetailPanel').classList.remove('active'); }
+        function closeStationDetail() { document.getElementById('stationDetailPanel').classList.remove('active'); clearSelectedStationHighlight(); }
         function startDirectionsFromDetail() { if (selectedStation) getDirections(selectedStation.lat, selectedStation.lng, selectedStation.name, selectedStation.id); closeStationDetail(); }
         function shareStationLocation() {
             if (!selectedStation) return;
@@ -5821,11 +6170,24 @@
             navigationActive = false;
             isGuidanceActive = false; // Reset guidance flag for next session
             
-            // Clean up 3D navigation layers and source
+            // Clean up 3D navigation route data but keep layers so next navigation reuses them
             if (navGlMap) {
-                if (navGlMap.getLayer('nav-route-arrows')) navGlMap.removeLayer('nav-route-arrows');
-                if (navGlMap.getLayer('nav-route-line')) navGlMap.removeLayer('nav-route-line');
-                if (navGlMap.getSource('nav-route')) navGlMap.removeSource('nav-route');
+                if (navGlMap.getSource('nav-route')) {
+                    navGlMap.getSource('nav-route').setData({
+                        type: 'Feature',
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: []
+                        },
+                        properties: {}
+                    });
+                }
+                if (navGlMap.getSource('route-source')) {
+                    navGlMap.getSource('route-source').setData({
+                        type: 'FeatureCollection',
+                        features: []
+                    });
+                }
             }
 
             if (geolocationWatchId) navigator.geolocation.clearWatch(geolocationWatchId);
@@ -5889,6 +6251,19 @@
                 map.removeLayer(routePolyline);
                 routePolyline = null;
             }
+            if (routeEtaMarker) {
+                map.removeLayer(routeEtaMarker);
+                routeEtaMarker = null;
+            }
+            clearRouteTrafficLayers();
+            // Extra safety: remove any leftover Leaflet route polylines
+            if (map && typeof L !== 'undefined') {
+                map.eachLayer(layer => {
+                    if (layer instanceof L.Polyline && layer.options && layer.options.className === 'route-line') {
+                        map.removeLayer(layer);
+                    }
+                });
+            }
 
             if (navGlDestMarker) {
                 navGlDestMarker.remove();
@@ -5916,7 +6291,6 @@
             }
             const navLayerBtn = document.getElementById('navLayerBtn');
             if (navLayerBtn) {
-                navLayerBtn.innerText = 'SATELLITE';
                 navLayerBtn.classList.remove('active-layer');
             }
 
