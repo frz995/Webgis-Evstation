@@ -5535,7 +5535,8 @@
                 });
             }
 
-            function autoHideNavCards() {
+            window.autoHideNavCards = function() {
+                if (window.innerWidth > 768) return; // mobile only
                 const mediaCard = document.getElementById('navMediaCard');
                 const energyCard = document.querySelector('.nav-energy-card');
                 if (mediaCard) {
@@ -5548,7 +5549,7 @@
                         energyCard.classList.add('nav-autohide-hidden');
                     }, 5000);
                 }
-            }
+            };
 
             if (navZoomInBtn) {
                 navZoomInBtn.onclick = () => {
