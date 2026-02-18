@@ -949,10 +949,12 @@
             max-height: 140px;
             overflow-y: auto;
             padding-right: 4px;
+            scrollbar-width: none;
         }
 
         .state-summary-grid-container::-webkit-scrollbar {
-            width: 6px;
+            width: 0;
+            height: 0;
         }
 
         .state-summary-grid-container::-webkit-scrollbar-track {
@@ -1106,10 +1108,12 @@
             flex: 1;
             overflow-y: auto;
             padding-right: 4px;
+            scrollbar-width: none;
         }
 
         #nearestList::-webkit-scrollbar {
-            width: 6px;
+            width: 0;
+            height: 0;
         }
 
         #nearestList::-webkit-scrollbar-track {
@@ -1294,30 +1298,156 @@
         }
 
         .turn-instruction-bar {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            transform: translateX(-150%);
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            color: #1a1a1a;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            color: #0f172a;
             padding: 18px 22px;
-            border-radius: 18px;
-            z-index: 3000;
-            box-shadow: 0 16px 45px rgba(15, 23, 42, 0.22);
-            border: 1px solid rgba(148, 163, 184, 0.45);
+            border-radius: 20px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.22);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            width: 280px;
+        }
+
+        .turn-instruction-main {
             display: flex;
             align-items: center;
             gap: 16px;
-            width: 280px;
-            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-            pointer-events: none;
         }
 
-        .turn-instruction-bar.active {
-            transform: translateX(0);
+        .directions-panel {
+            width: 100%;
+            margin-top: 6px;
+            max-height: 0;
+            background: transparent;
+            border-radius: 0;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            pointer-events: none;
+            transform-origin: top center;
+            transform: scaleY(0.96);
+            opacity: 0;
+            transition:
+                max-height 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
+                transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
+                opacity 0.35s ease-out;
+        }
+
+        .directions-panel.active {
+            max-height: 240px;
             pointer-events: auto;
+            transform: scaleY(1);
+            opacity: 1;
+        }
+
+        .directions-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 4px 2px 4px;
+            border-bottom: none;
+        }
+
+        .directions-title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #4b5563;
+        }
+
+        .directions-close {
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            cursor: pointer;
+            color: #9ca3af;
+            padding: 2px 4px;
+        }
+
+        .directions-list {
+            padding: 8px 10px 10px 10px;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        .directions-list::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+
+        .directions-item {
+            display: flex;
+            gap: 10px;
+            padding: 8px 6px;
+            border-radius: 10px;
+        }
+
+        .directions-item + .directions-item {
+            margin-top: 4px;
+        }
+
+        .directions-index {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            background: #eff6ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #1d4ed8;
+        }
+
+        .directions-index svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .directions-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .directions-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .directions-meta {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .dark-mode .directions-panel {
+            background: rgba(15, 23, 42, 0.98);
+            border-color: #1f2937;
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.9);
+        }
+
+        .dark-mode .directions-header {
+            border-bottom-color: #1f2937;
+        }
+
+        .dark-mode .directions-title {
+            color: #9ca3af;
+        }
+
+        .dark-mode .directions-text {
+            color: #e5e7eb;
+        }
+
+        .dark-mode .directions-meta {
+            color: #9ca3af;
+        }
+
+        .dark-mode .directions-index {
+            background: rgba(15, 23, 42, 0.9);
+            color: #93c5fd;
         }
 
         .turn-instruction-icon {
@@ -1373,15 +1503,15 @@
             bottom: 26px;
             left: 50%;
             transform: translateX(-50%) translateY(150%);
-            background: white;
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             color: #111827;
             padding: 12px 18px 10px 18px;
             border-radius: 16px;
             z-index: 3000;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            border: 1px solid #e0e0e0;
+            box-shadow: 0 10px 34px rgba(15, 23, 42, 0.22);
+            border: 1px solid rgba(224, 231, 255, 0.55);
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -1513,36 +1643,44 @@
             border-left-color: #374151;
         }
 
-        .nav-left-stack {
+        .nav-left-column {
             position: fixed;
-            top: 112px;
+            top: 20px;
             left: 20px;
             display: flex;
             flex-direction: column;
             gap: 10px;
             z-index: 3000;
             transform: translateX(-150%);
-            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            transition: transform 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28);
             pointer-events: none;
         }
 
-        .nav-left-stack.active {
+        .nav-left-column.active {
             transform: translateX(0);
             pointer-events: auto;
         }
 
+        .nav-left-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         .nav-card {
-            background: white;
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 18px;
             padding: 12px 14px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            border: 1px solid #e0e0e0;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.24);
+            border: 1px solid rgba(226, 232, 240, 0.4);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
 
         .dark-mode .nav-card {
-            background: #020617;
-            border-color: #1f2937;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85);
+            background: rgba(15, 23, 42, 0.7);
+            border-color: rgba(31, 41, 55, 0.7);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9);
         }
 
         .nav-media-card {
@@ -1550,6 +1688,10 @@
             align-items: center;
             gap: 10px;
             width: 280px;
+            flex-wrap: wrap;
+            cursor: pointer;
+            position: relative;
+            padding-right: 26px;
         }
 
         .nav-media-cover {
@@ -1594,8 +1736,29 @@
             font-weight: 500;
         }
 
+        .nav-media-details {
+            width: 100%;
+            margin-top: 6px;
+            font-size: 11px;
+            color: #4b5563;
+            line-height: 1.4;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .nav-media-card.expanded .nav-media-details {
+            max-height: 400px;
+        }
+
+        .nav-media-detail-line {
+            white-space: normal;
+        }
+
         .nav-media-close {
-            margin-left: auto;
+            position: absolute;
+            top: 6px;
+            right: 6px;
             border: none;
             background: transparent;
             font-size: 14px;
@@ -1604,7 +1767,7 @@
         }
 
         .dark-mode .nav-media-cover {
-            background: #020617;
+            background: rgba(15, 23, 42, 0.85);
         }
 
         .dark-mode .nav-media-title {
@@ -1615,8 +1778,18 @@
             color: #9ca3af;
         }
 
+        .dark-mode .nav-media-details {
+            color: #cbd5f5;
+        }
+
+        .dark-mode #navMediaCard {
+            background: rgba(15, 23, 42, 0.92);
+            border-color: rgba(30, 64, 175, 0.6);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.95);
+        }
+
         .dark-mode .nav-media-close {
-            color: #6b7280;
+            color: #9ca3af;
         }
 
         .nav-energy-card {
@@ -1624,17 +1797,16 @@
             align-items: center;
             justify-content: space-between;
             width: 280px;
-            padding: 14px 18px;
+            padding: 14px 18px 10px 18px;
             border-radius: 16px;
-            background: white;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            flex-direction: column;
         }
 
         .nav-energy-main {
             display: flex;
             align-items: center;
             gap: 10px;
+            width: 100%;
         }
 
         .nav-energy-icon {
@@ -1699,20 +1871,21 @@
             width: 40px;
             height: 40px;
             border-radius: 12px;
-            border: 1px solid #e0e0e0;
-            background: white;
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+            border: 1px solid rgba(224, 231, 255, 0.55);
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             font-size: 18px;
+            color: #0f172a;
         }
 
         .dark-mode .nav-ctrl-btn {
-            border-color: #1f2937;
-            background: #020617;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+            border-color: rgba(30, 64, 175, 0.85);
+            background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.95);
             color: #e5e7eb;
         }
 
@@ -1736,6 +1909,29 @@
         .nav-energy-more {
             font-size: 18px;
             color: #9ca3af;
+            margin-left: auto;
+            cursor: pointer;
+        }
+
+        .nav-energy-details {
+            width: 100%;
+            margin-top: 6px;
+            font-size: 11px;
+            color: #4b5563;
+            line-height: 1.4;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .nav-energy-card.expanded .nav-energy-details {
+            max-height: 200px;
+        }
+
+        .nav-energy-detail-line {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
 
         .dark-mode .nav-energy-card {
@@ -1769,6 +1965,52 @@
             color: #4b5563;
         }
 
+        .nav-info-hud {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translate(-50%, -150%);
+            z-index: 3000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .nav-info-hud.active {
+            opacity: 1;
+            transform: translate(-50%, 0);
+            pointer-events: auto;
+        }
+
+        .nav-info-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
+            border: 1px solid rgba(224, 231, 255, 0.55);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            color: #0f172a;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .nav-info-item {
+            white-space: nowrap;
+        }
+
+        .nav-info-divider {
+            width: 1px;
+            height: 18px;
+            background: rgba(148, 163, 184, 0.85);
+        }
+
         .nav-speed-hud {
             position: fixed;
             top: 20px;
@@ -1776,11 +2018,11 @@
             display: flex;
             align-items: center;
             z-index: 3000;
-            background: white;
+            background: rgba(255, 255, 255, 0.7);
             border-radius: 16px;
             padding: 4px;
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
-            border: 1px solid #e0e0e0;
+            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.22);
+            border: 1px solid rgba(224, 231, 255, 0.55);
             
             /* Transition properties */
             opacity: 0;
@@ -1937,10 +2179,18 @@
             overflow-y: auto;
             overflow-x: hidden;
             display: none;
+            opacity: 0;
+            transform-origin: bottom right;
+            transform: translateY(8px) scale(0.96);
+            transition:
+                opacity 0.45s ease,
+                transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         .filter-panel.mobile-open {
             display: block;
+            opacity: 1;
+            transform: translateY(0) scale(1);
         }
 
         .legend-title {
@@ -2372,16 +2622,13 @@
                 display: block;
             }
 
-            .turn-instruction-bar {
+            .nav-left-column {
                 top: 10px;
                 left: 50%;
                 transform: translate(-50%, -150%);
-                padding: 12px 16px;
-                gap: 12px;
-                max-width: 95%;
             }
 
-            .turn-instruction-bar.active {
+            .nav-left-column.active {
                 transform: translate(-50%, 0);
             }
 
@@ -2907,7 +3154,7 @@
      <div id="nearestList"></div>
     </div>
    </div>
-   <div id="routingPanel" class="routing-panel">
+  <div id="routingPanel" class="routing-panel">
     <div class="routing-header">
      <div class="routing-header-main">
       <div class="routing-destination" id="routingDestination">
@@ -2932,19 +3179,31 @@
      </div>
     </div>
    </div>
-  <div id="turnInstructionBar" class="turn-instruction-bar">
-   <div class="turn-instruction-icon">
-   </div>
-   <div class="turn-instruction-content">
-    <div class="turn-instruction-distance" id="turnDistanceText">
-     -- km
+  <div class="nav-left-column">
+   <div id="turnInstructionBar" class="turn-instruction-bar">
+    <div class="turn-instruction-main">
+     <div class="turn-instruction-icon">
+     </div>
+     <div class="turn-instruction-content">
+      <div class="turn-instruction-distance" id="turnDistanceText">
+       -- km
+      </div>
+      <div class="turn-instruction-text" id="turnInstructionText">
+       Navigation active
+      </div>
+     </div>
     </div>
-    <div class="turn-instruction-text" id="turnInstructionText">
-     Navigation active
+    <div id="directionsPanel" class="directions-panel">
+     <div class="directions-header">
+      <div class="directions-title">
+       Directions
+      </div>
+     </div>
+     <div id="directionsList" class="directions-list">
+     </div>
     </div>
    </div>
-  </div>
-  <div class="nav-left-stack">
+   <div class="nav-left-stack">
    <div class="nav-card nav-media-card" id="navMediaCard">
     <div class="nav-media-cover">
     </div>
@@ -2959,8 +3218,16 @@
     <button class="nav-media-close" onclick="document.getElementById('navMediaCard').style.display='none'">
      ✕
     </button>
+    <div class="nav-media-details" id="navMediaDetails">
+     <div class="nav-media-detail-line" id="navMediaDetailAddress"></div>
+     <div class="nav-media-detail-line" id="navMediaDetailOperator"></div>
+     <div class="nav-media-detail-line" id="navMediaDetailUsage"></div>
+     <div class="nav-media-detail-line" id="navMediaDetailAccess"></div>
+     <div class="nav-media-detail-line" id="navMediaDetailChargers"></div>
+     <div class="nav-media-detail-line" id="navMediaDetailPrice"></div>
+    </div>
    </div>
-   <div class="nav-energy-card">
+   <div class="nav-card nav-energy-card">
     <div class="nav-energy-main">
      <div class="nav-energy-icon">
       ⚡
@@ -2974,9 +3241,20 @@
       </div>
      </div>
     </div>
-    <div class="nav-energy-more">
-     ⋮
+    <div class="nav-energy-details" id="navEnergyDetails">
+     <div class="nav-energy-detail-line" id="navEnergyDetailBatteryNow"></div>
+     <div class="nav-energy-detail-line" id="navEnergyDetailBatteryArrival"></div>
+     <div class="nav-energy-detail-line" id="navEnergyDetailDistance"></div>
+     <div class="nav-energy-detail-line" id="navEnergyDetailDuration"></div>
     </div>
+   </div>
+   </div>
+  </div>
+  <div id="navInfoHUD" class="nav-info-hud">
+   <div class="nav-info-pill">
+    <div class="nav-info-item" id="navTimeDisplay">--:-- --</div>
+    <div class="nav-info-divider"></div>
+    <div class="nav-info-item" id="navTempDisplay">--°C</div>
    </div>
   </div>
   <div id="navHUD" class="nav-hud">
@@ -3040,16 +3318,16 @@
    </div>
   </div>
   <div class="nav-right-stack">
-   <button id="navLayerBtn" class="nav-ctrl-btn" onclick="toggleNavLayer()" style="margin-bottom: 8px;">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-    </svg>
-   </button>
-   <button id="navRecenterBtn" class="nav-ctrl-btn">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-     <polygon points="12 2 2 22 12 18 22 22 12 2" fill="#f8fafc" stroke="#64748b"/>
-    </svg>
-   </button>
+  <button id="navLayerBtn" class="nav-ctrl-btn" onclick="toggleNavLayer()" style="margin-bottom: 8px;">
+   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+   </svg>
+  </button>
+  <button id="navRecenterBtn" class="nav-ctrl-btn">
+   <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="12 2 2 22 12 18 22 22 12 2"/>
+   </svg>
+  </button>
    <button id="navZoomInBtn" class="nav-ctrl-btn">
     +
    </button>
@@ -3336,14 +3614,19 @@
         let lastRerouteTime = 0;
         let navGlMap = null;
         let navGlMapReady = false;
+        let navGlIsDarkStyle = false;
         let navGlMarker = null;
         let navGlDestMarker = null;
         let navGlRouteData = null;
         let navigationRouteGeoJSON = null;
-        const OSRM_BASE_URL = 'http://localhost:5000';
+        let navInfoTimeIntervalId = null;
+        let navInfoTempIntervalId = null;
+        const OSRM_BASE_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+            ? 'http://localhost:5000'
+            : 'https://router.project-osrm.org';
         let navGl3DEnabled = false;
         const NAV_GL_STYLE_LIGHT = 'https://tiles.openfreemap.org/styles/positron';
-        const NAV_GL_STYLE_DARK = 'https://tiles.openfreemap.org/styles/liberty';
+        const NAV_GL_STYLE_DARK = 'https://tiles.openfreemap.org/styles/fiord-color';
         const MALAYSIA_STATES = [
             'Johor','Kedah','Kelantan','Melaka','Negeri Sembilan','Pahang','Perak','Perlis','Pulau Pinang','Sabah','Sarawak','Selangor','Terengganu','Kuala Lumpur'
         ];
@@ -3389,6 +3672,60 @@
         }
         return t ? t : 'Unknown';
     }
+
+        function updateNavTime() {
+            const el = document.getElementById('navTimeDisplay');
+            if (!el) return;
+            const d = new Date();
+            let h = d.getHours();
+            const m = d.getMinutes().toString().padStart(2, '0');
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12;
+            if (h === 0) h = 12;
+            el.textContent = h + ':' + m + ' ' + ampm;
+        }
+
+        async function fetchNavTemperature(lat, lng) {
+            try {
+                const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + encodeURIComponent(lat) + '&longitude=' + encodeURIComponent(lng) + '&current=temperature_2m&timezone=auto';
+                const res = await fetch(url);
+                if (!res.ok) return;
+                const data = await res.json();
+                const t = data && data.current && typeof data.current.temperature_2m === 'number' ? Math.round(data.current.temperature_2m) : null;
+                if (t === null) return;
+                const el = document.getElementById('navTempDisplay');
+                if (el) el.textContent = t + '°C';
+            } catch (e) {
+            }
+        }
+
+        function startNavInfoHud() {
+            const hud = document.getElementById('navInfoHUD');
+            if (hud) hud.classList.add('active');
+            updateNavTime();
+            if (navInfoTimeIntervalId) clearInterval(navInfoTimeIntervalId);
+            navInfoTimeIntervalId = setInterval(updateNavTime, 30000);
+            if (userLocation) {
+                fetchNavTemperature(userLocation.lat, userLocation.lng);
+                if (navInfoTempIntervalId) clearInterval(navInfoTempIntervalId);
+                navInfoTempIntervalId = setInterval(function () {
+                    if (userLocation) fetchNavTemperature(userLocation.lat, userLocation.lng);
+                }, 600000);
+            }
+        }
+
+        function stopNavInfoHud() {
+            const hud = document.getElementById('navInfoHUD');
+            if (hud) hud.classList.remove('active');
+            if (navInfoTimeIntervalId) {
+                clearInterval(navInfoTimeIntervalId);
+                navInfoTimeIntervalId = null;
+            }
+            if (navInfoTempIntervalId) {
+                clearInterval(navInfoTempIntervalId);
+                navInfoTempIntervalId = null;
+            }
+        }
 
         function aggregateConnections(conns) {
             if (!Array.isArray(conns) || conns.length === 0) return '-';
@@ -3682,15 +4019,16 @@
             });
         }
         function toggleMapTheme(isDark) {
-            if (!map) return;
-            if (baseLayer) {
-                map.removeLayer(baseLayer);
+            if (map) {
+                if (baseLayer) {
+                    map.removeLayer(baseLayer);
+                }
+                const url = isDark
+                    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+                baseLayer = L.tileLayer(url, { maxZoom: 19 });
+                baseLayer.addTo(map);
             }
-            const url = isDark
-                ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-                : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-            baseLayer = L.tileLayer(url, { maxZoom: 19 });
-            baseLayer.addTo(map);
         }
 
         function addStationsToNavMap() {
@@ -3934,16 +4272,18 @@
             if (navGlMap) return;
             const container = document.getElementById('navGlMap');
             if (!container) return;
+            const targetIsDark = !!isDarkMode;
             const center = userLocation ? [userLocation.lng, userLocation.lat] : [101.6869, 3.139];
             navGlMap = new maplibregl.Map({
                 container: 'navGlMap',
-                style: NAV_GL_STYLE_LIGHT,
+                style: targetIsDark ? NAV_GL_STYLE_DARK : NAV_GL_STYLE_LIGHT,
                 center,
                 zoom: 17,
                 pitch: 60,
                 bearing: 0,
                 attributionControl: true
             });
+            navGlIsDarkStyle = targetIsDark;
             // Removed default NavigationControl as per user request
             
             // Close filters panel on map interaction
@@ -4034,22 +4374,17 @@
                     const el = document.createElement('div');
                     el.className = 'nav-gl-marker';
                     el.innerHTML = `
-                    <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <filter id="navShadow" x="-50%" y="-50%" width="200%" height="200%">
-                                <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="rgba(0,0,0,0.4)"/>
-                            </filter>
-                        </defs>
-                        <g filter="url(#navShadow)">
-                            <!-- Right Face (Lit) -->
-                            <path d="M32 10 L50 50 Q41 46 32 46 Z" fill="#ef4444" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-                            <!-- Left Face (Shadowed) -->
-                            <path d="M32 10 L32 46 Q23 46 14 50 Z" fill="#b91c1c" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-                        </g>
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 4L34 32L20 26L6 32L20 4Z" fill="#E31937" stroke="white" stroke-width="2" stroke-linejoin="round"/>
                     </svg>
                     `;
-                    
-                    navGlMarker = new maplibregl.Marker({ element: el, anchor: 'center', rotationAlignment: 'map' })
+
+                    navGlMarker = new maplibregl.Marker({
+                            element: el,
+                            anchor: 'center',
+                            rotationAlignment: 'map',
+                            pitchAlignment: 'map'
+                        })
                         .setLngLat(center)
                         .addTo(navGlMap);
                 }
@@ -4180,13 +4515,23 @@
                 if (!navGlMarker) {
                     const el = document.createElement('div');
                     el.className = 'nav-gl-marker';
-                    navGlMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
+                    el.innerHTML = `
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 4L34 32L20 26L6 32L20 4Z" fill="#E31937" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+                    </svg>
+                    `;
+                    navGlMarker = new maplibregl.Marker({
+                            element: el,
+                            anchor: 'center',
+                            rotationAlignment: 'map',
+                            pitchAlignment: 'map'
+                        })
                         .setLngLat(rawCoords[0])
-                        .setRotation(initialBearing) // Immediate Alignment
+                        .setRotation(initialBearing)
                         .addTo(navGlMap);
                 } else {
                     navGlMarker.setLngLat(rawCoords[0]);
-                    navGlMarker.setRotation(initialBearing); // Immediate Alignment
+                    navGlMarker.setRotation(initialBearing);
                 }
                 
                 // Phase 2: Delayed 3D Transition (After 5 Seconds)
@@ -4296,13 +4641,48 @@
                 
                 // Update Nav Map if active
                 if (navGlMap) {
-                    addStationsToNavMap();
-                }
-
-                showToast(`✅ Loaded ${allStations.length} stations`);
-            } catch (error) {
-                showToast('❌ API Error');
+                addStationsToNavMap();
             }
+
+            showToast(`✅ Loaded ${allStations.length} stations`);
+        } catch (error) {
+            showToast('❌ API Error');
+        }
+        }
+
+        function renderDirectionsList() {
+            const listEl = document.getElementById('directionsList');
+            if (!listEl) return;
+            if (!currentRouteSteps || !currentRouteSteps.length) {
+                listEl.innerHTML = '';
+                return;
+            }
+            const items = currentRouteSteps.map(step => {
+                const distance = step.distance || 0;
+                const name = step.name || '';
+                const maneuver = step.maneuver || {};
+                const modifier = maneuver.modifier || maneuver.type || '';
+                const instruction = maneuver.instruction || '';
+                const text = instruction || name || 'Continue';
+                let distLabel;
+                if (distance >= 1000) {
+                    distLabel = (distance / 1000).toFixed(1) + ' km';
+                } else {
+                    distLabel = Math.round(distance) + ' m';
+                }
+                const meta = name ? distLabel + ' • ' + name : distLabel;
+                const arrow = getTurnIcon(modifier || 'straight');
+                return (
+                    '<div class="directions-item">' +
+                        '<div class="directions-index">' + arrow + '</div>' +
+                        '<div class="directions-main">' +
+                            '<div class="directions-text">' + text + '</div>' +
+                            '<div class="directions-meta">' + meta + '</div>' +
+                        '</div>' +
+                    '</div>'
+                );
+            });
+            listEl.innerHTML = items.join('');
         }
 
         function processStations() {
@@ -4585,16 +4965,8 @@
         function showStationPopup(station) {
             clearSelectedStationHighlight();
 
-            selectedStation = {
-                lat: station.geometry.coordinates[1],
-                lng: station.geometry.coordinates[0],
-                name: station.properties.name,
-                image: station.properties.image,
-                id: station.id
-            };
-
-            const selLat = selectedStation.lat;
-            const selLng = selectedStation.lng;
+            const selLat = station.geometry.coordinates[1];
+            const selLng = station.geometry.coordinates[0];
             allMarkersArray.forEach(m => {
                 const mLat = m.getLatLng().lat;
                 const mLng = m.getLatLng().lng;
@@ -4631,8 +5003,6 @@
 
             const props = station.properties;
 
-            // --- SMART ADDRESS LOGIC ---
-            // If the main address is missing, we combine other fields the data has
             const fallbackAddress = [props.addressLine1, props.town, props.postcode]
                 .filter(item => item && item.trim() !== "" && item !== '-')
                 .join(", ");
@@ -4641,30 +5011,45 @@
                                 props.address : 
                                 (fallbackAddress || 'Location details not provided');
 
-            // 2. Fill the Text Details using your existing IDs
-            document.getElementById('detailStationName').textContent = props.name || 'EV Station';
-            document.getElementById('detailOperator').textContent = props.operator || 'Unknown Operator';
-            document.getElementById('detailLocation').textContent = finalAddress; // Updated logic
-            document.getElementById('detailState').textContent = props.state || '-';
-            document.getElementById('detailUsage').textContent = props.usage || 'Public';
-            document.getElementById('detailAccess').textContent = props.access || 'Open 24/7';
+            const connections = props.connections || [];
+
             const priceRow = document.getElementById('detailPriceRow');
             const priceEl = document.getElementById('detailPrice');
+            let selectedPrice = '';
             if (priceRow && priceEl) {
                 const rawPrice = props.usageCost || '';
                 const trimmed = rawPrice.trim();
                 if (trimmed) {
                     priceRow.style.display = '';
                     priceEl.textContent = trimmed;
+                    selectedPrice = trimmed;
                 } else {
                     priceRow.style.display = 'none';
                     priceEl.textContent = '-';
                 }
             }
-            
-            // 3. Update Charger Count and list
-            const connections = props.connections || [];
-            document.getElementById('detailChargers').textContent = `${connections.length} Chargers Available`;
+
+            selectedStation = {
+                lat: selLat,
+                lng: selLng,
+                name: props.name,
+                image: props.image,
+                id: station.id,
+                address: finalAddress,
+                state: props.state || '-',
+                operator: props.operator || 'Unknown Operator',
+                usage: props.usage || 'Public',
+                access: props.access || 'Open 24/7',
+                price: selectedPrice,
+                chargers: Array.isArray(connections) ? connections.length : 0
+            };
+
+            document.getElementById('detailStationName').textContent = props.name || 'EV Station';
+            document.getElementById('detailOperator').textContent = props.operator || 'Unknown Operator';
+            document.getElementById('detailLocation').textContent = finalAddress;
+            document.getElementById('detailState').textContent = props.state || '-';
+            document.getElementById('detailUsage').textContent = props.usage || 'Public';
+            document.getElementById('detailAccess').textContent = props.access || 'Open 24/7';
 
             const equipmentList = document.getElementById('detailEquipmentList');
             equipmentList.innerHTML = ''; 
@@ -4691,7 +5076,8 @@
                 equipmentList.appendChild(item);
             });
 
-            // 4. Open the Panel (Slide from Right)
+            updateNavMediaDetailsFromSelectedStation();
+
             document.getElementById('stationDetailPanel').classList.add('active');
         }
 
@@ -4730,6 +5116,37 @@
 
         // Connect the button to the function - REMOVED (Handled in setupEventListeners)
         // document.getElementById('locationBtn').onclick = ...
+        function updateNavMediaDetailsFromSelectedStation() {
+            const addressEl = document.getElementById('navMediaDetailAddress');
+            const operatorEl = document.getElementById('navMediaDetailOperator');
+            const usageEl = document.getElementById('navMediaDetailUsage');
+            const accessEl = document.getElementById('navMediaDetailAccess');
+            const chargersEl = document.getElementById('navMediaDetailChargers');
+            const priceEl = document.getElementById('navMediaDetailPrice');
+            if (!addressEl || !operatorEl || !usageEl || !accessEl || !chargersEl || !priceEl) return;
+
+            if (!selectedStation) {
+                addressEl.textContent = '';
+                operatorEl.textContent = '';
+                usageEl.textContent = '';
+                accessEl.textContent = '';
+                chargersEl.textContent = '';
+                priceEl.textContent = '';
+                return;
+            }
+
+            addressEl.textContent = selectedStation.address || '';
+            operatorEl.textContent = selectedStation.operator ? 'Operator: ' + selectedStation.operator : '';
+            usageEl.textContent = selectedStation.usage ? 'Usage: ' + selectedStation.usage : '';
+            accessEl.textContent = selectedStation.access ? 'Access: ' + selectedStation.access : '';
+            if (typeof selectedStation.chargers === 'number') {
+                chargersEl.textContent = selectedStation.chargers + ' chargers';
+            } else {
+                chargersEl.textContent = '';
+            }
+            priceEl.textContent = selectedStation.price ? 'Price: ' + selectedStation.price : '';
+        }
+
         function updateStats() {
             const totalStationsEl = document.getElementById('totalStations');
             const totalStatesEl = document.getElementById('totalStates');
@@ -4908,6 +5325,32 @@
             panel.addEventListener('pointercancel', endDrag);
         }
 
+            const turnBar = document.getElementById('turnInstructionBar');
+            if (turnBar) {
+                turnBar.onclick = () => {
+                    if (!currentRouteSteps || !currentRouteSteps.length) return;
+                    const panel = document.getElementById('directionsPanel');
+                    if (!panel) return;
+                    if (panel.classList.contains('active')) {
+                        panel.classList.remove('active');
+                        document.body.classList.remove('directions-open');
+                    } else {
+                        renderDirectionsList();
+                        panel.classList.add('active');
+                        document.body.classList.add('directions-open');
+                    }
+                };
+            }
+
+            const directionsClose = document.getElementById('directionsClose');
+            if (directionsClose) {
+                directionsClose.onclick = () => {
+                    const panel = document.getElementById('directionsPanel');
+                    if (panel) panel.classList.remove('active');
+                    document.body.classList.remove('directions-open');
+                };
+            }
+
         function setupEventListeners() {
             document.getElementById('locationBtn').onclick = getUserLocation;
             
@@ -5070,6 +5513,21 @@
                         });
                     }
                 };
+            }
+
+            const navMediaCard = document.getElementById('navMediaCard');
+            if (navMediaCard) {
+                navMediaCard.addEventListener('click', (e) => {
+                    if (e.target.closest('.nav-media-close')) return;
+                    navMediaCard.classList.toggle('expanded');
+                });
+            }
+
+            const navEnergyCard = document.querySelector('.nav-energy-card');
+            if (navEnergyCard) {
+                navEnergyCard.addEventListener('click', () => {
+                    navEnergyCard.classList.toggle('expanded');
+                });
             }
 
             if (navZoomInBtn) {
@@ -5249,6 +5707,8 @@
                 mediaCoverEl.style.backgroundSize = 'cover';
                 mediaCoverEl.style.backgroundPosition = 'center';
             }
+
+            updateNavMediaDetailsFromSelectedStation();
 
             if (routePolyline) map.removeLayer(routePolyline);
 
@@ -5604,9 +6064,10 @@
                     document.getElementById('navHUD').classList.add('active');
                     const navSpeedHUD = document.getElementById('navSpeedHUD');
                     if (navSpeedHUD) navSpeedHUD.classList.add('active');
+                    startNavInfoHud();
                     
                     // Activate slide-in stacks
-                    const leftStack = document.querySelector('.nav-left-stack');
+                    const leftStack = document.querySelector('.nav-left-column');
                     if (leftStack) leftStack.classList.add('active');
                     
                     const rightStack = document.querySelector('.nav-right-stack');
@@ -5628,7 +6089,7 @@
 
             // On mobile, briefly show the left stack cards then auto-hide after 5s
             if (window.innerWidth <= 768) {
-                const leftStack = document.querySelector('.nav-left-stack');
+                const leftStack = document.querySelector('.nav-left-column');
                 if (leftStack) {
                     leftStack.style.display = '';
                     setTimeout(() => {
@@ -5651,23 +6112,13 @@
             if (userMarker) {
                 const navIcon = L.divIcon({
                     html: `
-                    <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <filter id="navShadow2" x="-50%" y="-50%" width="200%" height="200%">
-                                <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="rgba(0,0,0,0.4)"/>
-                            </filter>
-                        </defs>
-                        <g filter="url(#navShadow2)">
-                            <!-- Right Face (Lit) -->
-                            <path d="M32 10 L50 50 Q41 46 32 46 Z" fill="#ef4444" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-                            <!-- Left Face (Shadowed) -->
-                            <path d="M32 10 L32 46 Q23 46 14 50 Z" fill="#b91c1c" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-                        </g>
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 4L34 32L20 26L6 32L20 4Z" fill="#E31937" stroke="white" stroke-width="2" stroke-linejoin="round"/>
                     </svg>
                     `,
                     className: 'nav-gl-marker smooth-marker-move',
-                    iconSize: [48, 48],
-                    iconAnchor: [24, 24]
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 20]
                 });
                 userMarker.setIcon(navIcon);
                 userMarker.setZIndexOffset(2000);
@@ -6027,9 +6478,32 @@
                 const hudDistanceEl = document.getElementById('hudDistance');
                 if (hudDistanceEl) hudDistanceEl.textContent = distText;
 
-                // Update energy card distance indicator
                 const navArrivalEnergyEl = document.getElementById('navArrivalEnergy');
                 if (navArrivalEnergyEl) navArrivalEnergyEl.textContent = distText;
+
+                const energyBatteryNowEl = document.getElementById('navEnergyDetailBatteryNow');
+                const energyBatteryArrivalEl = document.getElementById('navEnergyDetailBatteryArrival');
+                const energyDistanceEl = document.getElementById('navEnergyDetailDistance');
+                const energyDurationEl = document.getElementById('navEnergyDetailDuration');
+                const batteryNowEl = document.getElementById('batteryRemaining');
+                if (energyBatteryNowEl && batteryNowEl) {
+                    energyBatteryNowEl.textContent = 'Battery now: ' + batteryNowEl.textContent;
+                }
+                if (energyBatteryArrivalEl && batteryNowEl) {
+                    energyBatteryArrivalEl.textContent = 'Est. on arrival: ' + batteryNowEl.textContent;
+                }
+                if (energyDistanceEl) {
+                    energyDistanceEl.textContent = 'Distance: ' + distText;
+                }
+                if (energyDurationEl && routeTotalDistanceKm && routeTotalDistanceKm > 0) {
+                    const remainingRatio = Math.min(1, dist / routeTotalDistanceKm);
+                    const remainingMinutes = routeTotalDurationMin > 0 ? Math.max(1, Math.round(routeTotalDurationMin * remainingRatio)) : 0;
+                    if (remainingMinutes > 0) {
+                        energyDurationEl.textContent = 'Time: ~' + remainingMinutes + ' min';
+                    } else {
+                        energyDurationEl.textContent = '';
+                    }
+                }
 
                 // Update progress bar and remaining time if we know total route length
                 if (routeTotalDistanceKm && routeTotalDistanceKm > 0) {
@@ -6195,9 +6669,10 @@
             document.getElementById('navHUD').classList.remove('active');
             const navSpeedHUD = document.getElementById('navSpeedHUD');
             if (navSpeedHUD) navSpeedHUD.classList.remove('active');
+            stopNavInfoHud();
             
             // Remove active class from slide-in stacks
-            const leftStack = document.querySelector('.nav-left-stack');
+            const leftStack = document.querySelector('.nav-left-column');
             if (leftStack) leftStack.classList.remove('active');
             
             const rightStack = document.querySelector('.nav-right-stack');
