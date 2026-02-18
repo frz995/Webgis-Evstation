@@ -1652,7 +1652,7 @@
             gap: 10px;
             z-index: 3000;
             transform: translateX(-150%);
-            transition: transform 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            transition: transform 0.7s ease-out;
             pointer-events: none;
         }
 
@@ -1675,6 +1675,13 @@
             border: 1px solid rgba(226, 232, 240, 0.4);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
+        }
+
+        .nav-card.nav-autohide-hidden {
+            opacity: 0;
+            transform: translateY(12px);
+            pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
 
         .dark-mode .nav-card {
@@ -2610,16 +2617,19 @@
             .filter-panel {
                 width: 82%;
                 max-width: 300px;
-                bottom: 190px;
+                top: 50%;
                 left: 50%;
                 right: auto;
-                transform: translateX(-50%);
+                bottom: auto;
+                max-height: 70vh;
+                transform: translate(-50%, 120%);
                 padding: 8px 10px;
                 display: none;
             }
 
             .filter-panel.mobile-open {
                 display: block;
+                transform: translate(-50%, -50%);
             }
 
             .nav-left-column {
@@ -2695,16 +2705,7 @@
         }
 
         .toast-message {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            z-index: 10000;
-            animation: slideUp 0.3s ease-out;
+            display: none !important;
         }
 
         .intro-mode .toast-message {
@@ -4363,7 +4364,7 @@
                             'line-join': 'round'
                         },
                         paint: {
-                            'line-color': '#007FFF',
+                            'line-color': '#0050C8',
                             'line-width': 8,
                             'line-blur': 1
                         }
@@ -4411,6 +4412,16 @@
                       Math.sin(startLatRad) * Math.cos(destLatRad) * Math.cos(destLngRad - startLngRad);
             const brng = Math.atan2(y, x);
             return (brng * 180 / Math.PI + 360) % 360;
+        }
+
+        function formatHudTime12(date) {
+            let hours = date.getHours();
+            const minutesNum = date.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            if (hours === 0) hours = 12;
+            const minutesStr = minutesNum.toString().padStart(2, '0');
+            return `${hours}:${minutesStr} ${ampm}`;
         }
 
         function updateNavGlRoute(rawCoords) {
@@ -4469,7 +4480,7 @@
                         'line-join': 'round'
                     },
                     paint: {
-                        'line-color': '#007FFF',
+                        'line-color': '#0050C8',
                         'line-width': 6,
                         'line-opacity': 0.95
                     }
@@ -4578,13 +4589,7 @@
             });
         }
 
-        function showToast(msg) {
-            const toast = document.createElement('div');
-            toast.className = 'toast-message';
-            toast.textContent = msg;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
+        function showToast(msg) {}
 
         async function loadEVStations() {
             try {
@@ -5530,6 +5535,21 @@
                 });
             }
 
+            function autoHideNavCards() {
+                const mediaCard = document.getElementById('navMediaCard');
+                const energyCard = document.querySelector('.nav-energy-card');
+                if (mediaCard) {
+                    setTimeout(() => {
+                        mediaCard.classList.add('nav-autohide-hidden');
+                    }, 5000);
+                }
+                if (energyCard) {
+                    setTimeout(() => {
+                        energyCard.classList.add('nav-autohide-hidden');
+                    }, 5000);
+                }
+            }
+
             if (navZoomInBtn) {
                 navZoomInBtn.onclick = () => {
                     if (map) map.zoomIn();
@@ -5758,7 +5778,7 @@
                     const coordinates = rawCoords.map(c => [c[1], c[0]]);
                     
                     routePolyline = L.polyline(coordinates, { 
-                        color: '#007FFF', 
+                        color: '#0050C8', 
                         weight: 8,
                         opacity: 0.85,
                         lineCap: 'round',
@@ -5833,9 +5853,7 @@
 
                     if (hudArrivalEl) {
                         const arrivalDate = new Date(Date.now() + routeTotalDurationMin * 60000);
-                        const hours = arrivalDate.getHours().toString().padStart(2, '0');
-                        const minutes = arrivalDate.getMinutes().toString().padStart(2, '0');
-                        hudArrivalEl.textContent = `${hours}:${minutes}`;
+                        hudArrivalEl.textContent = formatHudTime12(arrivalDate);
                     }
 
                     if (hudRemainingLabelEl) {
@@ -5871,7 +5889,7 @@
                 ];
                 const fallbackLeafletCoords = fallbackRawCoords.map(c => [c[1], c[0]]);
                 routePolyline = L.polyline(fallbackLeafletCoords, { 
-                    color: '#007FFF', 
+                    color: '#0050C8', 
                     weight: 6, 
                     dashArray: '10, 10' 
                 }).addTo(map);
@@ -5936,7 +5954,7 @@
                     const coordinates = rawCoords.map(c => [c[1], c[0]]);
 
                     routePolyline = L.polyline(coordinates, {
-                        color: '#007FFF',
+                        color: '#0050C8',
                         weight: 8,
                         opacity: 0.85,
                         lineCap: 'round',
@@ -5962,9 +5980,7 @@
 
                     if (hudArrivalEl) {
                         const arrivalDate = new Date(Date.now() + routeTotalDurationMin * 60000);
-                        const hours = arrivalDate.getHours().toString().padStart(2, '0');
-                        const minutes = arrivalDate.getMinutes().toString().padStart(2, '0');
-                        hudArrivalEl.textContent = `${hours}:${minutes}`;
+                        hudArrivalEl.textContent = formatHudTime12(arrivalDate);
                     }
 
                     if (hudRemainingLabelEl) {
@@ -6087,15 +6103,10 @@
 
             document.getElementById('routingPanel').classList.remove('active');
 
-            // On mobile, briefly show the left stack cards then auto-hide after 5s
             if (window.innerWidth <= 768) {
                 const leftStack = document.querySelector('.nav-left-column');
                 if (leftStack) {
                     leftStack.style.display = '';
-                    setTimeout(() => {
-                        if (!navigationActive) return;
-                        leftStack.style.display = 'none';
-                    }, 5000);
                 }
             }
 
@@ -6107,6 +6118,8 @@
             setTimeout(() => {
                 if (map) map.invalidateSize();
             }, 350);
+
+            autoHideNavCards();
 
             // Switch to nav marker (navigation arrow)
             if (userMarker) {
@@ -6525,9 +6538,7 @@
                     const hudArrivalEl = document.getElementById('hudArrival');
                     if (hudArrivalEl && remainingMinutes > 0) {
                         const arrivalDate = new Date(Date.now() + remainingMinutes * 60000);
-                        const hours = arrivalDate.getHours().toString().padStart(2, '0');
-                        const minutes = arrivalDate.getMinutes().toString().padStart(2, '0');
-                        hudArrivalEl.textContent = `${hours}:${minutes}`;
+                        hudArrivalEl.textContent = formatHudTime12(arrivalDate);
                     }
                 }
                 
