@@ -646,6 +646,8 @@
             margin-top: 8px;
             max-height: 300px;
             overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s;
@@ -657,15 +659,22 @@
             pointer-events: all;
         }
 
+        #searchResults::-webkit-scrollbar {
+            display: none;
+        }
+
         .search-result-item {
-            padding: 12px 16px;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 10px 14px;
+            border-bottom: 1px solid #f3f3f3;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.15s;
+            font-size: 13px;
+            line-height: 1.3;
+            color: #111827;
         }
 
         .search-result-item:active {
-            background: #f0f0f0;
+            background: #f3f4f6;
         }
 
         .search-result-name {
@@ -4850,6 +4859,8 @@
                 });
 
                 const marker = L.marker([coords[1], coords[0]], { icon });
+                marker._stationState = station.properties.state || '';
+                marker._baseIcon = icon;
                 marker.on('click', () => showStationPopup(station));
                 
                 markersToAdd.push(marker);
@@ -5574,14 +5585,99 @@
                 };
             }
 
-            document.getElementById('searchInput').oninput = (e) => {
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+
+            searchInput.oninput = (e) => {
                 const q = e.target.value.toLowerCase();
-                const res = document.getElementById('searchResults');
+                const res = searchResults;
                 if (q.length < 2) return res.classList.remove('active');
-                const matches = allStations.filter(s => s.properties.name.toLowerCase().includes(q)).slice(0, 5);
-                res.innerHTML = matches.map(s => `<div class="search-result-item" onclick="map.setView([${s.geometry.coordinates[1]}, ${s.geometry.coordinates[0]}], 15); document.getElementById('searchResults').classList.remove('active')">${s.properties.name}</div>`).join('');
+                const matches = allStations.filter(s => {
+                    const p = s.properties || {};
+                    const haystack = [
+                        p.name,
+                        p.operator,
+                        p.addressLine1,
+                        p.town,
+                        p.postcode,
+                        p.state,
+                        p.usage,
+                        p.usageCost,
+                        p.access
+                    ].filter(Boolean).join(' ').toLowerCase();
+                    return haystack.includes(q);
+                }).slice(0, 5);
+                res.innerHTML = matches.map(s => {
+                    const lat = s.geometry.coordinates[1];
+                    const lng = s.geometry.coordinates[0];
+                    const state = (s.properties.state || '').toString();
+                    return `<div class="search-result-item" data-lat="${lat}" data-lng="${lng}" data-state="${state}">${s.properties.name}</div>`;
+                }).join('');
                 res.classList.add('active');
+
+                Array.from(res.querySelectorAll('.search-result-item')).forEach(item => {
+                    item.onclick = () => {
+                        const lat = parseFloat(item.getAttribute('data-lat'));
+                        const lng = parseFloat(item.getAttribute('data-lng'));
+                        const state = (item.getAttribute('data-state') || '').toString();
+                        if (map) {
+                            map.setView([lat, lng], 15);
+                        }
+
+                        allMarkersArray.forEach(m => {
+                            const iconOpts = m.options && m.options.icon && m.options.icon.options;
+                            if (iconOpts && iconOpts.className === 'station-selected-icon') {
+                                if (m._baseIcon) {
+                                    m.setIcon(m._baseIcon);
+                                }
+                                m.setZIndexOffset(0);
+                            }
+                        });
+
+                        const selLat = lat;
+                        const selLng = lng;
+                        allMarkersArray.forEach(m => {
+                            const mLat = m.getLatLng().lat;
+                            const mLng = m.getLatLng().lng;
+                            const isSel = Math.abs(mLat - selLat) < 0.0001 &&
+                                          Math.abs(mLng - selLng) < 0.0001 &&
+                                          (m._stationState || '') === state;
+                            if (isSel) {
+                                const pulseIcon = L.divIcon({
+                                    html: `<div class="station-pulse-marker">
+                                            <div class="pulse-ring"></div>
+                                            <div class="pulse-core">
+                                                <svg viewBox="0 0 24 24" fill="black" style="width: 16px; height: 16px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                            </div>
+                                           </div>`,
+                                    className: 'station-selected-icon',
+                                    iconSize: [40, 40],
+                                    iconAnchor: [20, 20]
+                                });
+                                m.setIcon(pulseIcon);
+                                m.setZIndexOffset(1000);
+                            }
+                        });
+                    };
+                });
             };
+
+            if (searchInput && searchResults && typeof map !== 'undefined' && map) {
+                searchInput.addEventListener('click', () => {
+                    if (searchResults.classList.contains('active')) {
+                        searchResults.classList.remove('active');
+                    } else if (searchInput.value.length >= 2) {
+                        searchResults.classList.add('active');
+                    }
+                });
+
+                const closeSearchResults = () => {
+                    searchResults.classList.remove('active');
+                };
+
+                map.on('click', closeSearchResults);
+                map.on('dragstart', closeSearchResults);
+            }
         }
 
         function setupIntroOverlay() {
