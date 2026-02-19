@@ -3860,7 +3860,7 @@
         let rangeModeActive = false;
         const OSRM_BASE_URL = 'https://router.project-osrm.org';
         const MAPTILER_API_KEY = 'lDUYLvmpj4UGdtFecEHo';
-        let elevationEnabled = true;
+        let elevationEnabled = false;
         let navGl3DEnabled = false;
         const NAV_GL_STYLE_LIGHT = 'https://tiles.openfreemap.org/styles/positron';
         const NAV_GL_STYLE_DARK = 'https://tiles.openfreemap.org/styles/fiord-color';
@@ -7857,11 +7857,6 @@
                 event.preventDefault();
             }
         }, true);
-
-        const navElevationInitBtn = document.getElementById('navElevationToggleBtn');
-        if (navElevationInitBtn && elevationEnabled) {
-            navElevationInitBtn.classList.add('active-layer');
-        }
 
         setupIntroOverlay();
         initSDK();
