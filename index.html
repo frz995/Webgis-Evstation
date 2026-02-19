@@ -4691,9 +4691,6 @@
 
             navGlMap.on('load', () => {
                 navGlMapReady = true;
-                if (MAPTILER_API_KEY) {
-                    enableTerrain();
-                }
                 if (!navGlMap.getLayer('3d-buildings')) {
                     const style = navGlMap.getStyle();
                     let buildingSource = 'openmaptiles';
@@ -5397,8 +5394,14 @@
             if (!card) return;
             if (!elevationEnabled) {
                 card.style.display = 'none';
+                if (navGlMap && navGlMapReady) {
+                    disableTerrain();
+                }
             } else {
                 card.style.display = '';
+                if (navGlMap && navGlMapReady && MAPTILER_API_KEY) {
+                    enableTerrain();
+                }
                 if (!navigationRouteGeoJSON || !navigationRouteGeoJSON.coordinates || navigationRouteGeoJSON.coordinates.length < 2) {
                     card.style.display = 'none';
                     if (typeof showToast === 'function') {
