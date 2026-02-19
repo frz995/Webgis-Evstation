@@ -7,7 +7,7 @@
   "theme_color": "#020617",
   "icons": [
     {
-      "src": "/evpic-Photoroom.png",
+      "src": "assets/evpic-Photoroom.png",
       "sizes": "512x512",
       "type": "image/png"
     }
