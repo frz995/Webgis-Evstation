@@ -7,8 +7,11 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/trafforddatalab/leaflet.reachability@v2.0.1/leaflet.reachability.css">
   <link href="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.css" rel="stylesheet">
   <script src="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
   <style>
         * {
             margin: 0;
@@ -864,6 +867,79 @@
             transform: translateY(0);
         }
 
+        .reachability-hidden-control {
+            display: none;
+        }
+
+        #range-toggle {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        #range-toggle svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        #range-toggle.active {
+            background: linear-gradient(135deg, #007FFF 0%, #2a52be 100%);
+            color: white;
+        }
+
+        #range-toggle:active {
+            transform: translateY(1px) scale(0.97);
+        }
+
+        .range-row {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #rangeBufferKm {
+            flex: 1;
+            min-width: 0;
+            padding: 6px 8px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            font-size: 11px;
+            color: #374151;
+            background: #ffffff;
+            outline: none;
+        }
+
+        #rangeBufferKm:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+        }
+
+        .dark-mode #range-toggle {
+            background: #020617;
+            border-color: #1f2937;
+            color: #e5e7eb;
+        }
+
+        .dark-mode #range-toggle.active {
+            color: #0f172a;
+        }
+
+        .dark-mode #rangeBufferKm {
+            background: #020617;
+            border-color: #1f2937;
+            color: #e5e7eb;
+        }
+
         .side-panel, .filters-panel, .map-legend, .control-bar, .search-container, #filtersMiniToggle {
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
@@ -914,6 +990,40 @@
 
         .dark-mode .side-panel-subtitle {
             color: #9ca3af;
+        }
+
+        .isochrone-info-card {
+            position: absolute;
+            right: 16px;
+            top: 96px;
+            min-width: 220px;
+            max-width: 260px;
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 14px 40px rgba(15, 23, 42, 0.28);
+            padding: 10px 12px;
+            display: none;
+            z-index: 9500;
+        }
+
+        .isochrone-info-card.active {
+            display: block;
+        }
+
+        .isochrone-info-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .isochrone-info-meta {
+            font-size: 11px;
+            color: #6b7280;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .stats-grid {
@@ -1816,6 +1926,78 @@
             padding: 14px 18px 10px 18px;
             border-radius: 16px;
             flex-direction: column;
+        }
+
+        .nav-elevation-card {
+            display: flex;
+            flex-direction: column;
+            width: 280px;
+            padding: 12px 14px 10px 14px;
+            border-radius: 16px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.28);
+        }
+
+        .nav-elevation-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .nav-elevation-title {
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #6b7280;
+            font-weight: 700;
+        }
+
+        .nav-elevation-metric {
+            font-size: 11px;
+            color: #111827;
+        }
+
+        .nav-elevation-metric strong {
+            color: #2563eb;
+        }
+
+        .nav-elevation-body {
+            position: relative;
+            width: 100%;
+            height: 80px;
+        }
+
+        .nav-elevation-body canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .nav-elevation-cursor-label {
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            font-size: 10px;
+            color: #111827;
+        }
+
+        .dark-mode .nav-elevation-card {
+            background: #020617;
+            border-color: #1f2937;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9);
+        }
+
+        .dark-mode .nav-elevation-title {
+            color: #9ca3af;
+        }
+
+        .dark-mode .nav-elevation-metric {
+            color: #e5e7eb;
+        }
+
+        .dark-mode .nav-elevation-cursor-label {
+            color: #e5e7eb;
         }
 
         .nav-energy-main {
@@ -3076,6 +3258,13 @@
   <div id="root" style="height: 100%; width: 100%;">
    <div id="map"></div>
    <div id="navGlMap"></div>
+   <div id="isochroneInfoCard" class="isochrone-info-card">
+    <div id="isochroneInfoText" class="isochrone-info-title"></div>
+    <div class="isochrone-info-meta">
+     <span id="isochroneInfoArea"></span>
+     <span style="font-size: 11px; color: #9ca3af;">Tap range again to switch</span>
+    </div>
+   </div>
    <div class="control-bar">
     <button id="filtersMiniToggle" class="panel-toggle panel-toggle-filters">☰</button>
     <div class="control-title">
@@ -3121,6 +3310,18 @@
      </div>
      <div class="search-container"><input id="searchInput" type="text" placeholder="Search stations...">
       <div id="searchResults"></div>
+     </div>
+     <div class="range-row">
+      <button id="range-toggle">
+       <svg viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6" />
+        <circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="1.2" opacity="0.7" />
+        <circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="1" opacity="0.4" />
+        <path d="M12 1v3M12 20v3M3 12h3M18 12h3" stroke="currentColor" stroke-width="1.2" opacity="0.7" />
+       </svg>
+       <span>Range</span>
+      </button>
+      <input id="rangeBufferKm" type="number" min="0" max="200" step="5" placeholder="Buffer (km)">
      </div>
     </div>
     <div class="panel-section">
@@ -3249,15 +3450,25 @@
       <div class="nav-energy-label">
        on arrival
       </div>
-     </div>
     </div>
-    <div class="nav-energy-details" id="navEnergyDetails">
+   </div>
+   <div class="nav-energy-details" id="navEnergyDetails">
      <div class="nav-energy-detail-line" id="navEnergyDetailBatteryNow"></div>
      <div class="nav-energy-detail-line" id="navEnergyDetailBatteryArrival"></div>
      <div class="nav-energy-detail-line" id="navEnergyDetailDistance"></div>
      <div class="nav-energy-detail-line" id="navEnergyDetailDuration"></div>
     </div>
    </div>
+   </div>
+   <div class="nav-card nav-elevation-card" id="navElevationCard">
+    <div class="nav-elevation-header">
+     <div class="nav-elevation-title">Elevation</div>
+     <div class="nav-elevation-metric" id="navElevationSummary">-- m Δ / --%</div>
+    </div>
+    <div class="nav-elevation-body">
+     <canvas id="elevationChart"></canvas>
+     <div class="nav-elevation-cursor-label" id="navElevationCursorLabel">-- m</div>
+    </div>
    </div>
   </div>
   <div id="navInfoHUD" class="nav-info-hud">
@@ -3331,6 +3542,11 @@
   <button id="navLayerBtn" class="nav-ctrl-btn" onclick="toggleNavLayer()" style="margin-bottom: 8px;">
    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+   </svg>
+  </button>
+  <button id="navElevationToggleBtn" class="nav-ctrl-btn" onclick="toggleElevation()">
+   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M3 18L9 8l4 6 3-4 5 8H3z"/>
    </svg>
   </button>
   <button id="navRecenterBtn" class="nav-ctrl-btn">
@@ -3547,7 +3763,7 @@
         <strong>Optimised for day & night driving</strong>
         <span>Light and dark map themes with a focused driving HUD.</span>
        </div>
-       <button id="introStartBtn" class="intro-button">
+       <button id="introStartBtn" class="intro-button" onclick="dismissIntro()">
         <span>Start Explore</span>
         <span>➜</span>
        </button>
@@ -3591,6 +3807,7 @@
   </div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.1/dist/leaflet.markercluster.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/trafforddatalab/leaflet.reachability@v2.0.1/leaflet.reachability.js"></script>
   <script>
         const defaultConfig = {
             map_title: '⚡ EV Station Finder'
@@ -3631,9 +3848,14 @@
         let navigationRouteGeoJSON = null;
         let navInfoTimeIntervalId = null;
         let navInfoTempIntervalId = null;
-        const OSRM_BASE_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-            ? 'http://localhost:5000'
-            : 'https://router.project-osrm.org';
+        const ORS_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjI3MWJkNGJjMDI3NjQwZTk5MDBkMmI2OWJlNjI4MGE5IiwiaCI6Im11cm11cjY0In0=';
+        const ORS_ISOCHRONE_URL = 'https://api.openrouteservice.org/v2/isochrones/driving-car';
+        let reachabilityControl = null;
+        let reachabilityLayer = null;
+        let rangeModeActive = false;
+        const OSRM_BASE_URL = 'https://router.project-osrm.org';
+        const MAPTILER_API_KEY = 'lDUYLvmpj4UGdtFecEHo';
+        let elevationEnabled = false;
         let navGl3DEnabled = false;
         const NAV_GL_STYLE_LIGHT = 'https://tiles.openfreemap.org/styles/positron';
         const NAV_GL_STYLE_DARK = 'https://tiles.openfreemap.org/styles/fiord-color';
@@ -3644,6 +3866,147 @@
         let filterCable = false;
         let filterMinPower = 0;
         let filterMaxPower = 400;
+        let lastIsochroneLabel = '';
+        let lastIsochroneAreaKm2 = null;
+        let activeIsochroneLayer = null;
+        let rangeBufferKm = 0;
+        let rangeBufferCircle = null;
+        let lastNavCameraUpdateTime = 0;
+        let lastNavCameraLat = null;
+        let lastNavCameraLng = null;
+        let lastMapPanTime = 0;
+        let lastMapPanLat = null;
+        let lastMapPanLng = null;
+
+        function updateIsochroneInfoCard(label, km2) {
+            lastIsochroneLabel = label;
+            lastIsochroneAreaKm2 = km2;
+            const card = document.getElementById('isochroneInfoCard');
+            const text = document.getElementById('isochroneInfoText');
+            const areaEl = document.getElementById('isochroneInfoArea');
+            if (!card || !text || !areaEl) return;
+            if (!label) {
+                card.classList.remove('active');
+                return;
+            }
+            text.textContent = label;
+            if (km2 && km2 > 0) {
+                areaEl.textContent = km2.toFixed(1) + ' km²';
+            } else {
+                areaEl.textContent = '';
+            }
+            card.classList.add('active');
+        }
+
+        function reachabilityStyleFn(feature) {
+            const v = feature.properties && typeof feature.properties.value === 'number' ? feature.properties.value : 0;
+            let edge = '#0ea5e9';
+            let fill = '#38bdf8';
+            let opacity = 0.22;
+            if (v === 1800) {
+                edge = '#7c3aed';
+                fill = '#a855f7';
+                opacity = 0.18;
+            } else if (v === 2700) {
+                edge = '#e11d48';
+                fill = '#fb7185';
+                opacity = 0.14;
+            }
+            return {
+                color: edge,
+                weight: 2,
+                fillColor: fill,
+                fillOpacity: opacity,
+                opacity: 0.9
+            };
+        }
+
+        function updateRangeBufferCircle() {
+            if (!map) return;
+            if (rangeBufferCircle) {
+                map.removeLayer(rangeBufferCircle);
+                rangeBufferCircle = null;
+            }
+            if (!userLocation || !rangeBufferKm || rangeBufferKm <= 0) return;
+            rangeBufferCircle = L.circle([userLocation.lat, userLocation.lng], {
+                radius: rangeBufferKm * 1000,
+                color: '#22c55e',
+                weight: 1.5,
+                opacity: 0.9,
+                dashArray: '4 4',
+                fillColor: '#22c55e',
+                fillOpacity: 0.06
+            }).addTo(map);
+        }
+
+        async function runReachabilityForMarker(lat, lng) {
+            if (!map || !ORS_API_KEY) return;
+            const coords = [lng, lat];
+            try {
+                const response = await fetch(ORS_ISOCHRONE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': ORS_API_KEY
+                    },
+                    body: JSON.stringify({
+                        locations: [coords],
+                        range: [900, 1800, 2700],
+                        range_type: 'time'
+                    })
+                });
+                if (!response.ok) {
+                    return;
+                }
+                const geojson = await response.json();
+                if (!reachabilityLayer) {
+                    reachabilityLayer = L.geoJSON(null, {
+                        style: reachabilityStyleFn,
+                        onEachFeature: (feature, layer) => {
+                            layer.on('click', () => {
+                                const seconds = feature.properties && typeof feature.properties.value === 'number'
+                                    ? feature.properties.value
+                                    : 0;
+                                let label = '';
+                                if (seconds === 900) {
+                                    label = '15 minutes range';
+                                } else if (seconds === 1800) {
+                                    label = '30 minutes range';
+                                } else if (seconds === 2700) {
+                                    label = '45 minutes range';
+                                }
+
+                                if (activeIsochroneLayer && activeIsochroneLayer !== layer) {
+                                    activeIsochroneLayer.setStyle(reachabilityStyleFn(activeIsochroneLayer.feature));
+                                }
+                                activeIsochroneLayer = layer;
+                                const baseStyle = reachabilityStyleFn(feature);
+                                layer.setStyle({
+                                    ...baseStyle,
+                                    weight: baseStyle.weight + 1.5,
+                                    color: '#ffffff',
+                                    opacity: 1
+                                });
+
+                                const km2 = feature.properties && feature.properties.area ? feature.properties.area : null;
+                                updateIsochroneInfoCard(label, km2);
+                            });
+                        }
+                    }).addTo(map);
+                }
+                reachabilityLayer.clearLayers();
+                const features = (geojson && Array.isArray(geojson.features))
+                    ? geojson.features.slice().sort((a, b) => {
+                        const va = (a.properties && typeof a.properties.value === 'number') ? a.properties.value : 0;
+                        const vb = (b.properties && typeof b.properties.value === 'number') ? b.properties.value : 0;
+                        return vb - va;
+                    })
+                    : [];
+                features.forEach(f => reachabilityLayer.addData(f));
+            } catch (e) {
+                console.error('Reachability error', e);
+            }
+        }
        
         function normalizeConnectionType(c) {
         // 1. Check for ID (Most reliable - works for both raw API and processed objects)
@@ -3962,6 +4325,20 @@
             baseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
                 maxZoom: 19
             }).addTo(map);
+
+            if (L.control && L.control.reachability) {
+                reachabilityControl = L.control.reachability({
+                    apiKey: ORS_API_KEY,
+                    position: 'topleft',
+                    collapsed: false,
+                    controlContainerStyleClass: 'reachability-hidden-control',
+                    rangeTypeDefault: 'time',
+                    rangeControlTime: [15, 30, 45],
+                    rangeControlDistance: null,
+                    styleFn: reachabilityStyleFn,
+                    showOriginMarker: false
+                }).addTo(map);
+            }
 
             malaysiaBounds = L.latLngBounds([-1.0, 96.0], [9.0, 122.0]);
             map.fitBounds(malaysiaBounds);
@@ -4719,6 +5096,46 @@
             return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
         }
 
+        function smoothRouteCoords(rawCoords) {
+            if (!rawCoords || rawCoords.length <= 2) return rawCoords;
+            const coords = rawCoords.slice();
+            const smallKm = 0.03;
+            const closeKm = 0.01;
+            let changed = true;
+            while (changed) {
+                changed = false;
+                for (let i = 1; i < coords.length - 1; i++) {
+                    const a = coords[i - 1];
+                    const b = coords[i];
+                    const c = coords[i + 1];
+                    if (!a || !b || !c) continue;
+                    const ab = getDistance(a[1], a[0], b[1], b[0]);
+                    const bc = getDistance(b[1], b[0], c[1], c[0]);
+                    const ac = getDistance(a[1], a[0], c[1], c[0]);
+                    const v1x = a[0] - b[0];
+                    const v1y = a[1] - b[1];
+                    const v2x = c[0] - b[0];
+                    const v2y = c[1] - b[1];
+                    const mag1 = Math.sqrt(v1x * v1x + v1y * v1y);
+                    const mag2 = Math.sqrt(v2x * v2x + v2y * v2y);
+                    let remove = false;
+                    if (ab < smallKm && bc < smallKm && mag1 > 0 && mag2 > 0) {
+                        const cos = (v1x * v2x + v1y * v2y) / (mag1 * mag2);
+                        if (cos > 0.5) remove = true;
+                    }
+                    if (!remove && ac < closeKm && (ab > ac || bc > ac)) {
+                        remove = true;
+                    }
+                    if (remove) {
+                        coords.splice(i, 1);
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+            return coords;
+        }
+
         function getClosestPointOnRoute(lat, lng) {
             if (!routePolyline || !map || typeof L === 'undefined') {
                 return { lat, lng, distanceKm: 0, bearing: 0 };
@@ -4759,6 +5176,214 @@
             const closestLatLng = map.layerPointToLatLng(closestPoint);
             const distanceKm = getDistance(lat, lng, closestLatLng.lat, closestLatLng.lng);
             return { lat: closestLatLng.lat, lng: closestLatLng.lng, distanceKm, bearing };
+        }
+
+        let elevationChart = null;
+        let elevationProfileData = null;
+
+        function enableTerrain() {
+            if (!navGlMap || !MAPTILER_API_KEY) return;
+            if (!navGlMap.getSource('terrain-source')) {
+                navGlMap.addSource('terrain-source', {
+                    type: 'raster-dem',
+                    url: 'https://api.maptiler.com/tiles/terrain-rgb/tiles.json?key=' + MAPTILER_API_KEY,
+                    tileSize: 256
+                });
+            }
+            navGlMap.setTerrain({ source: 'terrain-source', exaggeration: 1.5 });
+        }
+
+        function disableTerrain() {
+            if (!navGlMap) return;
+            navGlMap.setTerrain(null);
+        }
+
+        async function updateElevationProfile(routeGeoJSON) {
+            elevationProfileData = null;
+            const card = document.getElementById('navElevationCard');
+            const summaryEl = document.getElementById('navElevationSummary');
+            const cursorLabel = document.getElementById('navElevationCursorLabel');
+            if (summaryEl) summaryEl.textContent = '-- m Δ / --%';
+            if (cursorLabel) cursorLabel.textContent = '-- m';
+            if (!card || !routeGeoJSON || !routeGeoJSON.coordinates || !routeGeoJSON.coordinates.length || !MAPTILER_API_KEY || !elevationEnabled) {
+                if (card) card.style.display = 'none';
+                return;
+            }
+
+            const coords = routeGeoJSON.coordinates;
+            const maxSamples = 50;
+            let sampled = [];
+            if (coords.length <= maxSamples) {
+                sampled = coords.slice();
+            } else {
+                const step = Math.ceil(coords.length / maxSamples);
+                for (let i = 0; i < coords.length; i += step) {
+                    sampled.push(coords[i]);
+                }
+                const last = coords[coords.length - 1];
+                const lastSample = sampled[sampled.length - 1];
+                if (!lastSample || lastSample[0] !== last[0] || lastSample[1] !== last[1]) {
+                    sampled.push(last);
+                }
+            }
+
+            if (sampled.length < 2) {
+                if (card) card.style.display = 'none';
+                return;
+            }
+
+            const distances = [];
+            let totalDistKm = 0;
+            for (let i = 0; i < sampled.length; i++) {
+                const lng = sampled[i][0];
+                const lat = sampled[i][1];
+                if (i > 0) {
+                    const prevLng = sampled[i - 1][0];
+                    const prevLat = sampled[i - 1][1];
+                    totalDistKm += getDistance(prevLat, prevLng, lat, lng);
+                }
+                distances.push(totalDistKm);
+            }
+
+            const locations = sampled.map(c => `${c[0]},${c[1]}`).join(';');
+            let elevationResponse;
+            try {
+                const url = 'https://api.maptiler.com/elevation/' + encodeURIComponent(locations) + '.json?key=' + MAPTILER_API_KEY;
+                const res = await fetch(url);
+                if (!res.ok) {
+                    if (card) card.style.display = 'none';
+                    return;
+                }
+                elevationResponse = await res.json();
+            } catch (e) {
+                if (card) card.style.display = 'none';
+                return;
+            }
+
+            if (!Array.isArray(elevationResponse) || !elevationResponse.length) {
+                if (card) card.style.display = 'none';
+                return;
+            }
+
+            const elevations = [];
+            const slopes = [];
+            let lastElev = null;
+
+            const count = Math.min(sampled.length, elevationResponse.length);
+            for (let i = 0; i < count; i++) {
+                const elev = Array.isArray(elevationResponse[i]) && elevationResponse[i].length >= 3
+                    ? elevationResponse[i][2]
+                    : 0;
+                elevations.push(elev);
+                if (lastElev !== null && i > 0) {
+                    const dKm = distances[i] - distances[i - 1];
+                    const dM = dKm * 1000;
+                    const rise = elev - lastElev;
+                    const slopePct = dM > 0 ? (rise / dM) * 100 : 0;
+                    slopes.push(slopePct);
+                } else {
+                    slopes.push(0);
+                }
+                lastElev = elev;
+            }
+
+            if (!distances.length) {
+                if (card) card.style.display = 'none';
+                return;
+            }
+
+            const minElev = Math.min(...elevations);
+            const maxElev = Math.max(...elevations);
+            const deltaElev = maxElev - minElev;
+            const maxSlope = Math.max(...slopes.map(s => Math.abs(s)));
+
+            if (summaryEl) {
+                summaryEl.textContent = `${deltaElev.toFixed(0)} m Δ / ${maxSlope.toFixed(1)}%`;
+            }
+
+            const ctx = document.getElementById('elevationChart').getContext('2d');
+            const isDark = document.body.classList.contains('dark-mode');
+
+            if (elevationChart) {
+                elevationChart.destroy();
+            }
+
+            elevationChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: distances.map(d => d * 1000),
+                    datasets: [{
+                        data: elevations,
+                        borderColor: isDark ? '#93c5fd' : '#2563eb',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: true,
+                        backgroundColor: (context) => {
+                            const chart = context.chart;
+                            const { ctx } = chart;
+                            const grad = ctx.createLinearGradient(0, 0, 0, chart.height);
+                            if (isDark) {
+                                grad.addColorStop(0, 'rgba(15,23,42,0.0)');
+                                grad.addColorStop(1, 'rgba(37,99,235,0.55)');
+                            } else {
+                                grad.addColorStop(0, 'rgba(255,255,255,0.0)');
+                                grad.addColorStop(1, 'rgba(191,219,254,0.9)');
+                            }
+                            return grad;
+                        },
+                        tension: 0.25
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    scales: {
+                        x: {
+                            display: false
+                        },
+                        y: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            elevationProfileData = { distances, elevations, slopes, totalDistKm };
+            if (card) card.style.display = '';
+        }
+
+        function toggleElevation() {
+            const card = document.getElementById('navElevationCard');
+            const btn = document.getElementById('navElevationToggleBtn');
+            elevationEnabled = !elevationEnabled;
+            if (btn) {
+                if (elevationEnabled) {
+                    btn.classList.add('active-layer');
+                } else {
+                    btn.classList.remove('active-layer');
+                }
+            }
+            if (navGlMap && MAPTILER_API_KEY) {
+                if (elevationEnabled) {
+                    enableTerrain();
+                } else {
+                    disableTerrain();
+                }
+            }
+            if (!card) return;
+            if (!elevationEnabled) {
+                card.style.display = 'none';
+            } else {
+                card.style.display = '';
+                if (navigationRouteGeoJSON) {
+                    updateElevationProfile(navigationRouteGeoJSON);
+                }
+            }
         }
 
         function latLngToTile(lat, lng, zoom) {
@@ -4861,7 +5486,13 @@
                 const marker = L.marker([coords[1], coords[0]], { icon });
                 marker._stationState = station.properties.state || '';
                 marker._baseIcon = icon;
-                marker.on('click', () => showStationPopup(station));
+                marker.on('click', () => {
+                    showStationPopup(station);
+                    if (rangeModeActive) {
+                        const ll = marker.getLatLng();
+                        runReachabilityForMarker(ll.lat, ll.lng);
+                    }
+                });
                 
                 markersToAdd.push(marker);
                 allMarkersArray.push(marker);
@@ -5370,6 +6001,36 @@
         function setupEventListeners() {
             document.getElementById('locationBtn').onclick = getUserLocation;
             
+            const rangeToggle = document.getElementById('range-toggle');
+            if (rangeToggle) {
+                rangeToggle.onclick = () => {
+                    rangeModeActive = !rangeModeActive;
+                    rangeToggle.classList.toggle('active', rangeModeActive);
+                    if (!rangeModeActive) {
+                        if (reachabilityLayer) {
+                            reachabilityLayer.clearLayers();
+                        }
+                        activeIsochroneLayer = null;
+                        updateIsochroneInfoCard('', null);
+                    }
+                };
+            }
+
+            const bufferInput = document.getElementById('rangeBufferKm');
+            if (bufferInput) {
+                bufferInput.addEventListener('change', () => {
+                    const v = parseFloat(bufferInput.value);
+                    if (isNaN(v) || v <= 0) {
+                        rangeBufferKm = 0;
+                        updateRangeBufferCircle();
+                        return;
+                    }
+                    rangeBufferKm = Math.min(v, 200);
+                    bufferInput.value = rangeBufferKm.toString();
+                    updateRangeBufferCircle();
+                });
+            }
+            
             const closeRouting = () => {
                 document.getElementById('routingPanel').classList.remove('active');
                 const sidePanel = document.getElementById('sidePanel');
@@ -5687,13 +6348,7 @@
             const feedbackSubmit = document.getElementById('introFeedbackSubmit');
             const feedbackStatus = document.getElementById('introFeedbackStatus');
             if (introOverlay && introStartBtn) {
-                introStartBtn.onclick = () => {
-                    introOverlay.classList.add('intro-hidden');
-                    document.body.classList.remove('intro-mode');
-                    setTimeout(() => {
-                        introOverlay.style.display = 'none';
-                    }, 600);
-                };
+                introStartBtn.onclick = dismissIntro;
             }
 
             if (feedbackInput && feedbackSubmit && feedbackStatus) {
@@ -5734,6 +6389,7 @@
             });
             
             updateNearestStations();
+            updateRangeBufferCircle();
             showToast(`✅ Location found ${sourceLabel}`);
         }
 
@@ -5860,6 +6516,7 @@
             });
 
             // 1. Try OSRM Routing API
+            const directKm = getDistance(userLocation.lat, userLocation.lng, lat, lng);
             try {
                 showToast('🚗 Calculating route...');
                 const response = await fetch(`${OSRM_BASE_URL}/route/v1/driving/${userLocation.lng},${userLocation.lat};${lng},${lat}?overview=full&geometries=geojson&steps=true`);
@@ -5869,11 +6526,23 @@
                     const route = data.routes[0];
                     currentRouteSteps = route.legs[0].steps;
                     currentStepIndex = 0;
-                    
+
                     const rawCoords = route.geometry.coordinates;
-                    navigationRouteGeoJSON = route.geometry;
-                    const coordinates = rawCoords.map(c => [c[1], c[0]]);
-                    
+                    const smoothedRawCoords = smoothRouteCoords(rawCoords);
+                    navigationRouteGeoJSON = { ...route.geometry, coordinates: smoothedRawCoords };
+
+                    const snappedStart = smoothedRawCoords[0];
+                    if (snappedStart && snappedStart.length >= 2) {
+                        const snappedLat = snappedStart[1];
+                        const snappedLng = snappedStart[0];
+                        userLocation = { lat: snappedLat, lng: snappedLng };
+                        if (window.userMarker) {
+                            window.userMarker.setLatLng([snappedLat, snappedLng]);
+                        }
+                    }
+
+                    const coordinates = smoothedRawCoords.map(c => [c[1], c[0]]);
+
                     routePolyline = L.polyline(coordinates, { 
                         color: '#0050C8', 
                         weight: 8,
@@ -5960,15 +6629,19 @@
                     if (navArrivalEnergyEl) {
                         navArrivalEnergyEl.textContent = `${distKm} km`;
                     }
-                    
+
+                    const fitDuration = routeTotalDistanceKm < 20 ? 2.0 : 5.0;
                     map.fitBounds(routePolyline.getBounds(), { 
                         padding: [50, 50],
                         animate: true,
-                        duration: 5.0
+                        duration: fitDuration
                     });
                     ensureNavGlMap();
                     updateNavGlRoute(rawCoords);
                     updateNavRouteLine();
+                    if (navigationRouteGeoJSON) {
+                        await updateElevationProfile(navigationRouteGeoJSON);
+                    }
                     
                     // Update Stations to highlight destination
                     addStationsToNavMap();
@@ -5977,7 +6650,7 @@
                 }
             } catch (err) {
                 console.error("Routing failed:", err);
-                showToast('⚠️ Road routing failed, showing straight line');
+                showToast('⚠️ Road routing inaccurate, showing straight line');
                 
                 // Fallback to straight line
                 const fallbackRawCoords = [
@@ -5992,10 +6665,9 @@
                 }).addTo(map);
                 
                 // Calculate straight line distance
-                const dist = getDistance(userLocation.lat, userLocation.lng, lat, lng);
-                routeTotalDistanceKm = dist;
+                routeTotalDistanceKm = directKm;
                 routeTotalDurationMin = 0;
-                document.getElementById('routingDistance').textContent = `${dist.toFixed(1)} km (Linear)`;
+                document.getElementById('routingDistance').textContent = `${directKm.toFixed(1)} km (Linear)`;
                 document.getElementById('routingTime').textContent = '--';
                 const etaChipFallback = document.getElementById('routingEtaChip');
                 if (etaChipFallback) {
@@ -6007,10 +6679,11 @@
                     routeEtaMarker = null;
                 }
                 
+                const fallbackFitDuration = directKm < 20 ? 2.0 : 5.0;
                 map.fitBounds(routePolyline.getBounds(), { 
                     padding: [50, 50],
                     animate: true,
-                    duration: 5.0
+                    duration: fallbackFitDuration
                 });
 
                 // Ensure 3D nav map also shows this fallback route
@@ -6021,6 +6694,9 @@
                 ensureNavGlMap();
                 updateNavGlRoute(fallbackRawCoords);
                 updateNavRouteLine();
+                if (navigationRouteGeoJSON) {
+                    await updateElevationProfile(navigationRouteGeoJSON);
+                }
                 
                 // Update stations to highlight the destination in 3D
                 addStationsToNavMap();
@@ -6047,8 +6723,20 @@
                     currentStepIndex = 0;
 
                     const rawCoords = route.geometry.coordinates;
-                    navigationRouteGeoJSON = route.geometry;
-                    const coordinates = rawCoords.map(c => [c[1], c[0]]);
+                    const smoothedRawCoords = smoothRouteCoords(rawCoords);
+                    navigationRouteGeoJSON = { ...route.geometry, coordinates: smoothedRawCoords };
+
+                    const snappedStart = smoothedRawCoords[0];
+                    if (snappedStart && snappedStart.length >= 2) {
+                        const snappedLat = snappedStart[1];
+                        const snappedLng = snappedStart[0];
+                        userLocation = { lat: snappedLat, lng: snappedLng };
+                        if (window.userMarker) {
+                            window.userMarker.setLatLng([snappedLat, snappedLng]);
+                        }
+                    }
+
+                    const coordinates = smoothedRawCoords.map(c => [c[1], c[0]]);
 
                     routePolyline = L.polyline(coordinates, {
                         color: '#0050C8',
@@ -6092,6 +6780,9 @@
                     ensureNavGlMap();
                     updateNavGlRoute(rawCoords);
                     updateNavRouteLine();
+                    if (navigationRouteGeoJSON) {
+                        await updateElevationProfile(navigationRouteGeoJSON);
+                    }
 
                     // Update Stations to highlight destination
                     addStationsToNavMap();
@@ -6381,6 +7072,13 @@
             if (!navGlMap || !navGlMap.isStyleLoaded()) return;
 
             const center = [lng, lat];
+            const now = performance.now();
+            if (lastNavCameraLat !== null && lastNavCameraLng !== null) {
+                const moveKm = getDistance(lat, lng, lastNavCameraLat, lastNavCameraLng);
+                if (moveKm < 0.01 && (now - lastNavCameraUpdateTime) < 200) {
+                    return;
+                }
+            }
             
             let effectiveBearing = bearing;
 
@@ -6414,13 +7112,16 @@
             if (isNavTracking && isGuidanceActive) {
                 navGlMap.easeTo({
                     center: center,
-                    zoom: 18,             // Locked zoom
-                    pitch: 65,            // Locked Tesla-style pitch
+                    zoom: 18,
+                    pitch: 65,
                     bearing: effectiveBearing,
-                    duration: 300,
-                    easing: (t) => t,     // Linear easing for smooth driving feel
+                    duration: 280,
+                    easing: (t) => t,
                     essential: true
                 });
+                lastNavCameraUpdateTime = now;
+                lastNavCameraLat = lat;
+                lastNavCameraLng = lng;
             }
         }
 
@@ -6637,6 +7338,18 @@
                         const arrivalDate = new Date(Date.now() + remainingMinutes * 60000);
                         hudArrivalEl.textContent = formatHudTime12(arrivalDate);
                     }
+                    if (elevationEnabled && elevationProfileData && elevationProfileData.elevations) {
+                        const count = elevationProfileData.elevations.length;
+                        if (count > 0) {
+                            const clampedProgress = Math.max(0, Math.min(progress, 1));
+                            const index = Math.min(count - 1, Math.max(0, Math.round(clampedProgress * (count - 1))));
+                            const elev = elevationProfileData.elevations[index];
+                            const cursorLabel = document.getElementById('navElevationCursorLabel');
+                            if (cursorLabel && typeof elev === 'number') {
+                                cursorLabel.textContent = elev.toFixed(0) + ' m';
+                            }
+                        }
+                    }
                 }
                 
                 // Update Turn Instructions
@@ -6649,7 +7362,18 @@
 
                 const followLat = navigationActive && routePolyline ? displayLat : lat;
                 const followLng = navigationActive && routePolyline ? displayLng : lng;
-                map.panTo([followLat, followLng], { animate: true, duration: 1.0 });
+                const panNow = performance.now();
+                const shouldPan =
+                    !lastMapPanLat ||
+                    !lastMapPanLng ||
+                    getDistance(followLat, followLng, lastMapPanLat, lastMapPanLng) > 0.02 ||
+                    (panNow - lastMapPanTime) > 500;
+                if (shouldPan) {
+                    map.panTo([followLat, followLng], { animate: true, duration: 0.6 });
+                    lastMapPanLat = followLat;
+                    lastMapPanLng = followLng;
+                    lastMapPanTime = panNow;
+                }
             }, (err) => {
                 console.warn("GPS tracking error:", err);
             }, {
@@ -6945,6 +7669,16 @@
                 }
             }
         }
+
+        window.dismissIntro = function () {
+            const introOverlay = document.getElementById('introOverlay');
+            if (!introOverlay) return;
+            introOverlay.classList.add('intro-hidden');
+            document.body.classList.remove('intro-mode');
+            setTimeout(() => {
+                introOverlay.style.display = 'none';
+            }, 600);
+        };
 
         function toggleNavLayer() {
             if (!navGlMap) return;
