@@ -7260,20 +7260,18 @@
                 let candidateBearing = null;
                 let offRouteKm = 0;
 
-                // Journey Track Restriction: Snap to route
+                // Journey Track Restriction: always snap displayed marker to route line
                 if (navigationActive && routePolyline && typeof getClosestPointOnRoute === 'function') {
                     const snap = getClosestPointOnRoute(lat, lng);
                     if (snap) {
-                         offRouteKm = snap.distanceKm;
-                         // Strict Route Snapping: If within 50m, snap to line.
-                         if (offRouteKm < 0.05) {
-                             candidateLat = snap.lat;
-                             candidateLng = snap.lng;
-                             candidateBearing = snap.bearing;
-                         } else {
-                             // Prevention: If > 50m, trigger reroute (allow drift to show off-track)
-                             rerouteFromCurrentLocation();
-                         }
+                        offRouteKm = snap.distanceKm;
+                        candidateLat = snap.lat;
+                        candidateLng = snap.lng;
+                        candidateBearing = snap.bearing;
+                        // If GPS drifts far from route, keep marker on route but trigger reroute
+                        if (offRouteKm > 0.1) {
+                            rerouteFromCurrentLocation();
+                        }
                     }
                 }
 
@@ -7302,11 +7300,12 @@
                     userMarker.setLatLng([displayLat, displayLng]);
                     
                     let targetHeading = smoothedHeading;
-
-                    if (isMoving && pos.coords.heading !== null && !isNaN(pos.coords.heading)) {
-                        targetHeading = pos.coords.heading;
-                    } else if (!isMoving && routeBearing !== null) {
+                    
+                    // Prefer route bearing for stable, route-aligned heading
+                    if (routeBearing !== null) {
                         targetHeading = routeBearing;
+                    } else if (isMoving && pos.coords.heading !== null && !isNaN(pos.coords.heading)) {
+                        targetHeading = pos.coords.heading;
                     }
 
                     if (lastHeading === null) {
