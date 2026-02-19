@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <title>EV Station Finder - Navigation &amp; Route Planning</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#020617">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.Default.css">
@@ -3510,6 +3512,9 @@
     <div class="nav-progress-marker"></div>
    </div>
    <div class="nav-hud-bottom">
+    <div class="nav-hud-alert" id="navSteepToast" style="display:none;">
+     ⚠ Steep climb in next 2 km
+    </div>
     <div class="nav-hud-sub" id="hudRemainingLabel">
      15 min remaining
     </div>
@@ -3855,7 +3860,7 @@
         let rangeModeActive = false;
         const OSRM_BASE_URL = 'https://router.project-osrm.org';
         const MAPTILER_API_KEY = 'lDUYLvmpj4UGdtFecEHo';
-        let elevationEnabled = false;
+        let elevationEnabled = true;
         let navGl3DEnabled = false;
         const NAV_GL_STYLE_LIGHT = 'https://tiles.openfreemap.org/styles/positron';
         const NAV_GL_STYLE_DARK = 'https://tiles.openfreemap.org/styles/fiord-color';
@@ -4686,6 +4691,9 @@
 
             navGlMap.on('load', () => {
                 navGlMapReady = true;
+                if (MAPTILER_API_KEY) {
+                    enableTerrain();
+                }
                 if (!navGlMap.getLayer('3d-buildings')) {
                     const style = navGlMap.getStyle();
                     let buildingSource = 'openmaptiles';
@@ -5180,9 +5188,11 @@
 
         let elevationChart = null;
         let elevationProfileData = null;
+        let steepClimbToastShown = false;
+        let elevationRetryTimeoutId = null;
 
         function enableTerrain() {
-            if (!navGlMap || !MAPTILER_API_KEY) return;
+            if (!navGlMap || !navGlMapReady || !MAPTILER_API_KEY) return;
             if (!navGlMap.getSource('terrain-source')) {
                 navGlMap.addSource('terrain-source', {
                     type: 'raster-dem',
@@ -5190,12 +5200,18 @@
                     tileSize: 256
                 });
             }
-            navGlMap.setTerrain({ source: 'terrain-source', exaggeration: 1.5 });
+            const current = typeof navGlMap.getTerrain === 'function' ? navGlMap.getTerrain() : null;
+            if (!current || current.source !== 'terrain-source') {
+                navGlMap.setTerrain({ source: 'terrain-source', exaggeration: 1.5 });
+            }
         }
 
         function disableTerrain() {
-            if (!navGlMap) return;
-            navGlMap.setTerrain(null);
+            if (!navGlMap || !navGlMapReady) return;
+            const current = typeof navGlMap.getTerrain === 'function' ? navGlMap.getTerrain() : null;
+            if (current) {
+                navGlMap.setTerrain(null);
+            }
         }
 
         async function updateElevationProfile(routeGeoJSON) {
@@ -5210,73 +5226,56 @@
                 return;
             }
 
-            const coords = routeGeoJSON.coordinates;
-            const maxSamples = 50;
-            let sampled = [];
-            if (coords.length <= maxSamples) {
-                sampled = coords.slice();
-            } else {
-                const step = Math.ceil(coords.length / maxSamples);
-                for (let i = 0; i < coords.length; i += step) {
-                    sampled.push(coords[i]);
+            steepClimbToastShown = false;
+
+            if (!navGlMap || !navGlMapReady) {
+                if (typeof ensureNavGlMap === 'function') {
+                    ensureNavGlMap();
                 }
-                const last = coords[coords.length - 1];
-                const lastSample = sampled[sampled.length - 1];
-                if (!lastSample || lastSample[0] !== last[0] || lastSample[1] !== last[1]) {
-                    sampled.push(last);
+                if (navGlMap && typeof navGlMap.once === 'function') {
+                    navGlMap.once('load', () => {
+                        if (elevationEnabled) {
+                            updateElevationProfile(routeGeoJSON);
+                        }
+                    });
                 }
+                if (card) card.style.display = '';
+                return;
             }
 
-            if (sampled.length < 2) {
+            if (elevationRetryTimeoutId) {
+                clearTimeout(elevationRetryTimeoutId);
+                elevationRetryTimeoutId = null;
+            }
+
+            const line = turf.lineString(routeGeoJSON.coordinates);
+            const totalDistKm = turf.length(line, { units: 'kilometers' });
+            if (!totalDistKm || totalDistKm <= 0) {
                 if (card) card.style.display = 'none';
                 return;
             }
 
+            const stepKm = 0.2;
             const distances = [];
-            let totalDistKm = 0;
-            for (let i = 0; i < sampled.length; i++) {
-                const lng = sampled[i][0];
-                const lat = sampled[i][1];
-                if (i > 0) {
-                    const prevLng = sampled[i - 1][0];
-                    const prevLat = sampled[i - 1][1];
-                    totalDistKm += getDistance(prevLat, prevLng, lat, lng);
-                }
-                distances.push(totalDistKm);
-            }
-
-            const locations = sampled.map(c => `${c[0]},${c[1]}`).join(';');
-            let elevationResponse;
-            try {
-                const url = 'https://api.maptiler.com/elevation/' + encodeURIComponent(locations) + '.json?key=' + MAPTILER_API_KEY;
-                const res = await fetch(url);
-                if (!res.ok) {
-                    if (card) card.style.display = 'none';
-                    return;
-                }
-                elevationResponse = await res.json();
-            } catch (e) {
-                if (card) card.style.display = 'none';
-                return;
-            }
-
-            if (!Array.isArray(elevationResponse) || !elevationResponse.length) {
-                if (card) card.style.display = 'none';
-                return;
-            }
-
             const elevations = [];
             const slopes = [];
-            let lastElev = null;
 
-            const count = Math.min(sampled.length, elevationResponse.length);
-            for (let i = 0; i < count; i++) {
-                const elev = Array.isArray(elevationResponse[i]) && elevationResponse[i].length >= 3
-                    ? elevationResponse[i][2]
-                    : 0;
+            let lastElev = null;
+            let d = 0;
+            while (d <= totalDistKm + 1e-6) {
+                const pt = turf.along(line, d, { units: 'kilometers' });
+                const coord = pt && pt.geometry && pt.geometry.coordinates;
+                if (!coord) break;
+                const lng = coord[0];
+                const lat = coord[1];
+                const elev = navGlMap.queryTerrainElevation({ lng, lat }) ?? 0;
+
+                distances.push(d);
                 elevations.push(elev);
-                if (lastElev !== null && i > 0) {
-                    const dKm = distances[i] - distances[i - 1];
+
+                if (lastElev !== null && distances.length > 1) {
+                    const prevD = distances[distances.length - 2];
+                    const dKm = d - prevD;
                     const dM = dKm * 1000;
                     const rise = elev - lastElev;
                     const slopePct = dM > 0 ? (rise / dM) * 100 : 0;
@@ -5284,10 +5283,12 @@
                 } else {
                     slopes.push(0);
                 }
+
                 lastElev = elev;
+                d += stepKm;
             }
 
-            if (!distances.length) {
+            if (!distances.length || elevations.length < 2) {
                 if (card) card.style.display = 'none';
                 return;
             }
@@ -5296,6 +5297,15 @@
             const maxElev = Math.max(...elevations);
             const deltaElev = maxElev - minElev;
             const maxSlope = Math.max(...slopes.map(s => Math.abs(s)));
+
+            if (deltaElev === 0 && navGlMap && navGlMapReady && MAPTILER_API_KEY) {
+                if (!elevationProfileData || elevationProfileData.flatProfileRetried !== true) {
+                    elevationProfileData = { flatProfileRetried: true };
+                    elevationRetryTimeoutId = setTimeout(() => {
+                        updateElevationProfile(routeGeoJSON);
+                    }, 1500);
+                }
+            }
 
             if (summaryEl) {
                 summaryEl.textContent = `${deltaElev.toFixed(0)} m Δ / ${maxSlope.toFixed(1)}%`;
@@ -5308,13 +5318,17 @@
                 elevationChart.destroy();
             }
 
+            const neutralColor = isDark ? '#93c5fd' : '#2563eb';
+            const climbColor = '#ef4444';
+            const regenColor = '#22d3ee';
+
             elevationChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: distances.map(d => d * 1000),
+                    labels: distances.map(dVal => dVal * 1000),
                     datasets: [{
                         data: elevations,
-                        borderColor: isDark ? '#93c5fd' : '#2563eb',
+                        borderColor: neutralColor,
                         borderWidth: 2,
                         pointRadius: 0,
                         fill: true,
@@ -5331,7 +5345,19 @@
                             }
                             return grad;
                         },
-                        tension: 0.25
+                        tension: 0.25,
+                        segment: {
+                            borderColor: ctxSeg => {
+                                const i = ctxSeg.p1DataIndex;
+                                if (!slopes || i <= 0 || i >= slopes.length) {
+                                    return neutralColor;
+                                }
+                                const s = slopes[i];
+                                if (s > 8) return climbColor;
+                                if (s < 0) return regenColor;
+                                return neutralColor;
+                            }
+                        }
                     }]
                 },
                 options: {
@@ -5368,20 +5394,60 @@
                     btn.classList.remove('active-layer');
                 }
             }
-            if (navGlMap && MAPTILER_API_KEY) {
-                if (elevationEnabled) {
-                    enableTerrain();
-                } else {
-                    disableTerrain();
-                }
-            }
             if (!card) return;
             if (!elevationEnabled) {
                 card.style.display = 'none';
             } else {
                 card.style.display = '';
-                if (navigationRouteGeoJSON) {
+                if (!navigationRouteGeoJSON || !navigationRouteGeoJSON.coordinates || navigationRouteGeoJSON.coordinates.length < 2) {
+                    card.style.display = 'none';
+                    if (typeof showToast === 'function') {
+                        showToast('📈 Start a route to see elevation profile');
+                    }
+                } else {
                     updateElevationProfile(navigationRouteGeoJSON);
+                }
+            }
+        }
+
+        function predictArrivalBattery(currentSoC, profile) {
+            if (!profile || !Array.isArray(profile.elevations) || profile.elevations.length < 2) {
+                return { arrivalSoC: currentSoC, totalAscentM: 0, penaltyPct: 0 };
+            }
+            let totalAscentM = 0;
+            const elevations = profile.elevations;
+            for (let i = 1; i < elevations.length; i++) {
+                const diff = elevations[i] - elevations[i - 1];
+                if (diff > 0) {
+                    totalAscentM += diff;
+                }
+            }
+            const penaltyPct = Math.floor(totalAscentM / 500);
+            const arrivalSoC = Math.max(0, currentSoC - penaltyPct);
+            return { arrivalSoC, totalAscentM, penaltyPct };
+        }
+
+        function maybeShowSteepClimbWarning(travelledKm) {
+            if (!elevationProfileData || !elevationProfileData.distances || !elevationProfileData.slopes) return;
+            if (steepClimbToastShown) return;
+            const distances = elevationProfileData.distances;
+            const slopes = elevationProfileData.slopes;
+            const lookaheadKm = 2;
+            const toastEl = document.getElementById('navSteepToast');
+            if (!toastEl) return;
+            for (let i = 1; i < distances.length; i++) {
+                const d = distances[i];
+                if (d <= travelledKm) continue;
+                if (d > travelledKm + lookaheadKm) break;
+                const s = slopes[i];
+                if (s > 8) {
+                    toastEl.textContent = '⚠ Steep climb in next 2 km';
+                    toastEl.style.display = 'block';
+                    steepClimbToastShown = true;
+                    setTimeout(() => {
+                        toastEl.style.display = 'none';
+                    }, 6000);
+                    break;
                 }
             }
         }
@@ -7290,18 +7356,33 @@
                 if (hudDistanceEl) hudDistanceEl.textContent = distText;
 
                 const navArrivalEnergyEl = document.getElementById('navArrivalEnergy');
-                if (navArrivalEnergyEl) navArrivalEnergyEl.textContent = distText;
-
                 const energyBatteryNowEl = document.getElementById('navEnergyDetailBatteryNow');
                 const energyBatteryArrivalEl = document.getElementById('navEnergyDetailBatteryArrival');
                 const energyDistanceEl = document.getElementById('navEnergyDetailDistance');
                 const energyDurationEl = document.getElementById('navEnergyDetailDuration');
                 const batteryNowEl = document.getElementById('batteryRemaining');
+                let arrivalSoCText = '';
                 if (energyBatteryNowEl && batteryNowEl) {
                     energyBatteryNowEl.textContent = 'Battery now: ' + batteryNowEl.textContent;
                 }
-                if (energyBatteryArrivalEl && batteryNowEl) {
-                    energyBatteryArrivalEl.textContent = 'Est. on arrival: ' + batteryNowEl.textContent;
+                if (batteryNowEl) {
+                    const raw = batteryNowEl.textContent.replace('%', '').trim();
+                    const currentSoC = parseFloat(raw);
+                    if (!isNaN(currentSoC)) {
+                        const prediction = predictArrivalBattery(currentSoC, elevationProfileData);
+                        const arrivalSoC = prediction.arrivalSoC;
+                        arrivalSoCText = `${arrivalSoC.toFixed(0)}%`;
+                        if (energyBatteryArrivalEl) {
+                            energyBatteryArrivalEl.textContent = 'Est. on arrival: ' + arrivalSoCText;
+                        }
+                        if (navArrivalEnergyEl) {
+                            navArrivalEnergyEl.textContent = arrivalSoCText;
+                        }
+                    } else {
+                        if (energyBatteryArrivalEl && batteryNowEl) {
+                            energyBatteryArrivalEl.textContent = 'Est. on arrival: ' + batteryNowEl.textContent;
+                        }
+                    }
                 }
                 if (energyDistanceEl) {
                     energyDistanceEl.textContent = 'Distance: ' + distText;
@@ -7349,6 +7430,10 @@
                                 cursorLabel.textContent = elev.toFixed(0) + ' m';
                             }
                         }
+                    }
+                    if (elevationProfileData && elevationProfileData.distances && elevationProfileData.slopes) {
+                        const travelledKm = routeTotalDistanceKm * (1 - remainingRatio);
+                        maybeShowSteepClimbWarning(travelledKm);
                     }
                 }
                 
@@ -7766,9 +7851,27 @@
         }
 
 
+        window.addEventListener('error', (event) => {
+            if (event && typeof event.message === 'string' &&
+                event.message.indexOf('Attempting to run(), but is already running') !== -1) {
+                event.preventDefault();
+            }
+        }, true);
+
+        const navElevationInitBtn = document.getElementById('navElevationToggleBtn');
+        if (navElevationInitBtn && elevationEnabled) {
+            navElevationInitBtn.classList.add('active-layer');
+        }
+
         setupIntroOverlay();
         initSDK();
         loadSavedAddresses();
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
     </script>
  </body>
 </html>
