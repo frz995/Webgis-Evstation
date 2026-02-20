@@ -3836,6 +3836,7 @@
         let routeEtaMarker = null;
         let navigationActive = false;
         mapManager.navigationActive = false;
+        window.navigationActive = false;
         let currentRouteSteps = [];
         let currentStepIndex = 0;
         mapManager.geolocationWatchId = null;
@@ -6759,6 +6760,7 @@
                 return;
             }
             navigationActive = true;
+            window.navigationActive = true;
             isNavigating = false; // Reset navigation movement state
             mapManager.isNavigating = false;
             wasDarkBeforeNav = isDarkMode;
@@ -6952,6 +6954,7 @@
         }
 
         let isNavTracking = true;
+        window.isNavTracking = true;
         let isNavOverview = false;
         
         // Navigation Guidance State
@@ -7005,10 +7008,14 @@
         function beginTracking() {
             // Reset tracking state on start
             isNavTracking = true;
+            window.isNavTracking = true;
             
             // Setup Map Interaction Listeners for navGlMap
             if (navGlMap) {
-                const disableTracking = () => { isNavTracking = false; };
+                const disableTracking = () => { 
+                    isNavTracking = false; 
+                    window.isNavTracking = false;
+                };
                 navGlMap.on('dragstart', disableTracking);
                 navGlMap.on('pitchstart', disableTracking);
                 navGlMap.on('rotatestart', disableTracking);
@@ -7369,6 +7376,7 @@
         }
         function endNavigation() {
             navigationActive = false;
+            window.navigationActive = false;
             isGuidanceActive = false; // Reset guidance flag for next session
             
             // Clean up 3D navigation route data but keep layers so next navigation reuses them
