@@ -3416,8 +3416,8 @@
      </div>
     </div>
    </div>
-   <div class="nav-left-stack">
-   <div class="nav-card nav-media-card" id="navMediaCard">
+  <div class="nav-left-stack">
+   <div class="nav-card nav-media-card" id="navMediaCard" onclick="toggleNavMediaCard(event)">
     <div class="nav-media-cover">
     </div>
     <div class="nav-media-text">
@@ -3440,7 +3440,7 @@
      <div class="nav-media-detail-line" id="navMediaDetailPrice"></div>
     </div>
    </div>
-   <div class="nav-card nav-energy-card">
+   <div class="nav-card nav-energy-card" onclick="toggleNavEnergyCard()">
     <div class="nav-energy-main">
      <div class="nav-energy-icon">
       ⚡
@@ -6179,20 +6179,18 @@
                 };
             }
 
-            const navMediaCard = document.getElementById('navMediaCard');
-            if (navMediaCard) {
-                navMediaCard.addEventListener('click', (e) => {
-                    if (e.target.closest('.nav-media-close')) return;
-                    navMediaCard.classList.toggle('expanded');
-                });
-            }
+            window.toggleNavMediaCard = function (e) {
+                const card = document.getElementById('navMediaCard');
+                if (!card) return;
+                if (e && e.target && typeof e.target.closest === 'function' && e.target.closest('.nav-media-close')) return;
+                card.classList.toggle('expanded');
+            };
 
-            const navEnergyCard = document.querySelector('.nav-energy-card');
-            if (navEnergyCard) {
-                navEnergyCard.addEventListener('click', () => {
-                    navEnergyCard.classList.toggle('expanded');
-                });
-            }
+            window.toggleNavEnergyCard = function () {
+                const card = document.querySelector('.nav-energy-card');
+                if (!card) return;
+                card.classList.toggle('expanded');
+            };
 
             window.autoHideNavCards = function() {
                 if (window.innerWidth > 768) return; // mobile only
