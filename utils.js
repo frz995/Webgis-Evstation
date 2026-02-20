@@ -104,11 +104,22 @@ export function formatDistance(km) {
 }
 
 export function formatPlugInfo(conn) {
-    const type = normalizeConnectionType(conn?.type || conn);
+    if (!conn) return 'Unknown';
+
+    let type;
+    if (typeof conn === 'string') {
+        type = conn;
+    } else if (typeof conn.type === 'string' && conn.type && conn.type !== 'Unknown') {
+        type = conn.type;
+    } else {
+        type = normalizeConnectionType(conn);
+    }
+
     const power =
         conn && (typeof conn.power === 'number' || typeof conn.powerKw === 'number')
             ? `${(conn.powerKw ?? conn.power)} kW`
             : null;
+
     return power ? `${type} (${power})` : type;
 }
 
@@ -119,4 +130,3 @@ if (typeof window !== 'undefined') {
     window.formatDistance = formatDistance;
     window.formatPlugInfo = formatPlugInfo;
 }
-
