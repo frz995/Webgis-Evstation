@@ -3839,7 +3839,9 @@
         window.navigationActive = false;
         let currentRouteSteps = [];
         let currentStepIndex = 0;
+        let geolocationWatchId = null;
         mapManager.geolocationWatchId = null;
+        window.geolocationWatchId = null;
         let lastGpsUpdate = 0;
         let navigationDestination = null;
         let routeTotalDistanceKm = 0;
@@ -7283,6 +7285,8 @@
                 maximumAge: 1000,
                 timeout: 5000
             });
+            mapManager.geolocationWatchId = geolocationWatchId;
+            window.geolocationWatchId = geolocationWatchId;
         }
 
         function closeStationDetail() { document.getElementById('stationDetailPanel').classList.remove('active'); clearSelectedStationHighlight(); }
@@ -7399,7 +7403,12 @@
                 }
             }
 
-            if (geolocationWatchId) navigator.geolocation.clearWatch(geolocationWatchId);
+            if (geolocationWatchId) {
+                navigator.geolocation.clearWatch(geolocationWatchId);
+                geolocationWatchId = null;
+                mapManager.geolocationWatchId = null;
+                window.geolocationWatchId = null;
+            }
             document.getElementById('turnInstructionBar').classList.remove('active');
             document.getElementById('navHUD').classList.remove('active');
             const navSpeedHUD = document.getElementById('navSpeedHUD');
