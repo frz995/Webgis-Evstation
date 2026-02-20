@@ -3388,7 +3388,7 @@
        <div id="batteryFill" style="width: 100%;"></div>
       </div>
      </div>
-     <div class="nav-buttons"><button id="startNavBtn" class="nav-button primary">Start Nav</button> <button id="routingClose2" class="nav-button secondary">Cancel</button>
+     <div class="nav-buttons"><button id="startNavBtn" class="nav-button primary" onclick="startNavigation()">Start Nav</button> <button id="routingClose2" class="nav-button secondary">Cancel</button>
      </div>
     </div>
    </div>
@@ -6753,7 +6753,10 @@
         }
 
         function startNavigation() {
-            if (!navigationDestination) return;
+            if (!navigationDestination) {
+                showToast('📍 Select a destination first');
+                return;
+            }
             navigationActive = true;
             isNavigating = false; // Reset navigation movement state
             mapManager.isNavigating = false;
