@@ -4935,6 +4935,74 @@
 
         function showToast(msg) {}
 
+        async function loadEVStationsFromGeoJsonFallback() {
+            try {
+                const res = await fetch('data/ev_station.geojson');
+                if (!res.ok) {
+                    return false;
+                }
+                const gj = await res.json();
+                const features = Array.isArray(gj.features) ? gj.features : [];
+
+                allStations = features.map((feature, idx) => {
+                    const props = feature.properties || {};
+                    const geom = feature.geometry || {};
+                    const coords = Array.isArray(geom.coordinates) ? geom.coordinates : [0, 0];
+                    const lng = typeof coords[0] === 'number' ? coords[0] : 0;
+                    const lat = typeof coords[1] === 'number' ? coords[1] : 0;
+
+                    return {
+                        properties: {
+                            name: props.name || props.Name || props.title || '-',
+                            operator: props.operator || props.Operator || '-',
+                            operatorSite: props.operatorSite || '',
+                            operatorEmail: props.operatorEmail || '',
+                            state: normalizeStateName(
+                                props.state || props.State || '',
+                                lat,
+                                lng,
+                                props
+                            ),
+                            chargers: props.chargers || props.NumberOfPoints || 1,
+                            addressLine1: props.address || props.AddressLine1 || '',
+                            town: props.town || props.Town || '',
+                            postcode: props.postcode || props.Postcode || '',
+                            usage: props.usage || '-',
+                            usageCost: props.usageCost || '',
+                            access: props.access || '',
+                            statusTitle: props.statusTitle || '-',
+                            isOperational: typeof props.isOperational === 'boolean' ? props.isOperational : true,
+                            image: props.image || null,
+                            connections: []
+                        },
+                        geometry: {
+                            coordinates: [lng, lat]
+                        },
+                        id: idx
+                    };
+                }).filter(s => s.geometry.coordinates[0] !== 0);
+
+                if (!allStations.length) {
+                    return false;
+                }
+
+                processStations();
+                renderStations(null, false);
+                updateStats();
+                populateStateList();
+                updateNearestStations();
+
+                if (navGlMap) {
+                    addStationsToNavMap();
+                }
+
+                showToast(`✅ Loaded ${allStations.length} stations (fallback)`);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
         async function loadEVStations() {
             try {
                 showToast('⚡ Loading Malaysian stations...');
@@ -4943,7 +5011,12 @@
                     maxResults: 10000
                 });
 
-                allStations = data.map((station, idx) => ({
+                if (!Array.isArray(data) || data.length === 0) {
+                    const ok = await loadEVStationsFromGeoJsonFallback();
+                    if (ok) return;
+                }
+
+                allStations = (data || []).map((station, idx) => ({
                     properties: {
                         name: station.AddressInfo?.Title ?? '-',
                         operator: station.OperatorInfo?.Title ?? '-',
@@ -4989,15 +5062,17 @@
                 populateStateList();
                 updateNearestStations();
                 
-                // Update Nav Map if active
                 if (navGlMap) {
-                addStationsToNavMap();
-            }
+                    addStationsToNavMap();
+                }
 
-            showToast(`✅ Loaded ${allStations.length} stations`);
-        } catch (error) {
-            showToast('❌ API Error');
-        }
+                showToast(`✅ Loaded ${allStations.length} stations`);
+            } catch (error) {
+                const ok = await loadEVStationsFromGeoJsonFallback();
+                if (!ok) {
+                    showToast('❌ API Error');
+                }
+            }
         }
 
         function renderDirectionsList() {
@@ -7679,4 +7754,3 @@
     </script>
  </body>
 </html>
-
