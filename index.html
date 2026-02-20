@@ -3813,7 +3813,10 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.1/dist/leaflet.markercluster.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/trafforddatalab/leaflet.reachability@v2.0.1/leaflet.reachability.js"></script>
-  <script>
+  <script type="module">
+        import { mapManager } from './map-manager.js';
+        import { initUI } from './ui-controller.js';
+
         const defaultConfig = {
             map_title: '⚡ EV Station Finder'
         };
@@ -3830,10 +3833,10 @@
         let routePolyline = null;
         let routeTrafficLayers = [];
         let routeEtaMarker = null;
-        let navigationActive = false;
+        mapManager.navigationActive = false;
         let currentRouteSteps = [];
         let currentStepIndex = 0;
-        let geolocationWatchId = null;
+        mapManager.geolocationWatchId = null;
         let lastGpsUpdate = 0;
         let navigationDestination = null;
         let routeTotalDistanceKm = 0;
@@ -3853,20 +3856,13 @@
         let navigationRouteGeoJSON = null;
         let navInfoTimeIntervalId = null;
         let navInfoTempIntervalId = null;
-        const ORS_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjI3MWJkNGJjMDI3NjQwZTk5MDBkMmI2OWJlNjI4MGE5IiwiaCI6Im11cm11cjY0In0=';
-        const ORS_ISOCHRONE_URL = 'https://api.openrouteservice.org/v2/isochrones/driving-car';
+        
         let reachabilityControl = null;
         let reachabilityLayer = null;
         let rangeModeActive = false;
-        const OSRM_BASE_URL = 'https://router.project-osrm.org';
-        const MAPTILER_API_KEY = 'lDUYLvmpj4UGdtFecEHo';
+        
         let elevationEnabled = false;
         let navGl3DEnabled = false;
-        const NAV_GL_STYLE_LIGHT = 'https://tiles.openfreemap.org/styles/positron';
-        const NAV_GL_STYLE_DARK = 'https://tiles.openfreemap.org/styles/fiord-color';
-        const MALAYSIA_STATES = [
-            'Johor','Kedah','Kelantan','Melaka','Negeri Sembilan','Pahang','Perak','Perlis','Pulau Pinang','Sabah','Sarawak','Selangor','Terengganu','Kuala Lumpur'
-        ];
         let filterAvailable = false;
         let filterCable = false;
         let filterMinPower = 0;
@@ -4013,44 +4009,6 @@
             }
         }
        
-        function normalizeConnectionType(c) {
-        // 1. Check for ID (Most reliable - works for both raw API and processed objects)
-        const id = c?.ConnectionTypeID || c?.ConnectionType?.ID || c?.id;
-        const idMap = {
-            33: 'CCS (Type 2)',
-            2: 'CHAdeMO',
-            25: 'Type 2 (Socket)',
-            1036: 'Type 2 (Tethered)',
-            1: 'Type 1 (J1772)',
-            30: 'Tesla (Model S/X)',
-            27: 'Tesla Supercharger',
-            32: 'CCS (Type 1)',
-            3: 'BS1363 3-Pin'
-        };
-        if (idMap[id]) return idMap[id];
-
-        // 2. If already processed, use the existing type
-        if (c?.type && c.type !== 'Unknown') return c.type;
-
-        // 3. Smart Keyword Fallback (Checks Level, Current, and Description)
-        let t = (c?.ConnectionType?.Title) || (c?.ConnectionType?.FormalName) || '';
-        if (!t || t.toLowerCase() === 'unknown') {
-            const level = (c?.Level?.Title || c?.level || '').toLowerCase();
-            const current = (c?.CurrentType?.Title || c?.current || '').toLowerCase();
-            const desc = (c?.ConnectionType?.Description || '').toLowerCase();
-            const combined = `${level} ${current} ${desc}`;
-
-            if (combined.includes('ccs') || combined.includes('combo')) return 'CCS';
-            if (combined.includes('chademo')) return 'CHAdeMO';
-            if (combined.includes('type 2') || combined.includes('mennekes')) return 'Type 2';
-            if (combined.includes('type 1') || combined.includes('yazaki')) return 'Type 1';
-            if (combined.includes('tesla')) return 'Tesla';
-            if (current.includes('dc')) return 'DC Fast';
-            if (current.includes('ac')) return 'AC';
-        }
-        return t ? t : 'Unknown';
-    }
-
         function updateNavTime() {
             const el = document.getElementById('navTimeDisplay');
             if (!el) return;
@@ -4063,20 +4021,6 @@
             el.textContent = h + ':' + m + ' ' + ampm;
         }
 
-        async function fetchNavTemperature(lat, lng) {
-            try {
-                const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + encodeURIComponent(lat) + '&longitude=' + encodeURIComponent(lng) + '&current=temperature_2m&timezone=auto';
-                const res = await fetch(url);
-                if (!res.ok) return;
-                const data = await res.json();
-                const t = data && data.current && typeof data.current.temperature_2m === 'number' ? Math.round(data.current.temperature_2m) : null;
-                if (t === null) return;
-                const el = document.getElementById('navTempDisplay');
-                if (el) el.textContent = t + '°C';
-            } catch (e) {
-            }
-        }
-
         function startNavInfoHud() {
             const hud = document.getElementById('navInfoHUD');
             if (hud) hud.classList.add('active');
@@ -4084,10 +4028,17 @@
             if (navInfoTimeIntervalId) clearInterval(navInfoTimeIntervalId);
             navInfoTimeIntervalId = setInterval(updateNavTime, 30000);
             if (userLocation) {
-                fetchNavTemperature(userLocation.lat, userLocation.lng);
+                const updateTemp = async () => {
+                    const t = await getNavTemperature(userLocation.lat, userLocation.lng);
+                    if (typeof t === 'number') {
+                        const el = document.getElementById('navTempDisplay');
+                        if (el) el.textContent = t + '°C';
+                    }
+                };
+                updateTemp();
                 if (navInfoTempIntervalId) clearInterval(navInfoTempIntervalId);
-                navInfoTempIntervalId = setInterval(function () {
-                    if (userLocation) fetchNavTemperature(userLocation.lat, userLocation.lng);
+                navInfoTempIntervalId = setInterval(() => {
+                    if (userLocation) updateTemp();
                 }, 600000);
             }
         }
@@ -4315,7 +4266,7 @@
             }
             
             // Start map setup only after SDK is ready
-            initMap();
+            mapManager.initMaps();
         }
 
         /**
@@ -4345,6 +4296,7 @@
                 }).addTo(map);
             }
 
+            window.map = map;
             malaysiaBounds = L.latLngBounds([-1.0, 96.0], [9.0, 122.0]);
             map.fitBounds(malaysiaBounds);
 
@@ -4379,7 +4331,7 @@
 
                 // Setup UI features
                 generatePlugFilters(); // Generates Type 2, CCS, etc. buttons
-                setupEventListeners(); // Attaches click listeners to map buttons
+                initUI(); // Attach UI event listeners and overlays
                 
                 // Final Step: Draw markers on the map, keep initial Malaysia view
                 renderStations(null, false);
@@ -4675,6 +4627,7 @@
                 bearing: 0,
                 attributionControl: true
             });
+            window.navGlMap = navGlMap;
             navGlIsDarkStyle = targetIsDark;
             // Removed default NavigationControl as per user request
             
@@ -4985,9 +4938,10 @@
         async function loadEVStations() {
             try {
                 showToast('⚡ Loading Malaysian stations...');
-                const apiUrl = 'https://api.openchargemap.io/v3/poi/?output=json&countrycode=MY&maxresults=10000&compact=false&verbose=true&key=c10f1691-d3a4-4408-bf34-ff9a3b3e69bd';
-                const response = await fetch(apiUrl);
-                const data = await response.json();
+                const data = await getChargingStations({
+                    countryCode: 'MY',
+                    maxResults: 10000
+                });
 
                 allStations = data.map((station, idx) => ({
                     properties: {
@@ -5060,12 +5014,7 @@
                 const modifier = maneuver.modifier || maneuver.type || '';
                 const instruction = maneuver.instruction || '';
                 const text = instruction || name || 'Continue';
-                let distLabel;
-                if (distance >= 1000) {
-                    distLabel = (distance / 1000).toFixed(1) + ' km';
-                } else {
-                    distLabel = Math.round(distance) + ' m';
-                }
+                const distLabel = formatDistance(distance / 1000);
                 const meta = name ? distLabel + ' • ' + name : distLabel;
                 const arrow = getTurnIcon(modifier || 'straight');
                 return (
@@ -5091,14 +5040,6 @@
             
             // We defer rendering to populateStateList() to ensure consistent ordering
             // and use of the global stateData we just populated.
-        }
-
-        function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
         }
 
         function smoothRouteCoords(rawCoords) {
@@ -5245,50 +5186,17 @@
                 elevationRetryTimeoutId = null;
             }
 
-            const line = turf.lineString(routeGeoJSON.coordinates);
-            const totalDistKm = turf.length(line, { units: 'kilometers' });
-            if (!totalDistKm || totalDistKm <= 0) {
+            const profile = await getRouteElevationProfile(
+                routeGeoJSON,
+                navGlMap
+            );
+            if (!profile) {
                 if (card) card.style.display = 'none';
                 return;
             }
 
-            const stepKm = 0.2;
-            const distances = [];
-            const elevations = [];
-            const slopes = [];
-
-            let lastElev = null;
-            let d = 0;
-            while (d <= totalDistKm + 1e-6) {
-                const pt = turf.along(line, d, { units: 'kilometers' });
-                const coord = pt && pt.geometry && pt.geometry.coordinates;
-                if (!coord) break;
-                const lng = coord[0];
-                const lat = coord[1];
-                const elev = navGlMap.queryTerrainElevation({ lng, lat }) ?? 0;
-
-                distances.push(d);
-                elevations.push(elev);
-
-                if (lastElev !== null && distances.length > 1) {
-                    const prevD = distances[distances.length - 2];
-                    const dKm = d - prevD;
-                    const dM = dKm * 1000;
-                    const rise = elev - lastElev;
-                    const slopePct = dM > 0 ? (rise / dM) * 100 : 0;
-                    slopes.push(slopePct);
-                } else {
-                    slopes.push(0);
-                }
-
-                lastElev = elev;
-                d += stepKm;
-            }
-
-            if (!distances.length || elevations.length < 2) {
-                if (card) card.style.display = 'none';
-                return;
-            }
+            const { distances, elevations, slopes, totalDistKm } = profile;
+            elevationProfileData = profile;
 
             const minElev = Math.min(...elevations);
             const maxElev = Math.max(...elevations);
@@ -5782,8 +5690,8 @@
                         <span style="display:inline-block;width:8px;height:8px;border-radius:999px;background:#22c55e;"></span>
                     </div>
                     <div class="equipment-meta">
-                        <div class="equipment-title">${conn.type || 'Charger'}</div>
-                        <div class="equipment-sub">${conn.power ? conn.power + ' kW' : 'N/A'} • ${conn.status || 'Available'}</div>
+                        <div class="equipment-title">${formatPlugInfo(conn)}</div>
+                        <div class="equipment-sub">${conn.status || 'Available'}</div>
                     </div>
                     <div class="equipment-badge" style="${isDC ? 'background: #FF5722; color: white; border: none;' : ''}">
                         ${badgeText}
@@ -5955,7 +5863,7 @@
             list.innerHTML = nearest.map(s => `
                 <div class="nearest-item" onclick="onNearestItemClick(${s.geometry.coordinates[1]}, ${s.geometry.coordinates[0]}, '${s.properties.name.replace(/'/g, "\\'")}')">
                     <div class="nearest-name">${s.properties.name}</div>
-                    <div class="nearest-distance">📍 ${s.dist.toFixed(1)} km</div>
+                    <div class="nearest-distance">📍 ${formatDistance(s.dist)}</div>
                 </div>`).join('');
         }
 
@@ -5983,6 +5891,7 @@
                 });
                 if (station) {
                     showStationPopup(station);
+                    window.handleStationClick(station);
                     return;
                 }
             }
@@ -6129,7 +6038,7 @@
             document.getElementById('routingClose2').onclick = closeRouting;
             
             document.getElementById('startNavBtn').onclick = () => {
-                startNavigation();
+                mapManager.toggleNavMode(true);
                 const closeRouting = () => {
                     document.getElementById('routingPanel').classList.remove('active');
                     if (routePolyline) {
@@ -6350,44 +6259,21 @@
                         const lat = parseFloat(item.getAttribute('data-lat'));
                         const lng = parseFloat(item.getAttribute('data-lng'));
                         const state = (item.getAttribute('data-state') || '').toString();
-                        if (map) {
+
+                        const station = allStations.find(s => {
+                            const props = s.properties || {};
+                            const sState = (props.state || '').toString();
+                            return Math.abs(s.geometry.coordinates[1] - lat) < 1e-6 &&
+                                   Math.abs(s.geometry.coordinates[0] - lng) < 1e-6 &&
+                                   sState === state;
+                        });
+
+                        if (station) {
+                            showStationPopup(station);
+                            window.handleStationClick(station);
+                        } else if (map) {
                             map.setView([lat, lng], 15);
                         }
-
-                        allMarkersArray.forEach(m => {
-                            const iconOpts = m.options && m.options.icon && m.options.icon.options;
-                            if (iconOpts && iconOpts.className === 'station-selected-icon') {
-                                if (m._baseIcon) {
-                                    m.setIcon(m._baseIcon);
-                                }
-                                m.setZIndexOffset(0);
-                            }
-                        });
-
-                        const selLat = lat;
-                        const selLng = lng;
-                        allMarkersArray.forEach(m => {
-                            const mLat = m.getLatLng().lat;
-                            const mLng = m.getLatLng().lng;
-                            const isSel = Math.abs(mLat - selLat) < 0.0001 &&
-                                          Math.abs(mLng - selLng) < 0.0001 &&
-                                          (m._stationState || '') === state;
-                            if (isSel) {
-                                const pulseIcon = L.divIcon({
-                                    html: `<div class="station-pulse-marker">
-                                            <div class="pulse-ring"></div>
-                                            <div class="pulse-core">
-                                                <svg viewBox="0 0 24 24" fill="black" style="width: 16px; height: 16px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                                            </div>
-                                           </div>`,
-                                    className: 'station-selected-icon',
-                                    iconSize: [40, 40],
-                                    iconAnchor: [20, 20]
-                                });
-                                m.setIcon(pulseIcon);
-                                m.setZIndexOffset(1000);
-                            }
-                        });
                     };
                 });
             };
@@ -6865,6 +6751,7 @@
             if (!navigationDestination) return;
             navigationActive = true;
             isNavigating = false; // Reset navigation movement state
+            mapManager.isNavigating = false;
             wasDarkBeforeNav = isDarkMode;
             
             // Phase 1: 2D Preparation (Leaflet)
@@ -6995,50 +6882,17 @@
             }
         }
 
-        function getTurnIcon(modifier) {
-            // Tesla-style: Bold, rounded, white stroke (via currentColor)
-            const style = 'fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"';
-            const size = 'style="width: 32px; height: 32px;"';
-            const svgStart = `<svg viewBox="0 0 24 24" ${style} ${size}>`;
-
-            if (modifier === 'arrive') {
-                return `<svg viewBox="0 0 24 24" fill="currentColor" style="width: 32px; height: 32px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`;
-            }
-            
-            let path;
-            if (modifier === 'uturn') {
-                 path = '<path d="M7 19v-7a4 4 0 0 1 8 0v7M7 19l-4-4M7 19l4-4"/>';
-            } else if (modifier.includes('sharp left')) {
-                path = '<path d="M18 20v-8a4 4 0 0 0-4-4H4M4 8l5-5M4 8l5 5"/>';
-            } else if (modifier.includes('slight left')) {
-                path = '<path d="M15 21v-8a6 6 0 0 0-6-6M9 7l-4-4 4-4"/>';
-            } else if (modifier.includes('left')) {
-                path = '<path d="M17 21v-8a4 4 0 0 0-4-4H5M5 9l5-5M5 9l5 5"/>';
-            } else if (modifier.includes('sharp right')) {
-                path = '<path d="M6 20v-8a4 4 0 0 1 4-4h10M20 8l-5-5M20 8l-5 5"/>';
-            } else if (modifier.includes('slight right')) {
-                path = '<path d="M9 21v-8a6 6 0 0 1 6-6M15 7l4-4-4-4"/>';
-            } else if (modifier.includes('right')) {
-                path = '<path d="M7 21v-8a4 4 0 0 1 4-4h8M19 9l-5-5M19 9l-5 5"/>';
-            } else {
-                // Straight
-                path = '<path d="M12 21V3M5 10l7-7 7 7"/>';
-            }
-
-            return `${svgStart}${path}</svg>`;
-        }
-
         function updateTurnInstruction(lat, lng) {
             if (!currentRouteSteps || currentRouteSteps.length === 0) return;
 
             // If we are at the last step
-            if (currentStepIndex >= currentRouteSteps.length - 1) {
-                 document.querySelector('.turn-instruction-icon').innerHTML = getTurnIcon('arrive');
-                 document.getElementById('turnInstructionText').textContent = 'Arriving at destination';
-                 const dist = getDistance(lat, lng, navigationDestination.lat, navigationDestination.lng);
-                 document.getElementById('turnDistanceText').textContent = (dist < 1) ? (dist * 1000).toFixed(0) + ' m' : dist.toFixed(1) + ' km';
-                 return;
-            }
+                if (currentStepIndex >= currentRouteSteps.length - 1) {
+                    document.querySelector('.turn-instruction-icon').innerHTML = getTurnIcon('arrive');
+                    document.getElementById('turnInstructionText').textContent = 'Arriving at destination';
+                    const dist = getDistance(lat, lng, navigationDestination.lat, navigationDestination.lng);
+                    document.getElementById('turnDistanceText').textContent = formatDistance(dist);
+                    return;
+                }
 
             const nextStep = currentRouteSteps[currentStepIndex + 1];
             const maneuverLoc = nextStep.maneuver.location; // [lng, lat]
@@ -7085,9 +6939,7 @@
             document.getElementById('turnInstructionText').textContent = text;
             
             // Update distance in the turn bar specifically (independent of HUD total distance)
-            document.getElementById('turnDistanceText').textContent = (distToManeuver < 1) ? 
-                (distToManeuver * 1000).toFixed(0) + ' m' : 
-                distToManeuver.toFixed(1) + ' km';
+            document.getElementById('turnDistanceText').textContent = formatDistance(distToManeuver);
         }
 
         let isNavTracking = true;
@@ -7138,60 +6990,7 @@
         let lastLockedPos = null;
 
         function updateNavMap(lat, lng, bearing) {
-            if (!navGlMap || !navGlMap.isStyleLoaded()) return;
-
-            const center = [lng, lat];
-            const now = performance.now();
-            if (lastNavCameraLat !== null && lastNavCameraLng !== null) {
-                const moveKm = getDistance(lat, lng, lastNavCameraLat, lastNavCameraLng);
-                if (moveKm < 0.01 && (now - lastNavCameraUpdateTime) < 200) {
-                    return;
-                }
-            }
-            
-            let effectiveBearing = bearing;
-
-            // Sync Marker with Route Shape: Calculate bearing if null
-            if ((effectiveBearing === null || effectiveBearing === undefined || isNaN(effectiveBearing)) && lastNavPos) {
-                 const dLon = (lng - lastNavPos.lng) * Math.PI / 180;
-                 const lat1 = lastNavPos.lat * Math.PI / 180;
-                 const lat2 = lat * Math.PI / 180;
-                 const y = Math.sin(dLon) * Math.cos(lat2);
-                 const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-                 const brng = Math.atan2(y, x) * 180 / Math.PI;
-                 effectiveBearing = (brng + 360) % 360;
-            }
-            lastNavPos = { lat, lng };
-            
-            // Default to current map bearing if still unknown
-            if (effectiveBearing === null || effectiveBearing === undefined || isNaN(effectiveBearing)) {
-                effectiveBearing = navGlMap.getBearing();
-            }
-
-            // Sync Marker Rotation IMMEDIATELY before ease
-            if (navGlMarker) {
-                navGlMarker.setLngLat(center);
-                navGlMarker.setRotation(effectiveBearing);
-            }
-
-            // Lock POV Parameters (Fix Zoom Out)
-            // Only force camera follow if guidance is active and user is moving/navigating
-            // The Lock: Prevent fitBounds from ever running if isGuidanceActive is true (handled by logic flow)
-            // But we also need to prevent this updateNavMap from overriding the fitBounds during Phase 1
-            if (isNavTracking && isGuidanceActive) {
-                navGlMap.easeTo({
-                    center: center,
-                    zoom: 18,
-                    pitch: 65,
-                    bearing: effectiveBearing,
-                    duration: 280,
-                    easing: (t) => t,
-                    essential: true
-                });
-                lastNavCameraUpdateTime = now;
-                lastNavCameraLat = lat;
-                lastNavCameraLng = lng;
-            }
+            mapManager.updateNavMap(lat, lng, bearing);
         }
 
         function beginTracking() {
@@ -7237,11 +7036,11 @@
             }
 
             geolocationWatchId = navigator.geolocation.watchPosition((pos) => {
-                if (!navigationActive) return;
+                if (!mapManager.navigationActive) return;
 
                 // Check for movement to start navigation
-                if (!isNavigating && pos.coords.speed !== null && pos.coords.speed > 0.5) {
-                    isNavigating = true;
+                if (!mapManager.isNavigating && pos.coords.speed !== null && pos.coords.speed > 0.5) {
+                    mapManager.isNavigating = true;
                     alignToRouteStart(); 
                 }
 
@@ -7353,7 +7152,7 @@
                 const dist = getDistance(userLocation.lat, userLocation.lng, navigationDestination.lat, navigationDestination.lng);
                 
                 // Update HUD distance
-                const distText = dist < 1 ? `${(dist * 1000).toFixed(0)} m` : `${dist.toFixed(1)} km`;
+                const distText = formatDistance(dist);
                 const hudDistanceEl = document.getElementById('hudDistance');
                 if (hudDistanceEl) hudDistanceEl.textContent = distText;
 
@@ -7860,15 +7659,18 @@
             }
         }, true);
 
-        setupIntroOverlay();
-        initSDK();
-        loadSavedAddresses();
+        window.setupSidePanelDrag = setupSidePanelDrag;
+        window.setupEventListeners = setupEventListeners;
+        window.setupIntroOverlay = setupIntroOverlay;
+        window.initMap = initMap;
+        window.onLocationFound = onLocationFound;
+        window.startNavigation = startNavigation;
+        window.getDirections = getDirections;
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(() => {});
-            });
-        }
+        window.addEventListener('DOMContentLoaded', () => {
+            mapManager.initMaps();
+            initUI();
+        });
     </script>
  </body>
 </html>
